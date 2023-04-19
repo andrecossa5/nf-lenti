@@ -1,0 +1,19 @@
+{
+
+    "perturb_sc_indir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/data/perturb_sc",
+    "perturb_bulk_out" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/data/perturb_bulk_out",
+    "perturb_sc_outdir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/results/perturb_sc",
+    "perturb_sc_pattern" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
+
+    "whitelist" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/v3.txt",
+    "ref" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/STARsolo_new/",
+
+    "tenx_indir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/data/tenx",
+    "tenx_outdir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/results/tenx",
+
+    "maester_indir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/data/maester",
+    "maester_outdir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/results/maester",
+    "maester_code_dir" : "/maegatk/maegatk",
+    "maester_min_reads" : 3
+
+}
