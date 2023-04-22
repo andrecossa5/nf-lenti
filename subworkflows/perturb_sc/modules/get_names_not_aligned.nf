@@ -6,6 +6,8 @@ nextflow.enable.dsl = 2
 
 process GET_NAMES_NOT_ALIGNED {
 
+  tag "${sample_name}"
+  
   input:
   tuple val(sample_name), path(all_reads), path(reads_aligned)
 
