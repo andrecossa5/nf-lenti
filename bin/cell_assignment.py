@@ -8,6 +8,32 @@ import matplotlib.pyplot as plt
 
 ##
 
+
+def cell_assignment(df, t):
+    """
+    Assing cells to GBCs.
+    """
+       
+    test = (df['read_counts'] > 30) & (df['umi_counts'] > 3) & (df['coverage'] > t)
+    df['status'] = np.where(test, 1, 0)
+
+    # Cell MOI tally 
+    cell_MOI = (
+        df.loc[:, ['CBC', 'GBC', 'status']]
+        .query('status == 1')
+        .groupby('CBC')
+        .sum()
+        .rename(columns={'status': 'multiplicity'})
+    )
+    # Filter uniquely assigned cells and get their unique GBC
+    uniquely_assigned_cells = cell_MOI.query('multiplicity == 1').index
+
+    return df, uniquely_assigned_cells
+
+
+##
+
+
 # Paths
 path_CBCs = sys.argv[1]
 path_UMIs = sys.argv[2]
@@ -31,8 +57,6 @@ df.columns = ['CBC', 'UMI', 'GBC']
 df = df.loc[aligned_names.index,:]
 df.to_csv('CBC_UMI_GBC_by_read.tsv.gz', sep='\t')
 
-# df = pd.read_csv('/Users/IEO5505/Desktop/CBC_UMI_GBC_by_read.tsv.gz', sep='\t')
-
 # Compute unique CBC-GBC combo table
 df_read_counts = df.groupby(['CBC', 'GBC']).size().to_frame('read_counts')
 df_umi_counts = df.reset_index().loc[:, ['CBC', 'GBC', 'UMI']].drop_duplicates().groupby(['CBC', 'GBC']).size().to_frame('umi_counts')
@@ -41,18 +65,13 @@ df_combos['coverage'] = df_combos['read_counts'] / df_combos['umi_counts']
 df_combos.to_csv('CBC_GBC_combos.tsv.gz', sep='\t')
 
 # Cell classification: from Adamson et al. 2016
-
-# Assigned and not-assigned CBC-GBC combos
-test = (df_combos['read_counts'] > 30) & \
-        (df_combos['umi_counts'] > 3) & \
-        (df_combos['coverage'] > 5) # TOTUNE
-df_combos['status'] = np.where(test, 1, 0)
-# Cell MOI tally 
-cell_MOI = df_combos.loc[:, ['CBC', 'GBC', 'status']
-    ].query('status == 1').groupby('CBC').sum(
-    ).rename(columns={'status': 'multiplicity'})
-# Filter uniquely assigned cells and get their unique GBC
-uniquely_assigned_cells = cell_MOI.query('multiplicity == 1').index
+L = []
+tresholds = np.arange(5, 100, 5)
+for t in tresholds:
+    _, assigned_cells = cell_assignment(df_combos, t)
+    L.append(len(assigned_cells))
+optimal_t = tresholds[np.argmax(L)]
+df_combos, uniquely_assigned_cells = cell_assignment(df_combos, optimal_t)
 
 # Cell assignment plot
 fig, ax = plt.subplots()
@@ -65,8 +84,13 @@ ax.legend()
 fig.savefig('CBC_GBC_combo_status.png')
 
 # Compute summary tables: cells 
-df_cells = df_combos.query('CBC in @uniquely_assigned_cells and status == 1').drop(
-    columns='status').set_index('CBC')
+df_cells = (
+    df_combos
+    .query('CBC in @uniquely_assigned_cells and status == 1')
+    .drop(columns='status')
+    .set_index('CBC')
+)
+
 # Assert we have taken the correct ones and save
 assert df_cells.index.size == uniquely_assigned_cells.size
 df_cells.to_csv('cells_summary_table.csv')
