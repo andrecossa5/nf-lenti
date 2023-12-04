@@ -12,7 +12,7 @@ process ASSEMBLE_FQ {
   tuple val(sample_name), path(R1), path(R2)
 
   output:
-  tuple val(sample_name), path("assembled_fastq.gz"), emit: fq
+  tuple val(sample_name), path("assembled.fastq.gz"), emit: fq
 
   script:
   """
@@ -21,7 +21,7 @@ process ASSEMBLE_FQ {
 
   stub:
   """
-  touch assembled_fastq.gz
+  touch assembled.fastq.gz
   """
 
 }
