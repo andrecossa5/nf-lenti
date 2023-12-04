@@ -42,7 +42,9 @@ process SOLO {
   mv Solo.out/Gene/* ./ &&
   rm -rf Solo.out &&
   gzip raw/*.tsv
+  gzip raw/*.mtx
   gzip filtered/*.tsv
+  gzip filtered/*.mtx
   """
 
   stub:

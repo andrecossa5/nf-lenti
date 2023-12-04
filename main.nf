@@ -1,57 +1,51 @@
-// MI_TO pipeline
+// mi_to_preprocessing
 nextflow.enable.dsl = 2
-include { perturb_sc } from "./subworkflows/perturb_sc/main"
-include { maester } from "./subworkflows/maester/main"
+include { bulk_gbc } from "./subworkflows/bulk_gbc/main"
 include { tenx } from "./subworkflows/tenx/main"
-
-// Perturb-seq input sc_fastqs 
-ch_perturb_sc = Channel
-    .fromPath("${params.perturb_sc_indir}/*", type:'dir') 
-    .map{ tuple(it.getName(), it) }
+include { sc_gbc } from "./subworkflows/sc_gbc/main"
+include { maester } from "./subworkflows/maester/main"
 
 //
 
-// MAESTER input sc_fastq
-ch_maester = Channel
-    .fromPath("${params.maester_indir}/*", type:'dir') 
+// Bulk DNA target GBC sequencing
+ch_bulk_gbc = Channel
+    .fromPath("${params.bulk_gbc_indir}/*", type:'dir') 
     .map{ tuple(it.getName(), it) }
 
-// 
-
-// 10x only input sc_fastqs
+// 10x expression data
 ch_tenx = Channel
-    .fromPath("${params.tenx_indir}/*", type:'dir') 
+    .fromPath("${params.sc_tenx_indir}/*", type:'dir') 
     .map{ tuple(it.getName(), it) }
 
+// 10x sub-library, from target GBC enrichment
+ch_sc_gbc = Channel
+    .fromPath("${params.sc_gbc_indir}/*", type:'dir')
+    .map{ tuple(it.getName(), it) }
+
+// MAESTER
+ch_maester = Channel
+    .fromPath("${params.sc_maester_indir}/*", type:'dir') 
+    .map{ tuple(it.getName(), it) }
+
+
 //
 
 //----------------------------------------------------------------------------//
-// Perturb-seq pipeline entry points and (mock) main workflow
+// mito_preprocessing pipeline: new version
 //----------------------------------------------------------------------------//
 
 //
 
-workflow tenx_only {
+workflow TENX {
 
     tenx(ch_tenx)
     tenx.out.filtered.view()
-    tenx.out.bam.view()
 
 }
 
 //
 
-workflow perturbseq_only {
-
-    perturb_sc(ch_perturb_sc)
-    perturb_sc.out.filtered.view()
-    perturb_sc.out.bam.view()
-
-}
-
-//
-
-workflow tenx_mito {
+workflow TENX_MITO {
 
     tenx(ch_tenx)
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
@@ -61,10 +55,28 @@ workflow tenx_mito {
 
 //
 
-workflow gbc_mito {
+workflow BULK_GBC {
+ 
+    bulk_gbc(ch_bulk_gbc)
+    bulk_gbc.out.flags.view()
 
-    perturb_sc(ch_perturb_sc)
-    maester(ch_maester, perturb_sc.out.filtered, perturb_sc.out.bam)
+}
+
+//
+
+workflow SC_GBC {
+
+    sc_gbc(ch_tenx, ch_sc_gbc)
+    sc_gbc.out.summary.view()
+
+}
+
+//
+
+workflow SC_GBC_MITO {
+
+    sc_gbc(ch_tenx, ch_sc_gbc)
+    maester(ch_maester, sc_gbc.out.filtered, sc_gbc.out.bam)
     maester.out.afm.view()
 
 }
