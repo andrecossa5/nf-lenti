@@ -16,7 +16,7 @@ process FIX_TAGS {
 
   script:
   """
-  python ${baseDir}/bin/fix_tags.py ${mitobam_no_UB_CB}
+  python ${baseDir}/bin/maester/fix_tags.py ${mitobam_no_UB_CB}
   """
 
   stub:

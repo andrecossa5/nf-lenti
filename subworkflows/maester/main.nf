@@ -65,6 +65,7 @@ workflow maester {
         INDEX(MERGE.out.mitobam)
         MAEGATK(INDEX.out.bam.combine(INDEX.out.index, by:0).combine(filtered, by:0))
         TO_H5AD(MAEGATK.out.output)
+        
         // Publish
         publish_input = INDEX.out.bam
             .combine(INDEX.out.index, by:0)

@@ -12,11 +12,11 @@ process ASSEMBLE_FQ {
   tuple val(sample_name), path(R1), path(R2)
 
   output:
-  tuple val(sample_name), path("assembled.fastq.gz"), emit: fq
+  tuple val(sample_name), path("assembled_fastq.gz"), emit: fq
 
   script:
   """
-  python ${baseDir}/bin/assemble_trim_fastq.py ${R1} ${R2} ${task.cpus}
+  python ${baseDir}/bin/maester/assemble_trim_fastq.py ${R1} ${R2} ${task.cpus}
   """
 
   stub:

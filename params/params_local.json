@@ -1,18 +1,31 @@
 {
 
-    "perturb_sc_indir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/data/perturb_sc",
-    "perturb_bulk_out" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/data/perturb_bulk_out",
-    "perturb_sc_outdir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/results/perturb_sc",
-    "perturb_sc_pattern" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
+    "bulk_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/bulk/",
+    "bulk_gbc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/bulk/",
+    "bulk_gbc_graph_clustering_hamming_treshold" : 3,
+    "bulk_gbc_min_n_reads" : 1000,
+    "bulk_gbc_anchor_sequence" : "GGGTTTAAACGGGCCCTCTAG",
+    "bulk_gbc_spikeins_table" : "/Users/IEO5505/Desktop/example_perturb/meta/spikeins_table.csv",
+    
+    "sc_tenx_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_tenx/",
+    "sc_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_gbc/",
+    "sc_maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/maester/",
+    "sc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/sc/",
 
-    "whitelist" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/v3.txt",
-    "ref" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/STARsolo_new/",
+    "ref" : "/Users/IEO5505/Desktop/example_mito/meta/ref",
+    "whitelist" : "/Users/IEO5505/Desktop/example_mito/meta/whitelist.txt",
 
-    "tenx_indir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/data/tenx",
-    "tenx_outdir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/results/tenx",
+    "gbc_sample_map" : "/Users/IEO5505/Desktop/example_mito/meta/sample_map.csv",
+    "sc_gbc_anchor_sequence" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
+    "sc_gbc_anchor_treshold" : 1,
+    "bulk_sc_treshold" : 1,
+    "umi_treshold" : 3,
+    "read_treshold" : 15,
+    "coverage_treshold" : 5,
+    "ratio_to_most_abundant_treshold" : 0.3,
 
-    "maester_indir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/data/maester",
-    "maester_outdir" : "/Users/IEO5505/Desktop/example_MITO_preprocessing/results/maester",
+    "maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/maester",
+    "maester_outdir" : "/Users/IEO5505/Desktop/example_mito/results/maester",
     "maester_code_dir" : "/maegatk/maegatk",
     "maester_min_reads" : 3
 

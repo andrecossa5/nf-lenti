@@ -4,13 +4,16 @@
 nextflow.enable.dsl = 2
 include { MERGE_R1 } from "../maester/modules/merge_R1.nf"
 include { MERGE_R2 } from "../maester/modules/merge_R2.nf"
-include { SOLO } from "../perturb_sc/modules/Solo.nf"
+include { SOLO } from "../sc_gbc/modules/Solo.nf"
 
 // 
 
 process publish_tenx {
 
-    publishDir "${params.tenx_outdir}/${sample}/", mode: 'copy'
+    tag "${sample_name}"
+
+    // Publish
+    publishDir "${params.sc_outdir}/${sample_name}/", mode: 'copy'
 
     input:
     tuple val(sample_name),
@@ -29,7 +32,7 @@ process publish_tenx {
 
     script:
     """
-    echo moving everything to ${params.tenx_outdir}
+    echo moving everything to ${params.sc_outdir}
     """
 
 }

@@ -18,7 +18,7 @@ process MAEGATK {
   """
   zcat ./filtered/barcodes.tsv.gz > ./barcodes.txt
 
-  python ${baseDir}/bin/maegatk_cli.py \
+  python ${baseDir}/bin/maester/maegatk_cli.py \
   ${params.maester_code_dir} \
   ${mitobam} \
   ${task.cpus} \
