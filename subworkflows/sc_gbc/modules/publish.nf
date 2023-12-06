@@ -13,7 +13,6 @@ process publish_sc {
     tuple val(sample_name), 
           path(CBC_GBC), 
           path(CBC_GBC_plot), 
-          path(occurrences),
           path(cells_summary), 
           path(clones_summary), 
           path(bam), 
@@ -34,7 +33,6 @@ process publish_sc {
     path summary
     path filtered
     path run_summary
-    path occurrences
 
     script:
     """

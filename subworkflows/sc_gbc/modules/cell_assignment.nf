@@ -15,7 +15,6 @@ process CELL_ASSIGNMENT {
   tuple val(sample_name), path("CBC_GBC_combos.tsv.gz"), emit: CBC_GBC_combos
   tuple val(sample_name), path("clones_summary_table.csv"), emit: clones_summary
   tuple val(sample_name), path("cells_summary_table.csv"), emit: cells_summary
-  tuple val(sample_name), path("occurrences.csv"), emit: occurrences
   tuple val(sample_name), path("CBC_GBC_combo_status.png"), emit: plot
 
   script: 
@@ -40,7 +39,6 @@ process CELL_ASSIGNMENT {
   touch clones_summary_table.csv
   touch cells_summary_table.csv
   touch CBC_GBC_combo_status.png
-  touch occurrences.csv
   """
 
 }

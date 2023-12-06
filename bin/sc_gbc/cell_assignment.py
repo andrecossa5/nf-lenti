@@ -91,24 +91,24 @@ my_parser.add_argument(
 my_parser.add_argument(
     '--read_treshold',
     type=int,
-    default=15,
-    help='Min number of reads to consider a CB-GBC combination supported. Default: 15.'
+    default=30,
+    help='Min number of reads to consider a CB-GBC combination supported. Default: 30.'
 )
 
 # Spikeins
 my_parser.add_argument(
     '--coverage_treshold',
     type=int,
-    default=3,
-    help='Min coverage (nUMIs / nreads) to consider a CB-GBC combination supported. Default: 3.'
+    default=10,
+    help='Min coverage (nUMIs / nreads) to consider a CB-GBC combination supported. Default: 10.'
 )
 
 # ratio_to_most_abundant_treshold
 my_parser.add_argument(
     '--ratio_to_most_abundant_treshold',
     type=float,
-    default=3,
-    help='Min coverage (nUMIs / nreads) to consider a CB-GBC combination supported. Default: 3.'
+    default=.5,
+    help='Min coverage (nUMIs / nreads) to consider a CB-GBC combination supported. Default: .5.'
 )
 
 
@@ -132,21 +132,6 @@ ratio_to_most_abundant_treshold = args.ratio_to_most_abundant_treshold
 
 ##
 
-# path_sc = '/Users/IEO5505/Desktop/PD/tmp_sc/GBC_read_elements.tsv.gz'
-# sample = 'X'
-# path_bulk = '/Users/IEO5505/Desktop/PD/tmp_bulk/bulk_GBC_reference.csv'
-# path_sample_map = None
-# method = 'unique_combos'
-# ncores = 8
-# bulk_sc_treshold = 1
-# umi_treshold = 5
-# read_treshold = 30
-# coverage_treshold = 10
-# ratio_to_most_abundant_treshold = .3
-# os.chdir('/Users/IEO5505/Desktop/PD/tmp_sc')
-
-##
-
 
 # Utils
 def to_numeric(X):
@@ -156,17 +141,13 @@ def to_numeric(X):
 ##
 
 
-def call_clones(
-    df_combos, sample=sample,
-    read_treshold=read_treshold, umi_treshold=umi_treshold,
-    coverage_treshold=coverage_treshold, 
-    ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold
-    ):
+
+# Utils
+def filter_and_pivot(df_combos, read_treshold=30, umi_treshold=5, 
+                    coverage_treshold=10, ratio_to_most_abundant_treshold=.5):
     """
-    Call clones as unique GBC sequence sets, obtained from a
-    table of CBC-UMI-GBC combinations, filtered properly. 
-    """    
-    
+    Filter a CBC-UMI-GBC table and return it in large format.
+    """
     # Supported and unsupported CBC-GBC combinations
     test = (df_combos['read_counts'] >= read_treshold) & \
         (df_combos['umi_counts'] >= umi_treshold) & \
@@ -182,7 +163,16 @@ def call_clones(
     )
     M[M.isna()] = 0
 
-    # Get unique GBC sets
+    return M
+
+
+##
+
+
+def get_clones(M):
+    """
+    Get the clone dataframe for each sample.
+    """
     cells_with_unique_combos = M.apply(lambda x: frozenset(M.columns[x>0]), axis=1)
     cells_with_unique_combos = cells_with_unique_combos.map(lambda x: ';'.join(x))
     clones = (
@@ -191,11 +181,12 @@ def call_clones(
         .value_counts(normalize=False)
         .to_frame('n cells').reset_index()
         .rename(columns={'index':'GBC_set'})
-        .assign(clone=lambda x: [ f'C{i}_{sample}' for i in range(x.shape[0]) ])
+        .assign(clone=lambda x: [ f'C{i}' for i in range(x.shape[0]) ])
         .set_index('clone')
     )
+    clones['prevalence'] = clones['n cells'] / clones['n cells'].sum()
 
-    return clones, cells_with_unique_combos
+    return clones
 
 
 ##
@@ -206,7 +197,6 @@ import pandas as pd
 import numpy as np
 import pandas as pd
 from sklearn.metrics import pairwise_distances
-from itertools import chain
 import matplotlib.pyplot as plt
 
 
@@ -297,41 +287,31 @@ def main():
 
 
     # Cell assignment
-
-    # Call clones
-    clones, cells_with_unique_combos = call_clones(
-        df_combos, sample=sample,
-        read_treshold=read_treshold, 
-        umi_treshold=umi_treshold, 
-        coverage_treshold=coverage_treshold, 
+    M = filter_and_pivot(
+        df_combos,
+        read_treshold=read_treshold,
+        umi_treshold=umi_treshold,
+        coverage_treshold=coverage_treshold,
         ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold
     )
-    combos = clones['GBC_set'].map(lambda x: x.split(';')).to_list()
-    unique_GBC = np.unique(list(chain.from_iterable(combos)))
+    unique_cells = (M>0).sum(axis=1).loc[lambda x: x==1].index
+    filtered_M = M.loc[unique_cells]
+    clones_df = get_clones(filtered_M)
 
-    # Calculate GBC sequences occurrences across these sets
-    occurrences = np.zeros((unique_GBC.size, unique_GBC.size))
-    for i,x in enumerate(unique_GBC):
-        for j,y in enumerate(unique_GBC):
-            if any([ x in c and y in c for c in combos ]):
-                occurrences[i,j] = 1
-    occurrences = pd.DataFrame(occurrences, index=unique_GBC, columns=unique_GBC)
-
-    # Assign cells to a GBC_set (i.e., clone)
-    cells = (
-        cells_with_unique_combos
-        .map(lambda x: clones.index[clones['GBC_set']==x][0])
-        .to_frame('clone')
+    # Assign cells to clones
+    cells_df = (
+        filtered_M.
+        apply(lambda x: filtered_M.columns[x>0][0], axis=1)
+        .to_frame('GBC_set')
     )
+
+    # Save
+    clones_df.to_csv('clones_summary_table.csv')
+    cells_df.to_csv('cells_summary_table.csv')
 
 
     ##
-    
 
-    # Save clones, cells and GBC co-occurrences
-    clones.to_csv('clones_summary_table.csv')
-    cells.to_csv('cells_summary_table.csv')
-    occurrences.to_csv('occurrences.csv')
 
     # Combinations support plot
     fig, ax = plt.subplots(figsize=(6,5))
