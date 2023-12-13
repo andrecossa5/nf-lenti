@@ -16,8 +16,9 @@ process GET_LENTIBAM {
 
   script:
   """
+  samtools index -@ ${task.cpus} ${bam}
   samtools view -b ${bam} lentiCassette > lentibam.bam
-  samtools index lentibam 
+  samtools index -@ ${task.cpus} lentibam.bam
   """
 
   stub:
