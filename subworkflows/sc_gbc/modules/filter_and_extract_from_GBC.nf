@@ -9,7 +9,7 @@ process GET_GBC_ELEMENTS {
   tag "${sample_name}"
    
   input:
-  tuple val(sample_name), path(R1), path(R2), path(filtered)
+  tuple val(sample_name), path(lentibam), path(filtered)
 
   output:
   tuple val(sample_name),  path('GBC_read_elements.tsv'), emit: elements
@@ -17,7 +17,7 @@ process GET_GBC_ELEMENTS {
   script:
   """
   python ${baseDir}/bin/sc_gbc/get_CBC_GBC_UMI.py \
-  ${R1} ${R2} ${filtered} ${params.sc_gbc_anchor_sequence} ${params.sc_gbc_anchor_treshold}
+  ${lentibam} ${filtered} ${params.sc_gbc_anchor_sequence} ${params.sc_gbc_anchor_treshold}
   """
 
   stub:

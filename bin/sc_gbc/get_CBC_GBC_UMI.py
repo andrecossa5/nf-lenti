@@ -2,8 +2,8 @@
 
 import os
 import sys
+import pysam
 import pandas as pd
-import dnaio 
 from scipy.spatial.distance import hamming
 
 
@@ -11,11 +11,10 @@ from scipy.spatial.distance import hamming
 
 
 # Paths
-path_R1_in = sys.argv[1]
-path_R2_in = sys.argv[2]
-path_filtered = sys.argv[3]
-anchor = sys.argv[4]
-treshold = sys.argv[5]
+path_bam = sys.argv[1]
+path_filtered = sys.argv[2]
+anchor = sys.argv[3]
+treshold = sys.argv[4]
 
 
 ##
@@ -27,28 +26,27 @@ solo_CBCs = pd.read_csv(
     header=None, index_col=0
 )
 
-# Open stream fqs and .txt files
-fqs_in = dnaio.open(path_R1_in, file2=path_R2_in, mode='r')
+# Dictionary for rev complement
+d_rev = {'A':'T', 'G':'C', 'T':'A', 'C':'G', 'N':'N'}
+
+# Read bam and parse records
+bam_in = pysam.AlignmentFile(path_bam, 'rb')
 el = open('GBC_read_elements.tsv', 'w')
 
-# Parse danio stream and write with a single for loop
-for r1,r2 in fqs_in:
-    name = r1.name
-    cbc = r1.sequence[:16]
-    umi = r1.sequence[16:16+12]
-    a_ = r2.sequence[:33]
-    gbc = r2.sequence[33:33+18]
+for r in bam_in:
+    name = r.query_name
+    seq = ''.join([ d_rev[x] for x in reversed(r.seq) ])
+    a_ = seq[:33]
+    gbc = r.seq[33:33+18]
+    umi = r.get_tag('UB')
+    cbc = r.get_tag('CB')
     h = hamming(list(a_), list(anchor)) * 33
     if h <= int(treshold) and cbc in solo_CBCs.index:
         el.write(f'@{name}\t{cbc}\t{umi}\t{gbc}\n')
 
 # Close streams
-fqs_in.close()
+bam_in.close()
 el.close()
-
-
-##
-
 
 
 

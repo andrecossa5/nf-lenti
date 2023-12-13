@@ -11,15 +11,10 @@ include { maester } from "./subworkflows/maester/main"
 ch_bulk_gbc = Channel
     .fromPath("${params.bulk_gbc_indir}/*", type:'dir') 
     .map{ tuple(it.getName(), it) }
-
-// 10x expression data
-ch_tenx = Channel
-    .fromPath("${params.sc_tenx_indir}/*", type:'dir') 
-    .map{ tuple(it.getName(), it) }
-
-// 10x sub-library, from target GBC enrichment
-ch_sc_gbc = Channel
-    .fromPath("${params.sc_gbc_indir}/*", type:'dir')
+    
+// 10x and GBC data, single-cell
+ch_sc = Channel
+    .fromPath("${params.sc_indir}/*", type:'dir')
     .map{ tuple(it.getName(), it) }
 
 // MAESTER
@@ -38,7 +33,7 @@ ch_maester = Channel
 
 workflow TENX {
 
-    tenx(ch_tenx)
+    tenx(ch_sc)
     tenx.out.filtered.view()
 
 }
@@ -47,7 +42,7 @@ workflow TENX {
 
 workflow TENX_MITO {
 
-    tenx(ch_tenx)
+    tenx(ch_sc)
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
     maester.out.afm.view()
 
@@ -66,7 +61,7 @@ workflow BULK_GBC {
 
 workflow SC_GBC {
 
-    sc_gbc(ch_tenx, ch_sc_gbc)
+    sc_gbc(ch_sc)
     sc_gbc.out.summary.view()
 
 }
@@ -75,7 +70,7 @@ workflow SC_GBC {
 
 workflow SC_GBC_MITO {
 
-    sc_gbc(ch_tenx, ch_sc_gbc)
+    sc_gbc(ch_sc)
     maester(ch_maester, sc_gbc.out.filtered, sc_gbc.out.bam)
     maester.out.afm.view()
 

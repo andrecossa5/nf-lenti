@@ -7,8 +7,7 @@
     "bulk_gbc_anchor_sequence" : "GGGTTTAAACGGGCCCTCTAG",
     "bulk_gbc_spikeins_table" : "/Users/IEO5505/Desktop/example_perturb/meta/spikeins_table.csv",
     
-    "sc_tenx_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_tenx/",
-    "sc_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_gbc/",
+    "sc_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc/",
     "sc_maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/maester/",
     "sc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/sc/",
 
