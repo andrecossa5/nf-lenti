@@ -3,7 +3,8 @@
 nextflow.enable.dsl = 2
 
 // Include here
-include { MERGE_FQ } from "./modules/merge_fq.nf"
+include { MERGE_R1 } from "../maester/modules/merge_R1.nf"
+include { MERGE_R2 } from "../maester/modules/merge_R2.nf"
 include { SOLO } from "./modules/Solo.nf"
 include { GET_GBC_ELEMENTS } from "./modules/filter_and_extract_from_GBC.nf"
 include { GET_LENTIBAM } from "./modules/get_lentibam.nf"
@@ -17,15 +18,14 @@ include { publish_sc } from "./modules/publish.nf"
 workflow sc_gbc {
     
     take:
-        ch_sc
+        ch_input
 
     main:
  
-        // Merge reads
-        MERGE_FQ(ch_sc)
-
-        // STARSolo
-        SOLO(MERGE_FQ.out.reads)
+        // Merge reads and Solo
+        MERGE_R1(ch_input)
+        MERGE_R2(ch_input)
+        SOLO(MERGE_R1.out.R1.combine(MERGE_R2.out.R2, by:0))
  
         // Assign cells to clones
         GET_LENTIBAM(SOLO.out.bam)
@@ -33,7 +33,7 @@ workflow sc_gbc {
         CELL_ASSIGNMENT(GET_GBC_ELEMENTS.out.elements)
 
         // Summary
-        summary_input = MERGE_FQ.out.reads.map{ it -> tuple(it[0], it[1]) }
+        summary_input = MERGE_R1.out.R1.map{ it -> tuple(it[0], it[1]) }
             .combine(GET_GBC_ELEMENTS.out.elements, by:0)
             .combine(SOLO.out.filtered, by:0)
             .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
