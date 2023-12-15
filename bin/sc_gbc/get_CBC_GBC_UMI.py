@@ -17,12 +17,24 @@ anchor = sys.argv[3]
 treshold = sys.argv[4]
 
 
+path_ = '/Users/IEO5505/Desktop/example_mito/scratch_data'
+
+# os.listdir(path_)
+# path_bam = os.path.join(path_, 'lenti.bam')
+# path_filtered = os.path.join(path_, 'barcodes.tsv.gz')
+# anchor = 'TAGCAAACTGGGGCACAAGCTTAATTAAGAATT'
+# treshold = 1
+
+
+
+
 ##
 
 
 # Read Solo-filtered CBCs 
 solo_CBCs = pd.read_csv(
-    os.path.join(path_filtered, 'barcodes.tsv.gz'), 
+    path_filtered,
+    # os.path.join(path_filtered, 'barcodes.tsv.gz'), 
     header=None, index_col=0
 )
 
@@ -31,7 +43,7 @@ d_rev = {'A':'T', 'G':'C', 'T':'A', 'C':'G', 'N':'N'}
 
 # Read bam and parse records
 bam_in = pysam.AlignmentFile(path_bam, 'rb')
-el = open('GBC_read_elements.tsv', 'w')
+el = open(os.path.join(path_, 'GBC_read_elements.tsv'), 'w')
 
 for r in bam_in:
     name = r.query_name

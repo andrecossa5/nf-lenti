@@ -207,7 +207,7 @@ import matplotlib.pyplot as plt
 
 def main():
 
-    # Get the right reference sequences from bulk_GBC_reference
+    # Get the right reference sequences from bulk_GBC_reference 
     bulk = pd.read_csv(
         os.path.join(path_bulk, 'summary', 'bulk_GBC_reference.csv'),
         index_col=0
