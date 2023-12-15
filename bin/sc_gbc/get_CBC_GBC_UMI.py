@@ -17,15 +17,12 @@ anchor = sys.argv[3]
 treshold = sys.argv[4]
 
 
-path_ = '/Users/IEO5505/Desktop/example_mito/scratch_data'
-
+# path_ = '/Users/IEO5505/Desktop/example_mito/scratch_data'
 # os.listdir(path_)
-# path_bam = os.path.join(path_, 'lenti.bam')
+# path_bam = os.path.join(path_, 'lentibam.bam')
 # path_filtered = os.path.join(path_, 'barcodes.tsv.gz')
 # anchor = 'TAGCAAACTGGGGCACAAGCTTAATTAAGAATT'
 # treshold = 1
-
-
 
 
 ##
@@ -34,21 +31,17 @@ path_ = '/Users/IEO5505/Desktop/example_mito/scratch_data'
 # Read Solo-filtered CBCs 
 solo_CBCs = pd.read_csv(
     path_filtered,
-    # os.path.join(path_filtered, 'barcodes.tsv.gz'), 
+    os.path.join(path_filtered, 'barcodes.tsv.gz'), 
     header=None, index_col=0
 )
 
-# Dictionary for rev complement
-d_rev = {'A':'T', 'G':'C', 'T':'A', 'C':'G', 'N':'N'}
-
 # Read bam and parse records
 bam_in = pysam.AlignmentFile(path_bam, 'rb')
-el = open(os.path.join(path_, 'GBC_read_elements.tsv'), 'w')
+el = open('GBC_read_elements.tsv', 'w')
 
 for r in bam_in:
     name = r.query_name
-    seq = ''.join([ d_rev[x] for x in reversed(r.seq) ])
-    a_ = seq[:33]
+    a_ = r.seq[:33]
     gbc = r.seq[33:33+18]
     umi = r.get_tag('UB')
     cbc = r.get_tag('CB')
@@ -61,5 +54,4 @@ bam_in.close()
 el.close()
 
 
-
-
+##
