@@ -30,7 +30,6 @@ treshold = sys.argv[4]
 
 # Read Solo-filtered CBCs 
 solo_CBCs = pd.read_csv(
-    path_filtered,
     os.path.join(path_filtered, 'barcodes.tsv.gz'), 
     header=None, index_col=0
 )
