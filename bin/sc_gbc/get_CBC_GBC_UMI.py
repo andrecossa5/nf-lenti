@@ -17,14 +17,6 @@ anchor = sys.argv[3]
 treshold = sys.argv[4]
 
 
-# path_ = '/Users/IEO5505/Desktop/example_mito/scratch_data'
-# os.listdir(path_)
-# path_bam = os.path.join(path_, 'lentibam.bam')
-# path_filtered = os.path.join(path_, 'barcodes.tsv.gz')
-# anchor = 'TAGCAAACTGGGGCACAAGCTTAATTAAGAATT'
-# treshold = 1
-
-
 ##
 
 

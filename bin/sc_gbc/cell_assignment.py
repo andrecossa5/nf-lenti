@@ -200,6 +200,14 @@ from sklearn.metrics import pairwise_distances
 import matplotlib.pyplot as plt
 
 
+# path_ = '/Users/IEO5505/Desktop/example_mito/scratch_data'
+# os.listdir(path_)
+# path_sample_map = os.path.join(path_, 'sample_map.csv')
+# path_sc = os.path.join(path_, 'GBC_read_elements.tsv')
+# sample = 'NT_NT_PTs_2'
+# bulk_sc_treshold = 1
+
+
 ##
 
 
@@ -209,6 +217,7 @@ def main():
 
     # Get the right reference sequences from bulk_GBC_reference 
     bulk = pd.read_csv(
+        # os.path.join(path_, 'bulk_GBC_reference.csv'), 
         os.path.join(path_bulk, 'summary', 'bulk_GBC_reference.csv'),
         index_col=0
     )
