@@ -18,21 +18,21 @@ process publish_sc {
           path(cell_assignment_summary),
           path(bam), 
           path(stats),
-          path(run_summary), 
+          path(alignment_summary), 
           path(filtered), 
-          path(raw), 
+          path(raw),
           path(run_summary)
 
     output:
-    path raw
     path CBC_GBC
     path CBC_GBC_plot
     path cells_summary
     path clones_summary
     path bam
     path stats
-    path summary
+    path raw
     path filtered
+    path alignment_summary
     path run_summary
     path cell_assignment_summary
 
