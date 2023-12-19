@@ -15,9 +15,10 @@ process publish_sc {
           path(CBC_GBC_plot), 
           path(cells_summary), 
           path(clones_summary), 
+          path(cell_assignment_summary),
           path(bam), 
           path(stats),
-          path(summary), 
+          path(run_summary), 
           path(filtered), 
           path(raw), 
           path(run_summary)
@@ -33,6 +34,7 @@ process publish_sc {
     path summary
     path filtered
     path run_summary
+    path cell_assignment_summary
 
     script:
     """

@@ -45,6 +45,7 @@ workflow sc_gbc {
             .combine(CELL_ASSIGNMENT.out.plot, by:0)
             .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
             .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)
+            .combine(CELL_ASSIGNMENT.out.summary, by:0)
             .combine(SOLO.out.bam, by:0)
             .combine(SOLO.out.stats, by:0)
             .combine(SOLO.out.summary, by:0)
