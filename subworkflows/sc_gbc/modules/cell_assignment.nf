@@ -24,7 +24,7 @@ process CELL_ASSIGNMENT {
   --sample ${sample_name} \
   --path_bulk ${params.bulk_gbc_outdir} \
   --path_sc ${elements} \
-  --method ${params.cell_assignment_method}
+  --method ${params.cell_assignment_method} \
   --sample_map ${params.gbc_sample_map} \
   --ncores ${task.cpus} \
   --bulk_correction_treshold ${params.bulk_correction_treshold} \
