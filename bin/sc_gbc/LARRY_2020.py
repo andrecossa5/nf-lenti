@@ -202,8 +202,8 @@ def LARRY_2020_workflow(path_bulk, path_sample_map, path_sc, sample,
     bulk = df_bulk.loc[list(common)]['read_count'] / df_bulk.loc[list(common)]['read_count'].sum()
     corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
     f.write('# Individual GBC sequences\n')
-    f.write(f'- n GBC bulk ({df_bulk.shape[0]}) vs sc ({df_combos["GBC"].unique().size})')
-    f.write(f'- n common GBC: {len(common)}')
+    f.write(f'- n GBC bulk ({df_bulk.shape[0]}) vs sc ({df_combos["GBC"].unique().size})\n')
+    f.write(f'- n common GBC: {len(common)}\n')
     f.write(f'- Fraction of bulk GBC found in sc: {df_bulk.index.isin(df_combos["GBC"].unique()).sum()/df_bulk.shape[0]:.2f}\n')
     f.write(f'- Correlation pseudobulk (sc, RNA) and bulk (DNA) normalized read counts, common GBCs: {corr:.2f}\n')
     f.write(f'\n')
