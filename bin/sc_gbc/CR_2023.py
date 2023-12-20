@@ -31,7 +31,7 @@ def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8, bul
     # Get the right reference sequences from bulk_GBC_reference 
     if path_bulk is not None:
         bulk = pd.read_csv(
-            os.path.join(path_bulk),#, 'summary', 'bulk_GBC_reference.csv'),
+            os.path.join(path_bulk, 'summary', 'bulk_GBC_reference.csv'),
             index_col=0
         )
     else:
