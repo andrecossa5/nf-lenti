@@ -204,11 +204,11 @@ def CR_2023_workflow(
     )
 
     # General checks
-    f.write('# General checks\n')
-    f.write(f'- Unique GBC post correction: {df_combos["GBC"].unique().size}\n')
-    f.write(f'- n unsupported CBC-GBC combos: {(df_combos["status"]=="unsupported").sum()}\n')
-    f.write(f'- n supported CBC-GBC combos: {(df_combos["status"]=="supported").sum()}\n')
-    f.write(f'- Observed MOI: {(M>0).sum(axis=1).median():.2f} median, (+-{(M>0).sum(axis=1).std():.2f})\n')
+    f.write('# General checks \n')
+    f.write(f'- Unique, "good" GBCs, post correction (with bulk reference whitelist): {df_combos["GBC"].unique().size}\n')
+    f.write(f'- n unsupported CBC-GBC combos (N.B. only good GBCs): {(df_combos["status"]=="unsupported").sum()}\n')
+    f.write(f'- n supported CBC-GBC combos (N.B. only good GBCs): {(df_combos["status"]=="supported").sum()}\n')
+    f.write(f'- Observed MOI (from supported CBC-GBC combos only): {(M>0).sum(axis=1).median():.2f} median, (+-{(M>0).sum(axis=1).std():.2f})\n')
     f.write(f'\n')
 
     # Relationship with bulk (GBC sequences) checks
@@ -216,10 +216,10 @@ def CR_2023_workflow(
     pseudobulk_sc = pseudobulk_sc.sort_values(ascending=False)
     bulk = df_bulk.loc[pseudobulk_sc.index]['read_count'] / df_bulk.loc[pseudobulk_sc.index]['read_count'].sum()
     corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
-    f.write('# Individual GBC sequences\n')
-    f.write(f'- n GBC bulk ({df_bulk.shape[0]}) vs sc ({df_combos["GBC"].unique().size})\n')
-    f.write(f'- Fraction of bulk GBC found in sc: {df_bulk.index.isin(df_combos["GBC"].unique()).sum()/df_bulk.shape[0]:.2f}\n')
-    f.write(f'- Correlation pseudobulk (sc, RNA) and bulk (DNA) normalized read counts, common GBCs: {corr:.2f}\n')
+    f.write('# Individual "good" GBC sequences checks\n')
+    f.write(f'- n "good" GBC sequences, bulk ({df_bulk.shape[0]}) vs sc ({df_combos["GBC"].unique().size})\n')
+    f.write(f'- Fraction of bulk GBCs found in sc: {df_bulk.index.isin(df_combos["GBC"].unique()).sum()/df_bulk.shape[0]:.2f}\n')
+    f.write(f'- Common GBCs abundance (normalized nUMIs from pseudobulk scRNA-seq vs normalized read counts from bulk DNA-seq) correlation: {corr:.2f}\n')
     f.write(f'\n')
 
     # GBC sets checks
@@ -227,13 +227,13 @@ def CR_2023_workflow(
     GBC_set = list(chain.from_iterable(sets['GBC_set'].map(lambda x: x.split(';')).to_list()))
     redundancy = 1-np.unique(GBC_set).size/len(GBC_set)
     occurences = pd.Series(GBC_set).value_counts().sort_values(ascending=False)
-    f.write('# GBC sets\n')
-    f.write(f'- Unique GBC combinations: {sets.shape[0]}\n')
-    f.write(f'- Unique GBCs in these combinations: {len(GBC_set)}\n')
-    f.write(f'- GBCs redundancy across combinations: {redundancy:.2f}\n')
-    f.write(f'- GBCs occurrences across combinations: {occurences.median():.2f} (+- {occurences.std():.2f})\n')
-    f.write('- Ratio between cell counts assigned to a single GBC (top 10 highly recurrent GBCs, "frequent flyers") \n')
-    f.write('  and the total cell counts of ohter ambiguous, possibly related GBC_sets (i.e., GBC_sets containing the given GBC + other ones)\n')
+    f.write('# GBC sets (i.e. "good" GBCs combinations which are supported in a given cell subset) checks \n')
+    f.write(f'- Unique GBCs sets: {sets.shape[0]}\n')
+    f.write(f'- Unique GBCs in these sets: {np.unique(GBC_set).size}\n')
+    f.write(f'- GBCs redundancy across sets: {redundancy:.2f}\n')
+    f.write(f'- GBCs occurrences across sets: {occurences.median():.2f} (+- {occurences.std():.2f})\n')
+    f.write('- Ratio between cell counts assigned to a single GBC (top 10 highly-recurrent GBCs, or "frequent flyers") \n')
+    f.write('  and the total cell counts of other "ambiguous", possibly related GBC_sets (i.e., GBC sets containing the given GBC combined with other ones).\n')
     for i,x in enumerate(occurences.index[:10]):
         clone = sets.iloc[i,1]
         total = sets.loc[sets['GBC_set'].str.contains(x)]['n cells'].sum()
@@ -252,12 +252,12 @@ def CR_2023_workflow(
 
     # Final clones checks
     corr = np.corrcoef(clones_df.set_index('GBC_set')['prevalence'], bulk.loc[clones_df['GBC_set']])[0,1]
-    f.write('# Final clones (uniquely barcoded cells only) \n')
+    f.write('# Final clones (i.e., distinct populations of uniquely barcoded cells only) checks \n')
     f.write(f'- n starting CBC (STARSolo): {df_combos["CBC"].unique().size}\n')
     f.write(f'- n uniquely barcoded cells: {cells_df.shape[0]}\n')
     f.write(f'- n clones: {clones_df.shape[0]}\n')
     f.write(f'- n clones>=10 cells: {clones_df["n cells"].loc[lambda x:x>=10].size}\n')
-    f.write(f'- Correlation clone prevalences vs bulk prevalences: {corr:.2f}\n')
+    f.write(f'- sc vs bulk prevalence correlation: {corr:.2f}\n')
     f.write(f'\n')
 
     # Save
@@ -290,7 +290,7 @@ def CR_2023_workflow(
     ##
 
 
-    f.write(f'- Execution time: {T.stop()}')
+    f.write(f'- Execution time: {T.stop()}\n')
     f.close()
 
 
