@@ -54,14 +54,6 @@ my_parser.add_argument(
 
 # treshold
 my_parser.add_argument(
-    '--method',
-    type=str,
-    default='unique_combos',
-    help='Method for clone calling and cell assignment. Default: unique_combos.'
-)
-
-# treshold
-my_parser.add_argument(
     '--ncores',
     type=int,
     default=8,
