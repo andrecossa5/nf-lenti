@@ -29,6 +29,7 @@ process SOLO {
     --outSAMtype BAM SortedByCoordinate \
     --limitBAMsortRAM 50000000000 \
     --outBAMsortingBinsN 200 \
+    --outBAMsortingThreadN 1 \
     --outSAMattributes NH HI nM AS CR UR CB UB \
     --soloType CB_UMI_Simple \
     --soloBarcodeReadLength 28 \
