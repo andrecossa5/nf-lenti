@@ -42,7 +42,8 @@ workflow sc_gbc {
 
         // Publishing
         publish_input = CELL_ASSIGNMENT.out.CBC_GBC_combos
-            .combine(CELL_ASSIGNMENT.out.plot, by:0)
+            .combine(CELL_ASSIGNMENT.out.combo_plot, by:0)
+            .combine(CELL_ASSIGNMENT.out.combo_dist, by:0)
             .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
             .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)
             .combine(CELL_ASSIGNMENT.out.summary, by:0)

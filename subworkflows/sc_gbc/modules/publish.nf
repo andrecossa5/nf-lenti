@@ -13,6 +13,7 @@ process publish_sc {
     tuple val(sample_name), 
           path(CBC_GBC), 
           path(CBC_GBC_plot), 
+          path(CBC_GBC_UMI_plot), 
           path(cells_summary), 
           path(clones_summary), 
           path(cell_assignment_summary),
@@ -26,6 +27,7 @@ process publish_sc {
     output:
     path CBC_GBC
     path CBC_GBC_plot
+    path CBC_GBC_UMI_plot
     path cells_summary
     path clones_summary
     path bam

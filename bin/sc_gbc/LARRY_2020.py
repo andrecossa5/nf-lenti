@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from plotting_utils._utils import Timer
+from plotting_utils._plotting_base import *
 from itertools import chain
 
 
@@ -29,7 +30,7 @@ def get_combos_LARRY2020(path_bulk, path_sample_map, sample, path_sc,
     # Get the right reference sequences from bulk_GBC_reference 
     if path_bulk is not None:
         bulk = pd.read_csv(
-            os.path.join(path_bulk, 'summary', 'bulk_GBC_reference.csv'),
+            os.path.join(path_bulk),#, 'summary', 'bulk_GBC_reference.csv'),
             index_col=0
         )
     else:
@@ -57,15 +58,25 @@ def get_combos_LARRY2020(path_bulk, path_sample_map, sample, path_sc,
     sc_df = pd.read_csv(path_sc, sep='\t', header=None, dtype='str')
     sc_df.columns = ['name', 'CBC', 'UMI', 'GBC']
     d_rev = {'A':'T', 'G':'C', 'T':'A', 'C':'G', 'N':'N'}
-    sc_df['GBC'] = sc_df['GBC'].map(lambda x: ''.join([ d_rev[x] for x in reversed(x) ]))                                                              
+    sc_df['GBC'] = sc_df['GBC'].map(lambda x: ''.join([ d_rev[x] for x in reversed(x) ]))  
+
+    # Count CBC-GBC-UMI combinations
+    counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
+
+    # Viz distribution n reads
+    fig, ax = plt.subplots(figsize=(5,5))
+    counts['log'] = np.log(counts['count'])/np.log(10)
+    hist(counts, 'log', c='k', ax=ax, n=50)
+    format_ax(
+        xticks=np.logspace(0,4,5), ax=ax, xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
+        title='CBC-GBC-UMI combination n reads distribution'
+    )
+    ax.set_yscale('log')
+    ax.axvline(np.log(10)/np.log(10),c='r')
+    fig.tight_layout()
 
     # Filter CBC-GBC-UMI combos for min n reads
-    filtered = (
-        sc_df
-        .groupby(['CBC', 'GBC', 'UMI']).size()
-        .reset_index(name='count')
-        .loc[lambda x: x['count']>=coverage_treshold]
-    )                                                       
+    filtered = counts.query('count>=@coverage_treshold')                                                      
     sc_df = pd.merge(
         sc_df, 
         filtered[['CBC', 'GBC', 'UMI']], 
@@ -73,9 +84,7 @@ def get_combos_LARRY2020(path_bulk, path_sample_map, sample, path_sc,
         how='inner'
     )                                                                                                               
 
-
     ##
-
 
     # Build correction map
     all_gfp_bcs = sorted(set([x for x in sc_df['GBC'].unique()]))
@@ -105,7 +114,7 @@ def get_combos_LARRY2020(path_bulk, path_sample_map, sample, path_sc,
         ).reset_index()
     )
 
-    return df_combos, bulk
+    return df_combos, bulk, fig
 
 
 ##
@@ -178,10 +187,13 @@ def LARRY_2020_workflow(path_bulk, path_sample_map, path_sc, sample,
     f.write(f'\n')
 
     # Get CBC-GBC combos
-    df_combos, df_bulk = get_combos_LARRY2020(
+    df_combos, df_bulk, fig = get_combos_LARRY2020(
         path_bulk, path_sample_map, sample, path_sc, 
-        sc_correction_treshold=sc_correction_treshold, coverage_treshold=coverage_treshold
+        sc_correction_treshold=sc_correction_treshold, 
+        coverage_treshold=coverage_treshold
     )
+    fig.savefig('CBC_GBC_UMI_read_distribution.png')
+
 
     # Filter combos and pivot
     M, df_combos = filter_and_pivot_LARRY2020(df_combos, read_treshold=read_treshold, umi_treshold=umi_treshold)

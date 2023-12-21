@@ -15,8 +15,9 @@ process CELL_ASSIGNMENT {
   tuple val(sample_name), path("CBC_GBC_combos.tsv.gz"), emit: CBC_GBC_combos
   tuple val(sample_name), path("clones_summary_table.csv"), emit: clones_summary
   tuple val(sample_name), path("cells_summary_table.csv"), emit: cells_summary
-  tuple val(sample_name), path("CBC_GBC_combo_status.png"), emit: plot
+  tuple val(sample_name), path("CBC_GBC_combo_status.png"), emit: combo_plot
   tuple val(sample_name), path("clone_calling_summary.txt"), emit: summary
+  tuple val(sample_name), path("CBC_GBC_UMI_read_distribution.png"), emit: combo_dist
 
   script: 
   """
@@ -43,6 +44,7 @@ process CELL_ASSIGNMENT {
   touch cells_summary_table.csv
   touch CBC_GBC_combo_status.png
   touch clone_calling_summary.txt
+  touch CBC_GBC_UMI_read_distribution.png
   """
 
 }

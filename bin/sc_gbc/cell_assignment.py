@@ -141,18 +141,18 @@ umi_treshold = args.umi_treshold
 coverage_treshold = args.coverage_treshold
 ratio_to_most_abundant_treshold = args.ratio_to_most_abundant_treshold
 
-# sample = 'NT_NT_PTs_2'
-# path_bulk = '/Users/IEO5505/Desktop/example_mito/scratch_data/bulk_GBC_reference.csv'
-# path_sample_map = '/Users/IEO5505/Desktop/example_mito/scratch_data/sample_map.csv'
-# path_sc = '/Users/IEO5505/Desktop/example_mito/scratch_data/GBC_read_elements.tsv'
-# method = 'CR_2023'
-# ncores = 8
-# bulk_correction_treshold = 1
-# sc_correction_treshold = 3
-# read_treshold = 30
-# umi_treshold = 5
-# coverage_treshold = 10
-# ratio_to_most_abundant_treshold = .3
+sample = 'NT_NT_PTs_2'
+path_bulk = '/Users/IEO5505/Desktop/example_mito/scratch_data/bulk_GBC_reference.csv'
+path_sample_map = '/Users/IEO5505/Desktop/example_mito/scratch_data/sample_map.csv'
+path_sc = '/Users/IEO5505/Desktop/example_mito/scratch_data/GBC_read_elements.tsv'
+method = 'CR_2023'
+ncores = 8
+bulk_correction_treshold = 1
+sc_correction_treshold = 3
+read_treshold = 30
+umi_treshold = 5
+coverage_treshold = 10
+ratio_to_most_abundant_treshold = .3
 
 # Import code
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))

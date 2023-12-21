@@ -10,6 +10,7 @@ from sklearn.metrics import pairwise_distances
 import matplotlib.pyplot as plt
 from itertools import chain
 from plotting_utils._utils import Timer
+from plotting_utils._plotting_base import *
 
 
 ##
@@ -22,7 +23,8 @@ def to_numeric(X):
 ##
 
 
-def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8, bulk_correction_treshold=1):
+def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8, 
+    bulk_correction_treshold=1, coverage_treshold=10):
     """
     Create a table of CBC-UMI-GBC combinations from single-cell data, after correcting 
     GBCs with a bulk reference.
@@ -56,8 +58,21 @@ def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8, bul
     sc_df.columns = ['name', 'CBC', 'UMI', 'GBC']
     d_rev = {'A':'T', 'G':'C', 'T':'A', 'C':'G', 'N':'N'}
     sc_df['GBC'] = sc_df['GBC'].map(lambda x: ''.join([ d_rev[x] for x in reversed(x) ]))
-    sc = sc_df['GBC'].value_counts()
 
+    # Count CBC-GBC-UMI combinations
+    counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
+
+    # Viz distribution n reads
+    fig, ax = plt.subplots(figsize=(5,5))
+    counts['log'] = np.log(counts['count'])/np.log(10)
+    hist(counts, 'log', c='k', ax=ax, n=50)
+    format_ax(
+        xticks=np.logspace(0,4,5), ax=ax, xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
+        title='CBC-GBC-UMI combination n reads distribution'
+    )
+    ax.set_yscale('log')
+    ax.axvline(np.log(coverage_treshold)/np.log(10),c='r')
+    fig.tight_layout()
  
     ##
 
@@ -65,6 +80,7 @@ def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8, bul
     # Map sc GBCs to bulk GBCs
 
     # Calculate hamming distance single-cell GBCs vs bulk reference GBCs
+    sc = sc_df['GBC'].value_counts()
     sc_numeric = to_numeric(np.vstack(sc.index.map(lambda x: np.array(list(x)))))
     bulk_numeric = to_numeric(np.vstack(bulk.index.map(lambda x: np.array(list(x)))))
     D = pairwise_distances(
@@ -83,14 +99,18 @@ def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8, bul
         ['correct_GBC'].to_dict()
     )
     # Correct GBC sequences and remove not found ones
-    sc_df['GBC'] = sc_df['GBC'].map(lambda x: d_corr[x] if x in d_corr else 'not_found' )
-    grouped = sc_df.query('GBC!="not_found"').groupby(['CBC', 'GBC'])
+    sc_df['GBC'] = (
+        sc_df['GBC']
+        .map(lambda x: d_corr[x] if x in d_corr else 'not_found')
+        .query('GBC!="not_found"')
+    )
 
     
     ##
 
 
     # Compute sc CBC-GBCs combos and related stats
+    grouped = sc_df.groupby(['CBC', 'GBC'])
     read_counts = grouped.size().to_frame('read_counts')
     umi_counts = grouped['UMI'].nunique().to_frame('umi_counts')
     df_combos = (
@@ -107,7 +127,7 @@ def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8, bul
         .to_frame('ratio_to_most_abundant')
     )
 
-    return df_combos, bulk
+    return df_combos, bulk, fig
 
 
 ##
@@ -185,14 +205,16 @@ def CR_2023_workflow(
     f.write(f'  * ratio_to_most_abundant_treshold: {ratio_to_most_abundant_treshold}\n')
     f.write(f'\n')
 
-    df_combos, df_bulk = get_combos_CR2023(
+    df_combos, df_bulk, fig = get_combos_CR2023(
         path_bulk, 
         path_sample_map, 
         path_sc, 
         sample, 
         ncores=ncores, 
-        bulk_correction_treshold=bulk_correction_treshold
+        bulk_correction_treshold=bulk_correction_treshold,
+        coverage_treshold=coverage_treshold
     )
+    fig.savefig('CBC_GBC_UMI_read_distribution.png')
         
     # Filter CBC_GBC combos and pivot 
     M, df_combos = filter_and_pivot_CR2023(
