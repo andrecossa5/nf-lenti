@@ -16,7 +16,7 @@ process SOLO {
   tuple val(sample_name), path('filtered'), emit: filtered 
   tuple val(sample_name), path('Features.stats'), emit: stats 
   tuple val(sample_name), path('Summary.csv'), emit: summary 
-  tuple val(sample_name), path('Aligned.sortedByCoord.out.bam'), emit: bam 
+  tuple val(sample_name), path('Aligned.out.bam'), emit: bam 
 
   script:
   """
@@ -26,11 +26,13 @@ process SOLO {
     --readFilesIn ${transcript_R2} ${transcript_R1} \
     --readFilesCommand zcat \
     --outTmpDir tmp \
-    --outSAMtype BAM SortedByCoordinate \
-    --limitBAMsortRAM 100000000000 \
-    --outBAMsortingBinsN 200 \
-    --outBAMsortingThreadN 2 \
-    --outSAMattributes NH HI nM AS CR UR CB UB \
+    --outSAMtype BAM Unsorted \
+    # --outSAMtype BAM SortedByCoordinate \
+    # --limitBAMsortRAM 100000000000 \
+    # --outBAMsortingBinsN 200 \
+    # --outBAMsortingThreadN 2 \
+    --outSAMattributes NH HI nM AS CR UR \
+    # --outSAMattributes NH HI nM AS CR UR CB UB \
     --soloType CB_UMI_Simple \
     --soloBarcodeReadLength 28 \
     --soloCBstart 1 \
@@ -56,7 +58,8 @@ process SOLO {
   touch filtered
   touch Features.stats 
   touch Summary.csv
-  touch Aligned.sortedByCoord.out.bam
+  touch Aligned.out.bam
+  # touch Aligned.sortedByCoord.out.bam
   """
 
 }
