@@ -99,11 +99,8 @@ def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8,
         ['correct_GBC'].to_dict()
     )
     # Correct GBC sequences and remove not found ones
-    sc_df['GBC'] = (
-        sc_df['GBC']
-        .map(lambda x: d_corr[x] if x in d_corr else 'not_found')
-        .query('GBC!="not_found"')
-    )
+    sc_df['GBC'] = sc_df['GBC'].map(lambda x: d_corr[x] if x in d_corr else 'not_found')
+    sc_df = sc_df.query('GBC!="not_found"')
 
     
     ##
