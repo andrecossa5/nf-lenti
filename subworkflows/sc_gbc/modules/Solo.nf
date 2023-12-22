@@ -27,12 +27,7 @@ process SOLO {
     --readFilesCommand zcat \
     --outTmpDir tmp \
     --outSAMtype BAM Unsorted \
-    # --outSAMtype BAM SortedByCoordinate \
-    # --limitBAMsortRAM 100000000000 \
-    # --outBAMsortingBinsN 200 \
-    # --outBAMsortingThreadN 2 \
     --outSAMattributes NH HI nM AS CR UR \
-    # --outSAMattributes NH HI nM AS CR UR CB UB \
     --soloType CB_UMI_Simple \
     --soloBarcodeReadLength 28 \
     --soloCBstart 1 \
@@ -59,7 +54,6 @@ process SOLO {
   touch Features.stats 
   touch Summary.csv
   touch Aligned.out.bam
-  # touch Aligned.sortedByCoord.out.bam
   """
 
 }

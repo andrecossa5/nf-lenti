@@ -29,7 +29,7 @@ workflow sc_gbc {
  
         // Assign cells to clones
         GET_LENTIBAM(SOLO.out.bam)
-        GET_GBC_ELEMENTS(GET_LENTIBAM.out.lentibam.combine(SOLO.out.filtered, by:0))
+        GET_GBC_ELEMENTS(GET_LENTIBAM.out.lentiviral_records.combine(SOLO.out.filtered, by:0))
         CELL_ASSIGNMENT(GET_GBC_ELEMENTS.out.elements)
 
         // Summary

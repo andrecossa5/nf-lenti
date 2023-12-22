@@ -12,21 +12,20 @@ process GET_LENTIBAM {
   tuple val(sample_name), path(bam)
 
   output:
-  tuple val(sample_name), path("lentibam.bam"), emit: lentibam
+  tuple val(sample_name), path("grepped.txt.gz"), emit: lentiviral_records
 
   script:
   """
-  samtools sort -@ ${task.cpus} ${bam}
-  samtools index -@ ${task.cpus} ${bam}
-  samtools view -b ${bam} lentiCassette > lentibam.bam
-  samtools index -@ ${task.cpus} lentibam.bam
+  samtools view -h ${bam} \
+  | grep lentiCassette \
+  | pigz --fast -p ${task.cpus} \
+  > grepped.txt.gz
   """
 
   stub:
   """
   echo ${sample_name} > sample
-  touch lentibam.bam
-  touch lentibam.bam.bai
+  touch grepped.txt.gz
   """
 
 }
