@@ -141,11 +141,11 @@ umi_treshold = args.umi_treshold
 coverage_treshold = args.coverage_treshold
 ratio_to_most_abundant_treshold = args.ratio_to_most_abundant_treshold
 
-# sample = 'NT_NT_PTs_2'
+# sample = 'AC_NT_mets_2'
 # path_bulk = '/Users/IEO5505/Desktop/example_mito/scratch_data/bulk_GBC_reference.csv'
 # path_sample_map = '/Users/IEO5505/Desktop/example_mito/scratch_data/sample_map.csv'
 # path_sc = '/Users/IEO5505/Desktop/example_mito/scratch_data/GBC_read_elements.tsv.gz'
-# method = 'CR_2023'
+# method = 'LARRY_2020'
 # ncores = 8
 # bulk_correction_treshold = 1
 # sc_correction_treshold = 3
@@ -171,33 +171,47 @@ def main():
     # GBC correction, clone calling and cell assignment
     if method == 'CR_2023':
 
-        # Roda and Cossa et al. 2023, Cancer Research (Dixit and Adamson 2016, Cell)
-        CR_2023_workflow(
-            path_bulk, 
-            path_sample_map, 
-            path_sc, 
-            sample, 
-            ncores, 
-            bulk_correction_treshold=bulk_correction_treshold,
-            read_treshold=read_treshold, 
-            umi_treshold=umi_treshold, 
-            coverage_treshold=coverage_treshold,
-            ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold
-        )
+        try: 
+            # Roda and Cossa et al. 2023, Cancer Research (Dixit and Adamson 2016, Cell)
+            CR_2023_workflow(
+                path_bulk, 
+                path_sample_map, 
+                path_sc, 
+                sample, 
+                ncores, 
+                bulk_correction_treshold=bulk_correction_treshold,
+                read_treshold=read_treshold, 
+                umi_treshold=umi_treshold, 
+                coverage_treshold=coverage_treshold,
+                ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold
+            )
+        except:
+            raise Exception(
+                f'''
+                Some problem has been encoutered with the CR_2023_workflow for the {sample} sample...
+                '''
+            )
     
     elif method == 'LARRY_2020':
 
-        # Weinreb et al. 2020, Science
-        LARRY_2020_workflow(
-            path_bulk, 
-            path_sample_map, 
-            path_sc, 
-            sample, 
-            sc_correction_treshold=sc_correction_treshold,
-            read_treshold=read_treshold, 
-            umi_treshold=umi_treshold, 
-            coverage_treshold=coverage_treshold
-        )
+        try: 
+            # Weinreb et al. 2020, Science
+            LARRY_2020_workflow(
+                path_bulk, 
+                path_sample_map, 
+                path_sc, 
+                sample, 
+                sc_correction_treshold=sc_correction_treshold,
+                read_treshold=read_treshold, 
+                umi_treshold=umi_treshold, 
+                coverage_treshold=coverage_treshold
+            )
+        except:
+            raise Exception(
+                f'''
+                Some problem has been encoutered with the LARRY_2020_workflow for the {sample} sample...
+                '''
+            )
 
     else:
         raise ValueError(f'The {method} method is not supported...')

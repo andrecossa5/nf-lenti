@@ -245,18 +245,19 @@ def CR_2023_workflow(
     sets = get_clones(M)
     GBC_set = list(chain.from_iterable(sets['GBC_set'].map(lambda x: x.split(';')).to_list()))
     redundancy = 1-np.unique(GBC_set).size/len(GBC_set)
-    occurences = pd.Series(GBC_set).value_counts().sort_values(ascending=False)
+    occurrences = pd.Series(GBC_set).value_counts().sort_values(ascending=False)
     f.write('# GBC sets (i.e. "good" GBCs combinations which are supported in a given cell subset) checks \n')
     f.write(f'- Unique GBCs sets: {sets.shape[0]}\n')
     f.write(f'- Unique GBCs in these sets: {np.unique(GBC_set).size}\n')
     f.write(f'- GBCs redundancy across sets: {redundancy:.2f}\n')
-    f.write(f'- GBCs occurrences across sets: {occurences.median():.2f} (+- {occurences.std():.2f})\n')
+    f.write(f'- GBCs occurrences across sets: {occurrences.median():.2f} (+- {occurrences.std():.2f})\n')
     f.write('- Ratio between cell counts assigned to a single GBC (top 10 highly-recurrent GBCs, or "frequent flyers") \n')
     f.write('  and the total cell counts of other "ambiguous", possibly related GBC_sets (i.e., GBC sets containing the given GBC combined with other ones).\n')
-    for i,x in enumerate(occurences.index[:10]):
+    n = min([occurrences.size, sets.shape[0], 10])
+    for i,x in enumerate(occurrences.index[:n]):
         clone = sets.iloc[i,1]
         total = sets.loc[sets['GBC_set'].str.contains(x)]['n cells'].sum()
-        f.write(    f'  -> GBC {i+1} ({x}): occurences {occurences[i]}; cell_count ratio: {clone/total:.2f}\n')
+        f.write(    f'  -> GBC {i+1} ({x}): occurences {occurrences[i]}; cell_count ratio: {clone/total:.2f}\n')
     f.write(f'\n')
 
     # Get clones (unique GBC only here) and cells tables
