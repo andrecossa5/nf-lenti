@@ -31,6 +31,7 @@ process CELL_ASSIGNMENT {
   --umi_treshold ${params.umi_treshold} \
   --p_treshold ${params.p_treshold} \
   --coverage_treshold ${params.coverage_treshold} \
+  --coverage_choice ${params.choice} \
   --ratio_to_most_abundant_treshold ${params.ratio_to_most_abundant_treshold} \
   """
 

@@ -83,8 +83,22 @@ my_parser.add_argument(
 my_parser.add_argument(
     '--coverage_treshold',
     type=int,
-    default="auto",
-    help='Min coverage (i.e., n reads) to consider a CBC-GBC-UMI combination supported. Default: "auto".'
+    default=10,
+    help='Min coverage (i.e., n reads) to consider a CBC-GBC-UMI combination supported. Default: 10.'
+)
+
+# Spikeins
+my_parser.add_argument(
+    '--coverage_choice',
+    type=str,
+    default=None,
+    help='Method to choose a coverage treshold. Default: None.'
+)
+
+my_parser.add_argument(
+    '--from_subset', 
+    action='store_true',
+    help='If the qc needs to be done of a subsetted .h5ad matrix. Default: False.'
 )
 
 # p_treshold
@@ -117,6 +131,7 @@ ncores = args.ncores
 bulk_correction_treshold = args.bulk_correction_treshold
 umi_treshold = args.umi_treshold
 coverage_treshold = args.coverage_treshold
+coverage_choice = args.coverage_treshold
 p_treshold = args.p_treshold
 ratio_to_most_abundant_treshold = args.ratio_to_most_abundant_treshold
 
@@ -157,6 +172,7 @@ def main():
         * Nadalin et al., pre-print on biorxiv 2023
         """
 
+        coverage_treshold = coverage_treshold if coverage_choice is not "auto" else "auto"
         custom_workflow(
             path_bulk, 
             path_sample_map, 
