@@ -160,6 +160,8 @@ from helpers import *
 
 def main():
 
+    # Fix treshold
+    coverage_treshold = coverage_treshold if coverage_choice is not "auto" else "auto"
 
     try: 
 
@@ -172,7 +174,6 @@ def main():
         * Nadalin et al., pre-print on biorxiv 2023
         """
 
-        coverage_treshold = coverage_treshold if coverage_choice is not "auto" else "auto"
         custom_workflow(
             path_bulk, 
             path_sample_map, 
