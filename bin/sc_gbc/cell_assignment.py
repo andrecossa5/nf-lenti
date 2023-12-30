@@ -83,8 +83,8 @@ my_parser.add_argument(
 my_parser.add_argument(
     '--coverage_treshold',
     type=int,
-    default=None,
-    help='Min coverage (i.e., n reads) to consider a CBC-GBC-UMI combination supported. Default: None.'
+    default="auto",
+    help='Min coverage (i.e., n reads) to consider a CBC-GBC-UMI combination supported. Default: "auto".'
 )
 
 # p_treshold
@@ -127,7 +127,7 @@ ratio_to_most_abundant_treshold = args.ratio_to_most_abundant_treshold
 # ncores = 8
 # bulk_correction_treshold = 1
 # umi_treshold = 5
-# coverage_treshold = 50
+# coverage_treshold = "auto"
 # p_treshold = 0.001
 # ratio_to_most_abundant_treshold = .3
 

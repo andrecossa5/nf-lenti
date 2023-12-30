@@ -169,7 +169,7 @@ def filter_and_pivot(df_combos, umi_treshold=5, p_treshold=.001, ratio_to_most_a
 
     # Supported and unsupported CBC-GBC combinations
     test = (df_combos['umi'] >= umi_treshold) & \
-        (df_combos['p'] >= p_treshold) & \
+        (df_combos['p'] <= p_treshold) & \
         (df_combos['max_ratio'] >= ratio_to_most_abundant_treshold)
     df_combos['status'] = np.where(test, 'supported', 'unsupported')
 
@@ -282,7 +282,8 @@ def custom_workflow(
     f.write(f'- Unique GBCs in these sets: {np.unique(GBC_set).size}\n')
     f.write(f'- GBCs redundancy across sets: {redundancy:.2f}\n')
     f.write(f'- GBCs occurrences across sets: {occurrences.median():.2f} (+- {occurrences.std():.2f})\n')
-
+    f.write(f'\n')
+    
     ## 
 
     # Get clones (from cell with 1 single GBC only here) and cells tables
