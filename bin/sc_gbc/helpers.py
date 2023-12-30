@@ -1,6 +1,6 @@
 """
-Utils for clone calling and cell assignment as in the original perturb seq paper: Dixit 2016, Adamson 2016, 
-Roda and Cossa 2023.
+Utils for custom cell_assignement. Brings together elements from LARRY_2020, CR_2023 and
+other (pre-)pubblication works.
 """
 
 import os
@@ -8,9 +8,10 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import pairwise_distances
 import matplotlib.pyplot as plt
+from scipy.stats import poisson
 from itertools import chain
-from plotting_utils._utils import Timer
 from plotting_utils._plotting_base import *
+from plotting_utils._utils import Timer
 
 
 ##
@@ -23,8 +24,10 @@ def to_numeric(X):
 ##
 
 
-def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8, 
-    bulk_correction_treshold=1, coverage_treshold=10):
+def get_CBC_GBC_combos(
+    path_bulk, path_sample_map, path_sc, sample, ncores=8, 
+    bulk_correction_treshold=1, coverage_treshold="auto"
+    ):
     """
     Create a table of CBC-UMI-GBC combinations from single-cell data, after correcting 
     GBCs with a bulk reference.
@@ -61,19 +64,22 @@ def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8,
 
     # Count CBC-GBC-UMI combinations
     counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
+    medstd = counts['count'].median() + counts['count'].std()
+    coverage_treshold = coverage_treshold if coverage_treshold is not "auto" else medstd
 
     # Viz distribution n reads
-    fig, ax = plt.subplots(figsize=(5,5))
+    fig, axs = plt.subplots(1,2,figsize=(10,5))
+
     counts['log'] = np.log(counts['count'])/np.log(10)
-    hist(counts, 'log', c='k', ax=ax, n=50)
+    hist(counts, 'log', c='k', ax=axs[0], n=50, a=.7)
     format_ax(
-        xticks=np.logspace(0,4,5), ax=ax, xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
-        title='CBC-GBC-UMI combination n reads distribution'
+        xticks=np.logspace(0,4,5), ax=axs[0], xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
+        title='CBC-GBC-UMI combination \n n reads distribution before GBC correction'
     )
-    ax.set_yscale('log')
-    ax.axvline(np.log(coverage_treshold)/np.log(10),c='r')
-    fig.tight_layout()
+    axs[0].set_yscale('log')
+    axs[0].axvline(np.log(coverage_treshold)/np.log(10), c='r', linewith=3, linesyle='--')
  
+
     ##
 
     
@@ -87,8 +93,7 @@ def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8,
         sc_numeric, bulk_numeric, metric='hamming', n_jobs=int(ncores)
     ) * sc_numeric.shape[1]
 
-    # Build a correction dict for sc GBCs at hamming distance <= bulk_sc_treshold
-    # from a bulk one.
+    # Build a correction dict for sc GBCs at hamming distance <= bulk_sc_treshold from a bulk one.
     d_corr = (
         sc.to_frame('read_count')
         .assign(
@@ -102,26 +107,39 @@ def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8,
     sc_df['GBC'] = sc_df['GBC'].map(lambda x: d_corr[x] if x in d_corr else 'not_found')
     sc_df = sc_df.query('GBC!="not_found"')
 
-    
-    ##
+    # Count again
+    del counts
+    counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
+    medstd = counts['count'].median() + counts['count'].std()
+    coverage_treshold = coverage_treshold if coverage_treshold is not "auto" else medstd
 
-
-    # Compute sc CBC-GBCs combos and related stats
-    grouped = sc_df.groupby(['CBC', 'GBC'])
-    read_counts = grouped.size().to_frame('read_counts')
-    umi_counts = grouped['UMI'].nunique().to_frame('umi_counts')
-    df_combos = (
-        read_counts
-        .join(umi_counts)
-        .reset_index()
-        .assign(coverage=lambda x: x['read_counts']/x['umi_counts'])
+    # Viz distribution n reads, after correction
+    counts['log'] = np.log(counts['count'])/np.log(10)
+    hist(counts, 'log', c='k', ax=axs[1], n=50, a=.7)
+    format_ax(
+        xticks=np.logspace(0,4,5), ax=axs[1], xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
+        title='CBC-GBC-UMI combination \n n reads distribution after GBC correction'
     )
-    df_combos = df_combos.join(
-        df_combos
-        .groupby('CBC')
-        .apply(lambda x: x['umi_counts'] / x['umi_counts'].max())
-        .droplevel(0)
-        .to_frame('ratio_to_most_abundant')
+    axs[1].set_yscale('log')
+    axs[1].axvline(np.log(coverage_treshold)/np.log(10), c='r', linewith=3, linesyle='--')
+    fig.tight_layout()
+
+    # Compute CBC-GBC combos with filtered UMIs, and related stats
+    filtered = counts.query('count>=@coverage_treshold')
+    df_combos = (
+        pd.merge(
+            sc_df, filtered[['CBC', 'GBC', 'UMI']],
+            on=['CBC', 'GBC', 'UMI'], how='inner'
+        )
+        .groupby(['CBC', 'GBC'])['UMI']
+        .nunique().to_frame('umi')
+        .reset_index()
+        .assign(
+            max_ratio=lambda x: \
+            x.groupby('CBC')['umi'].transform(lambda x: x/x.max()),
+            normalized_abundance=lambda x: \
+            x.groupby('CBC')['umi'].transform(lambda x: x/x.sum())
+        )
     )
 
     return df_combos, bulk, fig
@@ -130,19 +148,34 @@ def get_combos_CR2023(path_bulk, path_sample_map, path_sc, sample, ncores=8,
 ##
 
 
-def filter_and_pivot_CR2023(df_combos, read_treshold=30, umi_treshold=5, 
-                    coverage_treshold=10, ratio_to_most_abundant_treshold=.5):
+def filter_and_pivot(df_combos, umi_treshold=5, p_treshold=.001, ratio_to_most_abundant_treshold=.3):
     """
-    Filter a CBC-UMI-GBC table and return it in large format.
+    Filter a CBC-GBC-UMI table and return it in large format.
     """
+
+    # p of observing higher counts than the observed ones, assuming UMI counts are Poisson distributed
+    avg_gbc = df_combos.groupby('GBC')['umi'].median()
+    p_poisson = []
+    for i in range(df_combos.shape[0]):
+        x = df_combos.iloc[i,:]
+        gbc = x['GBC']
+        obs = x['umi']
+        exp = avg_gbc.loc[gbc]
+        p = 1-poisson.cdf(obs-1, mu=exp)
+        p_poisson.append(p)
+    df_combos['p'] = p_poisson
+    df_combos['logp'] = -np.log10(p_poisson)
+    df_combos['logumi'] = np.log10(df_combos['umi'])
+
+    ##
+
     # Supported and unsupported CBC-GBC combinations
-    test = (df_combos['read_counts'] >= read_treshold) & \
-        (df_combos['umi_counts'] >= umi_treshold) & \
-        (df_combos['coverage'] >= coverage_treshold) & \
-        (df_combos['ratio_to_most_abundant'] >= ratio_to_most_abundant_treshold)
+    test = (df_combos['umi'] >= umi_treshold) & \
+        (df_combos['p'] >= p_treshold) & \
+        (df_combos['max_ratio'] >= ratio_to_most_abundant_treshold)
     df_combos['status'] = np.where(test, 'supported', 'unsupported')
 
-    # Pivot
+    # Filter and pivot
     M = (
         df_combos
         .query('status=="supported"')
@@ -179,30 +212,31 @@ def get_clones(M):
 ##
 
 
-def CR_2023_workflow(
-    path_bulk, path_sample_map, path_sc, sample, ncores, bulk_correction_treshold=1, 
-    read_treshold=30, umi_treshold=5, coverage_treshold=10, ratio_to_most_abundant_treshold=.3
+def custom_workflow(
+    path_bulk, path_sample_map, path_sc, sample, ncores=8, bulk_correction_treshold=1, 
+    coverage_treshold=None, umi_treshold=5, p_treshold=.001, ratio_to_most_abundant_treshold=.3
     ):
     """
     Complete clone calling workflow.
-    Read bulk and single-cell data, correct sc GBCs with the bulk reference, obtain a df with CBC-GBC combos.
+    Read bulk and single-cell data, correct sc GBCs with the bulk reference, obtain a df with CBC-GBC combinations,
+    filter them and assign cells to their clonal labels.
     """
 
     T = Timer()
 
     T.start()
     f = open('clone_calling_summary.txt', 'w')
-    f.write(f'# CR_2023 clone calling and cell assignment workflow: \n')
+    f.write(f'# Custom clone calling and cell assignment workflow: \n')
     f.write(f'\n')
     f.write(f'Input params:\n')
     f.write(f'  * bulk_correction_treshold: {bulk_correction_treshold}\n')
-    f.write(f'  * read_treshold: {read_treshold}\n')
-    f.write(f'  * umi_treshold: {umi_treshold}\n')
     f.write(f'  * coverage_treshold: {coverage_treshold}\n')
+    f.write(f'  * umi_treshold: {umi_treshold}\n')
+    f.write(f'  * p_treshold: {p_treshold}\n')
     f.write(f'  * ratio_to_most_abundant_treshold: {ratio_to_most_abundant_treshold}\n')
     f.write(f'\n')
 
-    df_combos, df_bulk, fig = get_combos_CR2023(
+    df_combos, df_bulk, fig = get_CBC_GBC_combos(
         path_bulk, 
         path_sample_map, 
         path_sc, 
@@ -214,11 +248,10 @@ def CR_2023_workflow(
     fig.savefig('CBC_GBC_UMI_read_distribution.png')
         
     # Filter CBC_GBC combos and pivot 
-    M, df_combos = filter_and_pivot_CR2023(
+    M, df_combos = filter_and_pivot(
         df_combos,
-        read_treshold=read_treshold,
         umi_treshold=umi_treshold,
-        coverage_treshold=coverage_treshold,
+        p_treshold=coverage_treshold,
         ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold
     )
 
@@ -260,7 +293,13 @@ def CR_2023_workflow(
         f.write(    f'  -> GBC {i+1} ({x}): occurences {occurrences[i]}; cell_count ratio: {clone/total:.2f}\n')
     f.write(f'\n')
 
-    # Get clones (unique GBC only here) and cells tables
+
+    ## 
+
+
+    # Get clones (from cell with 1 single GBC only here) and cells tables
+
+    # Get 1-GBC CBCs
     unique_cells = (M>0).sum(axis=1).loc[lambda x: x==1].index
     filtered_M = M.loc[unique_cells]
     clones_df = get_clones(filtered_M)
@@ -285,27 +324,25 @@ def CR_2023_workflow(
     clones_df.to_csv('clones_summary_table.csv')
     cells_df.to_csv('cells_summary_table.csv')
 
+    # Final CBC-GBC combo support plot
 
-    ##
-
-
-    # Combinations support plot
-    fig, ax = plt.subplots(figsize=(6,5))
-    x = np.log10(df_combos['read_counts'])
-    y = np.log10(df_combos['umi_counts'])
-    ax.plot(x[df_combos['status'] == 'supported'], 
-            y[df_combos['status'] == 'supported'], '.', 
-            label='assigned', color='blue', markersize=.5, zorder=10)
-    ax.plot(x[df_combos['status'] == 'unsupported'],
-            y[df_combos['status'] == 'unsupported'], '.', 
-            label='not-assigned', color='grey', markersize=.3)
-    ax.set(
-        title='CBC-GBC combination status', 
-        xlabel='log10_read_counts', 
-        ylabel='log10_umi_counts'
+    # Viz p_poisson vs nUMIs
+    fig, ax = plt.subplots(figsize=(5,5))
+    scatter(df_combos, 'umi', 'logp', by='max_ratio', marker='o', s=10, vmin=.2, vmax=.8, ax=ax, c='Spectral_r')
+    format_ax(
+        ax, title='p Poisson vs nUMIs, all CBC-GBC combinations', 
+        xlabel='nUMIs', ylabel='-log10(p_poisson)', reduce_spines=True
     )
-    ax.legend()
-    fig.savefig('CBC_GBC_combo_status.png')
+    ax.axhline(y=-np.log10(p_treshold), color='k', linestyle='--')
+    ax.text(.05, .9, f'Total CBC-GBC combo: {df_combos.shape[0]}', transform=ax.transAxes)
+    n_filtered = df_combos.query('status=="supported"').shape[0]
+    ax.text(.05, .86, 
+        f'n CBC-GBC combo retained: {n_filtered} ({n_filtered/df_combos.shape[0]*100:.2f}%)',
+        transform=ax.transAxes
+    )
+    fig.tight_layout()
+    fig.savefig('CBC_GBC_combo_status.png', dpi=300)
+
 
     ##
 

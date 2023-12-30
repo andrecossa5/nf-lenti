@@ -25,13 +25,11 @@ process CELL_ASSIGNMENT {
   --sample ${sample_name} \
   --path_bulk ${params.bulk_gbc_outdir} \
   --path_sc ${elements} \
-  --method ${params.cell_assignment_method} \
   --sample_map ${params.gbc_sample_map} \
   --ncores ${task.cpus} \
   --bulk_correction_treshold ${params.bulk_correction_treshold} \
-  --sc_correction_treshold ${params.sc_correction_treshold} \
   --umi_treshold ${params.umi_treshold} \
-  --read_treshold ${params.read_treshold} \
+  --p_treshold ${params.p_treshold} \
   --coverage_treshold ${params.coverage_treshold} \
   --ratio_to_most_abundant_treshold ${params.ratio_to_most_abundant_treshold} \
   """
