@@ -132,6 +132,8 @@ ratio_to_most_abundant_treshold = args.ratio_to_most_abundant_treshold
 # ratio_to_most_abundant_treshold = .3
 
 # Import code
+# sys.path.append('/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/sc_gbc')
+# os.chdir('/Users/IEO5505/Desktop/example_mito/scratch_results')
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from helpers import *
 
@@ -144,9 +146,17 @@ from helpers import *
 def main():
 
 
-    # GBC correction, clone calling and cell assignment
     try: 
-        # Custom workflow. Brings together filtering strategies from difference works.
+
+        """
+        Custom workflow. 
+        Brings together filtering and correction strategies from difference works:
+        * Adamson et al., Dixit et al., Cell 2016
+        * Weinreb et al., Science 2020
+        * Roda and Cossa et al., Cancer Research 2023 
+        * Nadalin et al., pre-print on biorxiv 2023
+        """
+
         custom_workflow(
             path_bulk, 
             path_sample_map, 
@@ -159,7 +169,9 @@ def main():
             p_treshold=p_treshold,
             ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold
         )
+
     except:
+
         raise Exception(
             f'''
             Some problem has been encoutered with the custom_workflow for the {sample} sample...

@@ -24,10 +24,8 @@ def to_numeric(X):
 ##
 
 
-def get_CBC_GBC_combos(
-    path_bulk, path_sample_map, path_sc, sample, ncores=8, 
-    bulk_correction_treshold=1, coverage_treshold="auto"
-    ):
+def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8, 
+                        bulk_correction_treshold=1, coverage_treshold="auto"):
     """
     Create a table of CBC-UMI-GBC combinations from single-cell data, after correcting 
     GBCs with a bulk reference.
@@ -65,7 +63,7 @@ def get_CBC_GBC_combos(
     # Count CBC-GBC-UMI combinations
     counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
     medstd = counts['count'].median() + counts['count'].std()
-    coverage_treshold = coverage_treshold if coverage_treshold is not "auto" else medstd
+    coverage_treshold = coverage_treshold if coverage_treshold != "auto" else medstd
 
     # Viz distribution n reads
     fig, axs = plt.subplots(1,2,figsize=(10,5))
@@ -77,7 +75,7 @@ def get_CBC_GBC_combos(
         title='CBC-GBC-UMI combination \n n reads distribution before GBC correction'
     )
     axs[0].set_yscale('log')
-    axs[0].axvline(np.log(coverage_treshold)/np.log(10), c='r', linewith=3, linesyle='--')
+    axs[0].axvline(np.log(coverage_treshold)/np.log(10), c='r', linewidth=3, linestyle='--')
  
 
     ##
@@ -111,7 +109,7 @@ def get_CBC_GBC_combos(
     del counts
     counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
     medstd = counts['count'].median() + counts['count'].std()
-    coverage_treshold = coverage_treshold if coverage_treshold is not "auto" else medstd
+    coverage_treshold = coverage_treshold if coverage_treshold != "auto" else medstd
 
     # Viz distribution n reads, after correction
     counts['log'] = np.log(counts['count'])/np.log(10)
@@ -121,7 +119,7 @@ def get_CBC_GBC_combos(
         title='CBC-GBC-UMI combination \n n reads distribution after GBC correction'
     )
     axs[1].set_yscale('log')
-    axs[1].axvline(np.log(coverage_treshold)/np.log(10), c='r', linewith=3, linesyle='--')
+    axs[1].axvline(np.log(coverage_treshold)/np.log(10), c='r', linewidth=3, linestyle='--')
     fig.tight_layout()
 
     # Compute CBC-GBC combos with filtered UMIs, and related stats
@@ -179,7 +177,7 @@ def filter_and_pivot(df_combos, umi_treshold=5, p_treshold=.001, ratio_to_most_a
     M = (
         df_combos
         .query('status=="supported"')
-        .pivot_table(index='CBC', columns='GBC', values='umi_counts')
+        .pivot_table(index='CBC', columns='GBC', values='umi')
     )
     M[M.isna()] = 0
 
@@ -251,7 +249,7 @@ def custom_workflow(
     M, df_combos = filter_and_pivot(
         df_combos,
         umi_treshold=umi_treshold,
-        p_treshold=coverage_treshold,
+        p_treshold=p_treshold,
         ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold
     )
 
@@ -284,18 +282,8 @@ def custom_workflow(
     f.write(f'- Unique GBCs in these sets: {np.unique(GBC_set).size}\n')
     f.write(f'- GBCs redundancy across sets: {redundancy:.2f}\n')
     f.write(f'- GBCs occurrences across sets: {occurrences.median():.2f} (+- {occurrences.std():.2f})\n')
-    f.write('- Ratio between cell counts assigned to a single GBC (top 10 highly-recurrent GBCs, or "frequent flyers") \n')
-    f.write('  and the total cell counts of other "ambiguous", possibly related GBC_sets (i.e., GBC sets containing the given GBC combined with other ones).\n')
-    n = min([occurrences.size, sets.shape[0], 10])
-    for i,x in enumerate(occurrences.index[:n]):
-        clone = sets.iloc[i,1]
-        total = sets.loc[sets['GBC_set'].str.contains(x)]['n cells'].sum()
-        f.write(    f'  -> GBC {i+1} ({x}): occurences {occurrences[i]}; cell_count ratio: {clone/total:.2f}\n')
-    f.write(f'\n')
-
 
     ## 
-
 
     # Get clones (from cell with 1 single GBC only here) and cells tables
 
