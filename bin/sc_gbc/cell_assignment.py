@@ -90,7 +90,7 @@ my_parser.add_argument(
 # p_treshold
 my_parser.add_argument(
     '--p_treshold',
-    type=int,
+    type=float,
     default=.001,
     help='Max p_poisson treshold to consider a CBC-GBC combination supported. Default: .001.'
 )
