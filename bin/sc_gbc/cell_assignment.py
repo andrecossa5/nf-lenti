@@ -161,7 +161,7 @@ from helpers import *
 def main():
 
     # Fix treshold
-    coverage_treshold = coverage_treshold if coverage_choice is not "auto" else "auto"
+    min_n_reads = coverage_treshold if coverage_choice is not "auto" else "auto"
 
     try: 
 
@@ -181,7 +181,7 @@ def main():
             sample, 
             ncores=ncores,
             bulk_correction_treshold=bulk_correction_treshold,
-            coverage_treshold=coverage_treshold,
+            coverage_treshold=min_n_reads,
             umi_treshold=umi_treshold, 
             p_treshold=p_treshold,
             ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold
