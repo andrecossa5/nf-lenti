@@ -79,22 +79,6 @@ my_parser.add_argument(
     help='Min number of UMIs to consider a CBC-GBC combination supported. Default: 5.'
 )
 
-# Spikeins
-my_parser.add_argument(
-    '--coverage_treshold',
-    type=int,
-    default=10,
-    help='Min coverage (i.e., n reads) to consider a CBC-GBC-UMI combination supported. Default: 10.'
-)
-
-# Spikeins
-my_parser.add_argument(
-    '--coverage_choice',
-    type=str,
-    default=None,
-    help='Method to choose a coverage treshold. Default: None.'
-)
-
 my_parser.add_argument(
     '--from_subset', 
     action='store_true',
@@ -130,8 +114,6 @@ path_sc = args.path_sc
 ncores = args.ncores
 bulk_correction_treshold = args.bulk_correction_treshold
 umi_treshold = args.umi_treshold
-coverage_treshold = args.coverage_treshold
-coverage_choice = args.coverage_treshold
 p_treshold = args.p_treshold
 ratio_to_most_abundant_treshold = args.ratio_to_most_abundant_treshold
 
@@ -142,7 +124,6 @@ ratio_to_most_abundant_treshold = args.ratio_to_most_abundant_treshold
 # ncores = 8
 # bulk_correction_treshold = 1
 # umi_treshold = 5
-# coverage_treshold = "auto"
 # p_treshold = 0.001
 # ratio_to_most_abundant_treshold = .3
 
@@ -159,9 +140,6 @@ from helpers import *
 ########################################################################
 
 def main():
-
-    # Fix treshold
-    min_n_reads = coverage_treshold if coverage_choice is not "auto" else "auto"
 
     try: 
 
@@ -181,7 +159,6 @@ def main():
             sample, 
             ncores=ncores,
             bulk_correction_treshold=bulk_correction_treshold,
-            coverage_treshold=min_n_reads,
             umi_treshold=umi_treshold, 
             p_treshold=p_treshold,
             ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold

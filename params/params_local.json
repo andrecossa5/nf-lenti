@@ -19,8 +19,6 @@
     "sc_gbc_anchor_treshold" : 1,
     "bulk_correction_treshold" : 1,
     "umi_treshold" : 5,
-    "coverage_treshold" : 10,
-    "coverage_choice" : "auto",
     "p_treshold" : 0.001,
     "ratio_to_most_abundant_treshold" : 0.3,
 

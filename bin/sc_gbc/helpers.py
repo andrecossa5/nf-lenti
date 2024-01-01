@@ -24,8 +24,7 @@ def to_numeric(X):
 ##
 
 
-def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8, 
-                        bulk_correction_treshold=1, coverage_treshold="auto"):
+def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8, bulk_correction_treshold=1):
     """
     Create a table of CBC-UMI-GBC combinations from single-cell data, after correcting 
     GBCs with a bulk reference.
@@ -63,7 +62,7 @@ def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8,
     # Count CBC-GBC-UMI combinations
     counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
     medstd = counts['count'].median() + counts['count'].std()
-    coverage_treshold = coverage_treshold if coverage_treshold != "auto" else medstd
+    coverage_treshold =  medstd
 
     # Viz distribution n reads
     fig, axs = plt.subplots(1,2,figsize=(10,5))
@@ -109,7 +108,7 @@ def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8,
     del counts
     counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
     medstd = counts['count'].median() + counts['count'].std()
-    coverage_treshold = coverage_treshold if coverage_treshold != "auto" else medstd
+    coverage_treshold = medstd
 
     # Viz distribution n reads, after correction
     counts['log'] = np.log(counts['count'])/np.log(10)
@@ -212,7 +211,7 @@ def get_clones(M):
 
 def custom_workflow(
     path_bulk, path_sample_map, path_sc, sample, ncores=8, bulk_correction_treshold=1, 
-    coverage_treshold=None, umi_treshold=5, p_treshold=.001, ratio_to_most_abundant_treshold=.3
+    umi_treshold=5, p_treshold=.001, ratio_to_most_abundant_treshold=.3
     ):
     """
     Complete clone calling workflow.
@@ -228,7 +227,7 @@ def custom_workflow(
     f.write(f'\n')
     f.write(f'Input params:\n')
     f.write(f'  * bulk_correction_treshold: {bulk_correction_treshold}\n')
-    f.write(f'  * coverage_treshold: {coverage_treshold}\n')
+    f.write(f'  * coverage_treshold: "auto"\n')
     f.write(f'  * umi_treshold: {umi_treshold}\n')
     f.write(f'  * p_treshold: {p_treshold}\n')
     f.write(f'  * ratio_to_most_abundant_treshold: {ratio_to_most_abundant_treshold}\n')
@@ -241,7 +240,7 @@ def custom_workflow(
         sample, 
         ncores=ncores, 
         bulk_correction_treshold=bulk_correction_treshold,
-        coverage_treshold=coverage_treshold
+        coverage_treshold=10
     )
     fig.savefig('CBC_GBC_UMI_read_distribution.png')
         
