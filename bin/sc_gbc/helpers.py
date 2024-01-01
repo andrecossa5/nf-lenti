@@ -239,8 +239,7 @@ def custom_workflow(
         path_sc, 
         sample, 
         ncores=ncores, 
-        bulk_correction_treshold=bulk_correction_treshold,
-        coverage_treshold=10
+        bulk_correction_treshold=bulk_correction_treshold
     )
     fig.savefig('CBC_GBC_UMI_read_distribution.png')
         
