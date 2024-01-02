@@ -428,10 +428,10 @@ def cell_assignment_workflow(
 
     # Relationship with bulk (GBC sequences) checks
     pseudobulk_sc = M.sum(axis=0) / M.sum(axis=0).sum()
-    pseudobulk_sc = pseudobulk_sc.sort_values(ascending=False)
-    common = set(pseudobulk_sc.index) & set(bulk_df.index)
+    common = list(set(pseudobulk_sc.index) & set(bulk_df.index))
     if len(common)>0:
-        bulk = bulk_df.loc[pseudobulk_sc.index]['read_count'] / bulk_df.loc[pseudobulk_sc.index]['read_count'].sum()
+        pseudobulk_sc = pseudobulk_sc.loc[common]
+        bulk = bulk_df.loc[common]['read_count'] / bulk_df.loc[common]['read_count'].sum()
         corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
         f.write(f'# Individual "good" GBC sequences checks\n')
         f.write(f'- n "good" GBC sequences, bulk ({bulk_df.shape[0]}) vs sc ({df_combos["GBC"].unique().size})\n')
@@ -471,12 +471,6 @@ def cell_assignment_workflow(
     f.write(f'- n uniquely barcoded cells: {cells_df.shape[0]}\n')
     f.write(f'- n clones: {clones_df.shape[0]}\n')
     f.write(f'- n clones>=10 cells: {clones_df["n cells"].loc[lambda x:x>=10].size}\n')
-
-    common = set(clones_df['GBC_set']) & set(bulk_df.index)
-    if len(common)>2:
-        corr = np.corrcoef(clones_df.set_index('GBC_set')['prevalence'], bulk_df.loc[clones_df['GBC_set']])[0,1]
-        f.write(f'- sc vs bulk prevalence correlation: {corr:.2f}\n')
-        f.write(f'\n')
 
     # Save
     df_combos.to_csv('CBC_GBC_combos.tsv.gz', sep='\t')
