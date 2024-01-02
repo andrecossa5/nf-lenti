@@ -21,7 +21,7 @@ process STAR {
     --genomeDir ${params.ref} \
     --readFilesIn ${fastq} \
     --readFilesCommand zcat \
-    --outSAMtype BAM \
+    --outSAMtype BAM Unsorted \
     --outSAMattributes NH HI nM AS
   """
 
