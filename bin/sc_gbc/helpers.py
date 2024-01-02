@@ -4,6 +4,7 @@ other (pre-)pubblication works.
 """
 
 import os
+import pickle
 import numpy as np
 import pandas as pd
 from sklearn.metrics import pairwise_distances
@@ -18,47 +19,7 @@ from plotting_utils._utils import Timer
 ##
 
 
-def to_numeric(X):
-    return np.select([X=='A', X=='T', X=='C', X=='G'], [1,2,3,4], default=0)
-
-
-##
-
-
-def select_UMIs(counts, coverage_treshold):
-
-    if isinstance(coverage_treshold, int):
-        coverage_treshold = coverage_treshold
-        counts['status'] = np.where(
-            counts['count']>=coverage_treshold,
-            'retained', 'filtered_out'
-        )
-
-    elif coverage_treshold == 'medstd':
-        coverage_treshold = counts['count'].median() + counts['count'].std()
-        counts['status'] = np.where(
-            counts['count']>=coverage_treshold, 
-            'retained', 'filtered_out'
-        )
-
-    elif coverage_treshold == 'GMM':
-        X = counts['log'].values.reshape(-1,1)
-        gmm = GaussianMixture(n_components=2, random_state=1234)  
-        gmm.fit(X)
-        top_component_idx = np.argsort(gmm.means_.flatten())[-1]
-        counts['status'] = np.where(
-            gmm.predict_proba(X)[:,top_component_idx]>.8,
-            'retained', 'filtered_out'
-        )
-
-    return counts
-
-
-##
-
-
-def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8, 
-                       bulk_correction_treshold=1, coverage_treshold='medstd'):
+def read_data(path_bulk, path_sample_map, path_sc, sample):
     """
     Create a table of CBC-UMI-GBC combinations from single-cell data, after correcting 
     GBCs with a bulk reference.
@@ -93,75 +54,162 @@ def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8,
     d_rev = {'A':'T', 'G':'C', 'T':'A', 'C':'G', 'N':'N'}
     sc_df['GBC'] = sc_df['GBC'].map(lambda x: ''.join([ d_rev[x] for x in reversed(x) ]))
 
-    # Count CBC-GBC-UMI combinations
-    counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
-    counts['log'] = np.log(counts['count'])/np.log(10)
+    sc = sc_df['GBC'].value_counts().sort_values(ascending=False)
+    n_common = len(set(sc.index.to_list()) & set(bulk.index.to_list()))
+    print(f'{n_common} common GBC between bulk ({bulk.index.size}) and sc ({sc_df["GBC"].unique().size})')
+    n_top = len(set(sc.index[:10].to_list()) & set(bulk.index[:10].to_list()))
+    print(f'{n_top} common GBC between bulk and sc top 10 clones.')
 
-    print(f'Coverage treshold: {coverage_treshold}')
-    counts = select_UMIs(counts, coverage_treshold)
+    return sc_df, bulk
 
-    # Viz distribution n reads
-    fig, axs = plt.subplots(1,2,figsize=(10,5))
-    hist(counts, 'log', by='status', 
-        c={'filtered_out':'k', 'retained':'r'}, ax=axs[0], n=50, a=.5)
-    format_ax(
-        xticks=np.logspace(0,4,5), ax=axs[0], xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
-        title='CBC-GBC-UMI combination \n n reads distribution before GBC correction'
-    )
-    axs[0].set_yscale('log')
+
+##
+
+
+def to_numeric(X):
+    return np.select([X=='A', X=='T', X=='C', X=='G', X=='N'], [1,2,3,4,5], default=0)
+
+
+##
+
+
+def hamming(bc1, bc2): 
+    return np.sum([x1 != x2 for x1,x2 in zip(bc1,bc2)])
+
+
+##
+
  
+def map_GBCs(sc_df, bulk=None, use_bulk=True, bulk_correction_treshold=3, sc_correction_treshold=3, ncores=8):
+    """
+    Correct sc GBC sequences with bulk-DNA reference. Outputs a sequence map: sc:bulk.
+    """
 
-    ##
+    # Correct with bulk reference
+    if use_bulk and bulk is not None:
 
+        # Calculate hamming distance single-cell GBCs vs bulk reference GBCs
+        print('Correct with bulk reference...')
+        sc = sc_df['GBC'].value_counts()
+        sc_numeric = to_numeric(np.vstack(sc.index.map(lambda x: np.array(list(x)))))
+        bulk_numeric = to_numeric(np.vstack(bulk.index.map(lambda x: np.array(list(x)))))
+        D = pairwise_distances(
+            sc_numeric, bulk_numeric, metric='hamming', n_jobs=int(ncores)
+        ) * sc_numeric.shape[1]
+
+        # Build a correction dict for sc GBCs at hamming distance <= bulk_sc_treshold from a bulk one.
+        d_corr = (
+            sc.to_frame('read_count')
+            .assign(
+                correct_GBC=[ bulk.index[i] for i in D.argmin(axis=1) ],
+                hamming=D.min(axis=1),
+            )
+        )
+        d_corr = d_corr.query('hamming<=@bulk_correction_treshold')['correct_GBC'].to_dict()
     
-    # Map sc GBCs to bulk GBCs
+    # Correct without bulk reference
+    else:
+        
+        # Code readapted from https://github.com/AllonKleinLab/LARRY/blob/master/LARRY_for_10X.ipynb
+        print('Use direct sc correction...')
+        sc = sc_df['GBC'].value_counts()
+        all_gbcs = sc.index.to_list()       # Ordered for n_reads. 
+        good_gbcs = []
+        d_corr = {}
+        for bc1 in all_gbcs:
+            mapped = False
+            for bc2 in good_gbcs:
+                if hamming(bc1,bc2) <= sc_correction_treshold:
+                    mapped = True
+                    d_corr[bc1] = bc2
+                    break
+            if not mapped:
+                good_gbcs.append(bc1)
+        for bc in good_gbcs: 
+            d_corr[bc] = bc
 
-    # Calculate hamming distance single-cell GBCs vs bulk reference GBCs
-    sc = sc_df['GBC'].value_counts()
-    sc_numeric = to_numeric(np.vstack(sc.index.map(lambda x: np.array(list(x)))))
-    bulk_numeric = to_numeric(np.vstack(bulk.index.map(lambda x: np.array(list(x)))))
-    D = pairwise_distances(
-        sc_numeric, bulk_numeric, metric='hamming', n_jobs=int(ncores)
-    ) * sc_numeric.shape[1]
+    return d_corr
 
-    # Build a correction dict for sc GBCs at hamming distance <= bulk_sc_treshold from a bulk one.
-    d_corr = (
-        sc.to_frame('read_count')
-        .assign(
-            correct_GBC=[ bulk.index[i] for i in D.argmin(axis=1) ],
-            hamming=D.min(axis=1),
-        )
-        .query('hamming<=@bulk_correction_treshold')
-        ['correct_GBC'].to_dict()
+
+##
+
+
+def count_UMIs(sc_df, gbc_col='GBC'):
+    counts = (
+        sc_df.groupby(['CBC', gbc_col, 'UMI'])
+        .size()
+        .reset_index(name='count')
     )
-    # Correct GBC sequences and remove not found ones
-    sc_df['GBC'] = sc_df['GBC'].map(lambda x: d_corr[x] if x in d_corr else 'not_found')
-    sc_df = sc_df.query('GBC!="not_found"')
-
-    # Count again
-    del counts
-    counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
     counts['log'] = np.log(counts['count'])/np.log(10)
-    counts = select_UMIs(counts, coverage_treshold)
+    return counts
 
-    # Viz distribution n reads, after correction
-    hist(counts, 'log', by='status', 
-        c={'filtered_out':'k', 'retained':'r'}, ax=axs[1], n=50, a=.5)
-    axs[1].legend()
+
+##
+
+
+def mark_UMIs(counts, coverage_treshold=None, n_mixtures=2, use_log=True):
+    """
+    Mark noisy UMI read_counts.
+    """
+
+    if isinstance(coverage_treshold, int):
+        coverage_treshold = coverage_treshold
+        counts['status'] = np.where(counts['count']>=coverage_treshold, 'Retain', 'Filter out')
+
+    elif coverage_treshold == 'medstd':
+        coverage_treshold = counts['count'].median() + counts['count'].std()
+        counts['status'] = np.where(counts['count']>=coverage_treshold, 'Retain', 'Filter out')
+
+    elif coverage_treshold == 'GMM':
+        value_type = 'log' if use_log else 'count'
+        X = counts[value_type].values.reshape(-1,1)
+        gmm = GaussianMixture(n_components=n_mixtures, random_state=1234)  
+        gmm.fit(X)
+        top_component_idx = np.argsort(gmm.means_.flatten())[-1]
+        counts['status'] = np.where(gmm.predict_proba(X)[:,top_component_idx]>.85, 'Retain', 'Filter out')
+
+    return counts
+
+
+##
+
+
+def viz_UMIs(counts, ax, log=True, by=None):
+    """
+    Plot UMI n reads distribution.
+    """
+    value_type = 'log' if log else 'count'
+
+    if by is not None:
+        colors = {'Filter out':'k', 'Retain':'r'}
+        hist(counts, value_type, by=by, c=colors, ax=ax, n=50, a=.7)
+        add_legend('UMI status', colors=colors, ax=ax, bbox_to_anchor=(1,1), loc='upper right',
+                   label_size=10, ticks_size=9)
+    else:
+        hist(counts, value_type, c='k', ax=ax, n=50, a=.7)
     format_ax(
-        xticks=np.logspace(0,4,5), ax=axs[1], xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
-        title='CBC-GBC-UMI combination \n n reads distribution after GBC correction'
+        xticks=np.logspace(0,4,5), ax=ax, 
+        xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
+        title='CBC-GBC-UMI combination \n n reads distribution'
     )
-    axs[1].set_yscale('log')
-    fig.tight_layout()
+    if log:
+        ax.set_yscale('log')
 
-    # Compute CBC-GBC combos with filtered UMIs, and related stats
-    filtered = counts.loc[lambda x: x['status']=='retained']
+    return ax
+
+
+##
+
+
+def get_combos(counts, sc_df, gbc_col='GBC_reference-free'):
+    """
+    Compute CBC-GBC stats from filtered UMIs.
+    """
+    filtered = counts.loc[lambda x: x['status']=='Retain']
+    filtered = filtered[['CBC', gbc_col, 'UMI']].rename(columns={gbc_col:'GBC'}).reset_index(drop=True)
+    sc_df = sc_df[['CBC', gbc_col, 'UMI']].rename(columns={gbc_col:'GBC'})
     df_combos = (
-        pd.merge(
-            sc_df, filtered[['CBC', 'GBC', 'UMI']],
-            on=['CBC', 'GBC', 'UMI'], how='inner'
-        )
+        pd.merge(sc_df, filtered, on=['CBC', 'GBC', 'UMI'], how='inner')
         .groupby(['CBC', 'GBC'])['UMI']
         .nunique().to_frame('umi')
         .reset_index()
@@ -173,7 +221,7 @@ def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8,
         )
     )
 
-    return df_combos, bulk, fig
+    return df_combos
 
 
 ##
@@ -214,6 +262,10 @@ def filter_and_pivot(df_combos, umi_treshold=5, p_treshold=.001, ratio_to_most_a
     )
     M[M.isna()] = 0
 
+    # Print n 1-GBC cells
+    print('Estimated MOI:')
+    print((M>0).sum(axis=1).value_counts())
+
     return M, df_combos
 
 
@@ -243,13 +295,14 @@ def get_clones(M):
 ##
 
 
-def custom_workflow(
-    path_bulk, path_sample_map, path_sc, sample, ncores=8, bulk_correction_treshold=1, 
-    filtering_method="medstd", coverage_treshold=10,
+def cell_assignment_workflow(
+    path_bulk, path_sample_map, path_sc, sample, 
+    correction_type='reference-free', sc_correction_treshold=1, bulk_correction_treshold=1, ncores=8,  
+    filtering_method="medstd", coverage_treshold=10, 
     umi_treshold=5, p_treshold=.001, ratio_to_most_abundant_treshold=.3
     ):
     """
-    Complete clone calling workflow.
+    Complete clone calling and cell assignment workflow.
     Read bulk and single-cell data, correct sc GBCs with the bulk reference, obtain a df with CBC-GBC combinations,
     filter them and assign cells to their clonal labels.
     """
@@ -264,9 +317,9 @@ def custom_workflow(
     else:
         print(f'Use fixed coverage treshold...{coverage_treshold}')
 
-    f.write(f'# Custom clone calling and cell assignment workflow: \n')
-    f.write(f'\n')
-    f.write(f'Input params:\n')
+    f.write(f'# Custom clone calling and cell assignment workflow, sample {sample}: \n')
+    f.write('\n')
+    f.write('Input params:\n')
     f.write(f'  * bulk_correction_treshold: {bulk_correction_treshold}\n')
     f.write(f'  * coverage_treshold: {coverage_treshold} \n')
     f.write(f'  * umi_treshold: {umi_treshold}\n')
@@ -274,27 +327,99 @@ def custom_workflow(
     f.write(f'  * ratio_to_most_abundant_treshold: {ratio_to_most_abundant_treshold}\n')
     f.write(f'\n')
 
-    df_combos, df_bulk, fig = get_CBC_GBC_combos(
-        path_bulk, 
-        path_sample_map, 
-        path_sc, 
-        sample, 
-        ncores=ncores, 
-        coverage_treshold=coverage_treshold,
-        bulk_correction_treshold=bulk_correction_treshold
-    )
-    fig.savefig('CBC_GBC_UMI_read_distribution.png')
-        
-    # Filter CBC_GBC combos and pivot 
-    M, df_combos = filter_and_pivot(
-        df_combos,
-        umi_treshold=umi_treshold,
-        p_treshold=p_treshold,
+    # Read and count
+    sc_df, bulk_df = read_data(path_bulk, path_sample_map, path_sc, sample=sample)
+
+    # Count
+    COUNTS = {}
+    COUNTS['raw'] = count_UMIs(sc_df)
+
+    # Correction
+    sc_map = map_GBCs(sc_df, sc_correction_treshold=sc_correction_treshold)
+    bulk_map = map_GBCs(sc_df, bulk_df, bulk_correction_treshold=bulk_correction_treshold, ncores=ncores)
+    sc_df['GBC_reference-free'] = sc_df['GBC'].map(sc_map)
+    sc_df['GBC_reference'] = sc_df['GBC'].map(bulk_map)
+    COUNTS['reference-free'] = count_UMIs(sc_df, gbc_col='GBC_reference-free')
+    COUNTS['reference'] = count_UMIs(sc_df, gbc_col='GBC_reference')
+    
+
+    # % of raw counts lost with bulk
+    assert COUNTS['raw']['count'].sum() == COUNTS['reference-free']['count'].sum()
+    perc_read_retained_bulk = COUNTS['reference']['count'].sum() / COUNTS['raw']['count'].sum()
+    
+    # % GBCs retained with sc and bulk corrections
+    perc_gbc_retained_sc = COUNTS['reference-free']['GBC_reference-free'].value_counts().size / \
+                           COUNTS['raw']['GBC'].value_counts().size
+    perc_gbc_retained_bulk = COUNTS['reference']['GBC_reference'].value_counts().size / \
+                           COUNTS['raw']['GBC'].value_counts().size
+    
+    
+    ##
+    
+    
+    # Viz correction effect
+    fig, axs = plt.subplots(1,3,figsize=(15,5))
+    
+    viz_UMIs(COUNTS['raw'], axs[0])
+    axs[0].set(title='Raw')
+    axs[0].text(.53, .95, f'Total reads: {COUNTS["raw"]["count"].sum():.2e}', transform=axs[0].transAxes)
+    axs[0].text(.53, .91, f'Total GBCs: {COUNTS["raw"]["GBC"].unique().size:.2e}', transform=axs[0].transAxes)
+    axs[0].text(.53, .87, f'n reads: {COUNTS["raw"]["count"].median():.2f} (+-{COUNTS["raw"]["count"].std():.2f})', 
+                transform=axs[0].transAxes)
+    
+    viz_UMIs(COUNTS['reference-free'], axs[1])
+    axs[1].set(title='Reference-free correction')
+    axs[1].text(.53, .95, f'% reads retained: 100%', transform=axs[1].transAxes)
+    axs[1].text(.53, .91, f'% GBCs retained: {perc_gbc_retained_sc*100:.2f}%', transform=axs[1].transAxes)
+    axs[1].text(.53, .87, f'n reads: {COUNTS["reference-free"]["count"].median():.2f} (+-{COUNTS["reference-free"]["count"].std():.2f})', 
+                transform=axs[1].transAxes)
+    
+    viz_UMIs(COUNTS['reference'], axs[2])
+    axs[2].set(title='Bulk-DNA reference correction (PT)')
+    axs[2].text(.53, .95, f'Reads retained: {perc_read_retained_bulk*100:.2f}%', transform=axs[2].transAxes)
+    axs[2].text(.53, .91, f'GBCs retained: {perc_gbc_retained_bulk*100:.2f}%', transform=axs[2].transAxes)
+    axs[2].text(.53, .87, f'n reads: {COUNTS["reference"]["count"].median():.2f} (+-{COUNTS["reference"]["count"].std():.2f})', 
+                transform=axs[2].transAxes)
+    
+    # Save
+    fig.tight_layout()
+    fig.savefig('CBC_GBC_UMI_read_distribution.png', dpi=300)
+
+    # Save counts as pickle
+    with open('counts.pickle', 'wb') as p:
+        pickle.dump(COUNTS, p)
+
+    
+    ##
+
+
+    # Mark noisy UMIs, from chosen correction method
+    counts = mark_UMIs(COUNTS[correction_type], coverage_treshold=coverage_treshold, n_mixtures=3)
+
+    # Viz UMI distribution and selected UMIs
+    fig, ax = plt.subplots(figsize=(5,5))
+    viz_UMIs(counts, ax, by='status')
+    ax.set(title=f'Filtered UMIs, after {correction_type} correction')
+    fig.tight_layout()
+    fig.savefig('selected_UMIs.png', dpi=300)
+
+    # Get CBC-GBC combos with selected UMIs
+    df_combos = get_combos(counts, sc_df, gbc_col=f'GBC_{correction_type}')
+
+    # Filter CBC-GBC combos
+    M, _ = filter_and_pivot(
+        df_combos, 
+        umi_treshold=umi_treshold, 
+        p_treshold=p_treshold, 
         ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold
     )
 
+
+    ## 
+
+
     # General checks
-    f.write('# General checks \n')
+    f.write(f'# General checks \n')
     f.write(f'- Unique, "good" GBCs, post correction (with bulk reference whitelist): {df_combos["GBC"].unique().size}\n')
     f.write(f'- n unsupported CBC-GBC combos (N.B. only good GBCs): {(df_combos["status"]=="unsupported").sum()}\n')
     f.write(f'- n supported CBC-GBC combos (N.B. only good GBCs): {(df_combos["status"]=="supported").sum()}\n')
@@ -304,20 +429,22 @@ def custom_workflow(
     # Relationship with bulk (GBC sequences) checks
     pseudobulk_sc = M.sum(axis=0) / M.sum(axis=0).sum()
     pseudobulk_sc = pseudobulk_sc.sort_values(ascending=False)
-    bulk = df_bulk.loc[pseudobulk_sc.index]['read_count'] / df_bulk.loc[pseudobulk_sc.index]['read_count'].sum()
-    corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
-    f.write('# Individual "good" GBC sequences checks\n')
-    f.write(f'- n "good" GBC sequences, bulk ({df_bulk.shape[0]}) vs sc ({df_combos["GBC"].unique().size})\n')
-    f.write(f'- Fraction of bulk GBCs found in sc: {df_bulk.index.isin(df_combos["GBC"].unique()).sum()/df_bulk.shape[0]:.2f}\n')
-    f.write(f'- Common GBCs abundance (normalized nUMIs from pseudobulk scRNA-seq vs normalized read counts from bulk DNA-seq) correlation: {corr:.2f}\n')
-    f.write(f'\n')
+    common = set(pseudobulk_sc.index) & set(bulk_df.index)
+    if len(common)>0:
+        bulk = bulk_df.loc[pseudobulk_sc.index]['read_count'] / bulk_df.loc[pseudobulk_sc.index]['read_count'].sum()
+        corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
+        f.write(f'# Individual "good" GBC sequences checks\n')
+        f.write(f'- n "good" GBC sequences, bulk ({bulk_df.shape[0]}) vs sc ({df_combos["GBC"].unique().size})\n')
+        f.write(f'- Fraction of bulk GBCs found in sc: {bulk_df.index.isin(df_combos["GBC"].unique()).sum()/bulk_df.shape[0]:.2f}\n')
+        f.write(f'- Common GBCs abundance (normalized nUMIs from pseudobulk scRNA-seq vs normalized read counts from bulk DNA-seq) correlation: {corr:.2f}\n')
+        f.write(f'\n')
 
     # GBC sets checks
     sets = get_clones(M)
     GBC_set = list(chain.from_iterable(sets['GBC_set'].map(lambda x: x.split(';')).to_list()))
     redundancy = 1-np.unique(GBC_set).size/len(GBC_set)
     occurrences = pd.Series(GBC_set).value_counts().sort_values(ascending=False)
-    f.write('# GBC sets (i.e. "good" GBCs combinations which are supported in a given cell subset) checks \n')
+    f.write(f'# GBC sets (i.e. "good" GBCs combinations which are supported in a given cell subset) checks \n')
     f.write(f'- Unique GBCs sets: {sets.shape[0]}\n')
     f.write(f'- Unique GBCs in these sets: {np.unique(GBC_set).size}\n')
     f.write(f'- GBCs redundancy across sets: {redundancy:.2f}\n')
@@ -339,14 +466,17 @@ def custom_workflow(
     )
 
     # Final clones checks
-    corr = np.corrcoef(clones_df.set_index('GBC_set')['prevalence'], bulk.loc[clones_df['GBC_set']])[0,1]
-    f.write('# Final clones (i.e., distinct populations of uniquely barcoded cells only) checks \n')
+    f.write(f'# Final clones (i.e., distinct populations of uniquely barcoded cells only) checks \n')
     f.write(f'- n starting CBC (STARSolo): {df_combos["CBC"].unique().size}\n')
     f.write(f'- n uniquely barcoded cells: {cells_df.shape[0]}\n')
     f.write(f'- n clones: {clones_df.shape[0]}\n')
     f.write(f'- n clones>=10 cells: {clones_df["n cells"].loc[lambda x:x>=10].size}\n')
-    f.write(f'- sc vs bulk prevalence correlation: {corr:.2f}\n')
-    f.write(f'\n')
+
+    common = set(clones_df['GBC_set']) & set(bulk_df.index)
+    if len(common)>2:
+        corr = np.corrcoef(clones_df.set_index('GBC_set')['prevalence'], bulk_df.loc[clones_df['GBC_set']])[0,1]
+        f.write(f'- sc vs bulk prevalence correlation: {corr:.2f}\n')
+        f.write(f'\n')
 
     # Save
     df_combos.to_csv('CBC_GBC_combos.tsv.gz', sep='\t')
@@ -357,12 +487,12 @@ def custom_workflow(
 
     # Viz p_poisson vs nUMIs
     fig, ax = plt.subplots(figsize=(5,5))
-    scatter(df_combos, 'umi', 'logp', by='max_ratio', marker='o', s=10, vmin=.2, vmax=.8, ax=ax, c='Spectral_r')
+    scatter(df_combos, 'umi', 'p', by='max_ratio', marker='o', s=10, vmin=.2, vmax=.8, ax=ax, c='Spectral_r')
     format_ax(
         ax, title='p Poisson vs nUMIs, all CBC-GBC combinations', 
         xlabel='nUMIs', ylabel='-log10(p_poisson)', reduce_spines=True
     )
-    ax.axhline(y=-np.log10(p_treshold), color='k', linestyle='--')
+    ax.axhline(y=p_treshold, color='k', linestyle='--')
     ax.text(.05, .9, f'Total CBC-GBC combo: {df_combos.shape[0]}', transform=ax.transAxes)
     n_filtered = df_combos.query('status=="supported"').shape[0]
     ax.text(.05, .86, 
@@ -378,6 +508,7 @@ def custom_workflow(
 
     f.write(f'- Execution time: {T.stop()}\n')
     f.close()
+
 
 
 ##

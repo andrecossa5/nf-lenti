@@ -23,6 +23,7 @@ process publish_sc {
           path(filtered), 
           path(raw),
           path(run_summary)
+          path(counts)
 
     output:
     path CBC_GBC
@@ -37,6 +38,7 @@ process publish_sc {
     path alignment_summary
     path run_summary
     path cell_assignment_summary
+    path counts
 
     script:
     """

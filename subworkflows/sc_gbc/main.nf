@@ -53,6 +53,7 @@ workflow sc_gbc {
             .combine(SOLO.out.filtered, by:0)
             .combine(SOLO.out.raw, by:0)
             .combine(generate_run_summary_sc.out.summary, by:0)
+            .combine(CELL_ASSIGNMENT.out.counts, by:0)
         publish_sc(publish_input)
 
     emit:

@@ -16,10 +16,14 @@
 
     "gbc_sample_map" : "/Users/IEO5505/Desktop/example_mito/meta/sample_map.csv",
     "sc_gbc_anchor_sequence" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
-    "sc_gbc_anchor_treshold" : 1,
-    "bulk_correction_treshold" : 1,
+    "sc_gbc_anchor_treshold" : 3,
+    "bulk_correction_treshold" : 3,
+    "sc_correction_treshold" : 3,
+    "umi_filtering_method" : "GMM",
+    "coverage_treshold" : 10,
+    "correction_type" : "reference-free",
     "umi_treshold" : 5,
-    "p_treshold" : 0.001,
+    "p_treshold" : 0.01,
     "ratio_to_most_abundant_treshold" : 0.3,
 
     "maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/maester",
