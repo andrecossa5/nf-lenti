@@ -43,11 +43,11 @@ output = os.getcwd()
 # Default input: DO NOT DO TOUCH THEM, EVER!!!
 ##############################
 mito_genome = 'rCRS'
-barcode_tag = 'CB'
+barcode_tag = 'CR'
 min_barcode_reads = 100
 nsamples = 1500
 base_qual = 0
-umi_barcode = 'UB'
+umi_barcode = 'UR'
 alignment_quality = 0
 nhmax = 2
 nmmax = 15

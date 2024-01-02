@@ -13,8 +13,8 @@ output_bam = pysam.AlignmentFile('mitobam_fixed.bam', 'wb', template=input_bam)
 for r in input_bam:
     n1, n2, cb, ub = r.query_name.split('_')
     r.query_name = ' '.join([n1, n2])
-    r.set_tag('CB', cb)
-    r.set_tag('UB', ub)
+    r.set_tag('CR', cb)
+    r.set_tag('UR', ub)
     output_bam.write(r)
 
 # Close

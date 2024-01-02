@@ -7,6 +7,7 @@ import os
 import numpy as np
 import pandas as pd
 from sklearn.metrics import pairwise_distances
+from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
 from scipy.stats import poisson
 from itertools import chain
@@ -24,7 +25,40 @@ def to_numeric(X):
 ##
 
 
-def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8, bulk_correction_treshold=1):
+def select_UMIs(counts, coverage_treshold):
+
+    if isinstance(coverage_treshold, int):
+        coverage_treshold = coverage_treshold
+        counts['status'] = np.where(
+            counts['count']>=coverage_treshold,
+            'retained', 'filtered_out'
+        )
+
+    elif coverage_treshold == 'medstd':
+        coverage_treshold = counts['count'].median() + counts['count'].std()
+        counts['status'] = np.where(
+            counts['count']>=coverage_treshold, 
+            'retained', 'filtered_out'
+        )
+
+    elif coverage_treshold == 'GMM':
+        X = counts['log'].values.reshape(-1,1)
+        gmm = GaussianMixture(n_components=2, random_state=1234)  
+        gmm.fit(X)
+        top_component_idx = np.argsort(gmm.means_.flatten())[-1]
+        counts['status'] = np.where(
+            gmm.predict_proba(X)[:,top_component_idx]>.8,
+            'retained', 'filtered_out'
+        )
+
+    return counts
+
+
+##
+
+
+def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8, 
+                       bulk_correction_treshold=1, coverage_treshold='medstd'):
     """
     Create a table of CBC-UMI-GBC combinations from single-cell data, after correcting 
     GBCs with a bulk reference.
@@ -61,20 +95,20 @@ def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8, bu
 
     # Count CBC-GBC-UMI combinations
     counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
-    medstd = counts['count'].median() + counts['count'].std()
-    coverage_treshold =  medstd
+    counts['log'] = np.log(counts['count'])/np.log(10)
+
+    print(f'Coverage treshold: {coverage_treshold}')
+    counts = select_UMIs(counts, coverage_treshold)
 
     # Viz distribution n reads
     fig, axs = plt.subplots(1,2,figsize=(10,5))
-
-    counts['log'] = np.log(counts['count'])/np.log(10)
-    hist(counts, 'log', c='k', ax=axs[0], n=50, a=.7)
+    hist(counts, 'log', by='status', 
+        c={'filtered_out':'k', 'retained':'r'}, ax=axs[0], n=50, a=.5)
     format_ax(
         xticks=np.logspace(0,4,5), ax=axs[0], xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
         title='CBC-GBC-UMI combination \n n reads distribution before GBC correction'
     )
     axs[0].set_yscale('log')
-    axs[0].axvline(np.log(coverage_treshold)/np.log(10), c='r', linewidth=3, linestyle='--')
  
 
     ##
@@ -107,22 +141,22 @@ def get_CBC_GBC_combos(path_bulk, path_sample_map, path_sc, sample, ncores=8, bu
     # Count again
     del counts
     counts = sc_df.groupby(['CBC', 'GBC', 'UMI']).size().reset_index(name='count')
-    medstd = counts['count'].median() + counts['count'].std()
-    coverage_treshold = medstd
+    counts['log'] = np.log(counts['count'])/np.log(10)
+    counts = select_UMIs(counts, coverage_treshold)
 
     # Viz distribution n reads, after correction
-    counts['log'] = np.log(counts['count'])/np.log(10)
-    hist(counts, 'log', c='k', ax=axs[1], n=50, a=.7)
+    hist(counts, 'log', by='status', 
+        c={'filtered_out':'k', 'retained':'r'}, ax=axs[1], n=50, a=.5)
+    axs[1].legend()
     format_ax(
         xticks=np.logspace(0,4,5), ax=axs[1], xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
         title='CBC-GBC-UMI combination \n n reads distribution after GBC correction'
     )
     axs[1].set_yscale('log')
-    axs[1].axvline(np.log(coverage_treshold)/np.log(10), c='r', linewidth=3, linestyle='--')
     fig.tight_layout()
 
     # Compute CBC-GBC combos with filtered UMIs, and related stats
-    filtered = counts.query('count>=@coverage_treshold')
+    filtered = counts.loc[lambda x: x['status']=='retained']
     df_combos = (
         pd.merge(
             sc_df, filtered[['CBC', 'GBC', 'UMI']],
@@ -211,6 +245,7 @@ def get_clones(M):
 
 def custom_workflow(
     path_bulk, path_sample_map, path_sc, sample, ncores=8, bulk_correction_treshold=1, 
+    filtering_method="medstd", coverage_treshold=10,
     umi_treshold=5, p_treshold=.001, ratio_to_most_abundant_treshold=.3
     ):
     """
@@ -223,11 +258,17 @@ def custom_workflow(
 
     T.start()
     f = open('clone_calling_summary.txt', 'w')
+
+    if filtering_method in ["medstd", "GMM"]:
+        coverage_treshold = filtering_method
+    else:
+        print(f'Use fixed coverage treshold...{coverage_treshold}')
+
     f.write(f'# Custom clone calling and cell assignment workflow: \n')
     f.write(f'\n')
     f.write(f'Input params:\n')
     f.write(f'  * bulk_correction_treshold: {bulk_correction_treshold}\n')
-    f.write(f'  * coverage_treshold: "auto"\n')
+    f.write(f'  * coverage_treshold: {coverage_treshold} \n')
     f.write(f'  * umi_treshold: {umi_treshold}\n')
     f.write(f'  * p_treshold: {p_treshold}\n')
     f.write(f'  * ratio_to_most_abundant_treshold: {ratio_to_most_abundant_treshold}\n')
@@ -239,6 +280,7 @@ def custom_workflow(
         path_sc, 
         sample, 
         ncores=ncores, 
+        coverage_treshold=coverage_treshold,
         bulk_correction_treshold=bulk_correction_treshold
     )
     fig.savefig('CBC_GBC_UMI_read_distribution.png')
