@@ -22,7 +22,7 @@ process publish_sc {
           path(alignment_summary), 
           path(filtered), 
           path(raw),
-          path(run_summary)
+          path(run_summary),
           path(counts)
 
     output:
