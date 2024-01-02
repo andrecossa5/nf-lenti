@@ -12,7 +12,7 @@ process STAR {
   tuple val(sample_name), path(fastq)
 
   output:
-  tuple val(sample_name), path("Aligned.sortedByCoord.out.bam"), emit: bam
+  tuple val(sample_name), path("Aligned.out.bam"), emit: bam
 
   script:
   """
@@ -21,14 +21,13 @@ process STAR {
     --genomeDir ${params.ref} \
     --readFilesIn ${fastq} \
     --readFilesCommand zcat \
-    --outSAMtype BAM SortedByCoordinate \
-    --limitBAMsortRAM 50000000000 \
+    --outSAMtype BAM \
     --outSAMattributes NH HI nM AS
   """
 
   stub:
   """
-  touch Aligned.sortedByCoord.out.bam
+  touch Aligned.out.bam
   """
 
 }
