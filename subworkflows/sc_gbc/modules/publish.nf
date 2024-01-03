@@ -24,6 +24,7 @@ process publish_sc {
           path(raw),
           path(run_summary),
           path(counts)
+          path(selected_umi_plot)
 
     output:
     path CBC_GBC
@@ -39,6 +40,7 @@ process publish_sc {
     path run_summary
     path cell_assignment_summary
     path counts
+    path selected_umi_plot 
 
     script:
     """

@@ -484,7 +484,7 @@ def cell_assignment_workflow(
     scatter(df_combos, 'umi', 'p', by='max_ratio', marker='o', s=10, vmin=.2, vmax=.8, ax=ax, c='Spectral_r')
     format_ax(
         ax, title='p Poisson vs nUMIs, all CBC-GBC combinations', 
-        xlabel='nUMIs', ylabel='-log10(p_poisson)', reduce_spines=True
+        xlabel='nUMIs', ylabel='p', reduce_spines=True
     )
     ax.axhline(y=p_treshold, color='k', linestyle='--')
     ax.text(.05, .9, f'Total CBC-GBC combo: {df_combos.shape[0]}', transform=ax.transAxes)

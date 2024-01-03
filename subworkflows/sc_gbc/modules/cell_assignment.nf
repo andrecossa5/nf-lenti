@@ -19,6 +19,7 @@ process CELL_ASSIGNMENT {
   tuple val(sample_name), path("clone_calling_summary.txt"), emit: summary
   tuple val(sample_name), path("CBC_GBC_UMI_read_distribution.png"), emit: combo_dist
   tuple val(sample_name), path("counts.pickle"), emit: counts
+  tuple val(sample_name), path("selected_UMIs.png"), emit: selected_umi_plot
 
   script: 
   """
@@ -48,6 +49,7 @@ process CELL_ASSIGNMENT {
   touch CBC_GBC_combo_status.png
   touch clone_calling_summary.txt
   touch CBC_GBC_UMI_read_distribution.png
+  touch selected_UMIs.png
   """
 
 }
