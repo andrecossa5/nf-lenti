@@ -23,7 +23,7 @@ process publish_sc {
           path(filtered), 
           path(raw),
           path(run_summary),
-          path(counts)
+          path(counts),
           path(selected_umi_plot)
 
     output:
