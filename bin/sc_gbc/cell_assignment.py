@@ -143,8 +143,8 @@ my_parser.add_argument(
 my_parser.add_argument(
     '--sample_params',
     type=str,
-    default=None,
-    help='Path to sample_specific filtering parameters. Default: None.'
+    default="NULL",
+    help='Path to sample_specific filtering parameters. Default: NULL.'
 )
 
 
@@ -208,7 +208,7 @@ def main():
         * Nadalin et al., pre-print on biorxiv 2023
         """
 
-        if sample_params is not None:
+        if sample_params is not "NULL":
             sample_params = pd.read_csv(sample_params, index_col=0)
             sample_params = sample_params.loc[sample].to_dict()
 
