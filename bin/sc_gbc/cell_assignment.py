@@ -139,6 +139,14 @@ my_parser.add_argument(
     help='Min coverage (nUMIs / nreads) to consider a CB-GBC combination supported. Default: .3.'
 )
 
+# sample_params
+my_parser.add_argument(
+    '--sample_params',
+    type=str,
+    default=None,
+    help='Path to sample_specific filtering parameters. Default: None.'
+)
+
 
 ##
 
@@ -158,6 +166,7 @@ coverage_treshold = args.coverage_treshold
 umi_treshold = args.umi_treshold
 p_treshold = args.p_treshold
 ratio_to_most_abundant_treshold = args.ratio_to_most_abundant_treshold
+sample_params = args.sample_params
 
 # sample = 'AC_AC_mets_3'
 # path_bulk = '/Users/IEO5505/Desktop/example_mito/scratch_data/'
@@ -199,6 +208,10 @@ def main():
         * Nadalin et al., pre-print on biorxiv 2023
         """
 
+        if sample_params is not None:
+            sample_params_df = pd.read_csv(sample_params, index_col=0)
+            sample_params_df = sample_params_df.loc[sample].to_dict()
+
         cell_assignment_workflow(
             path_bulk, 
             path_sample_map, 
@@ -212,7 +225,8 @@ def main():
             coverage_treshold=coverage_treshold,
             umi_treshold=umi_treshold, 
             p_treshold=p_treshold,
-            ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold
+            ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold,
+            sample_params=sample_params
         )
 
     except:

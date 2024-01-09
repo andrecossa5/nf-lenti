@@ -7,7 +7,7 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
-from sklearn.metrics import pairwise_distances
+from sklearn.metrics import pairwise_distances, r2_score, mean_squared_error
 from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
 from scipy.stats import poisson
@@ -140,14 +140,14 @@ def count_UMIs(sc_df, gbc_col='GBC'):
         .size()
         .reset_index(name='count')
     )
-    counts['log'] = np.log(counts['count'])/np.log(10)
+    counts['log'] = np.log(counts['count'])/np.log(10) # LARRY log transformation
     return counts
 
 
 ##
 
 
-def mark_UMIs(counts, coverage_treshold=None, n_mixtures=2, use_log=True):
+def mark_UMIs(counts, coverage_treshold=None, n_mixtures=2, nbins=50):
     """
     Mark noisy UMI read_counts.
     """
@@ -155,42 +155,108 @@ def mark_UMIs(counts, coverage_treshold=None, n_mixtures=2, use_log=True):
     if isinstance(coverage_treshold, int):
         coverage_treshold = coverage_treshold
         counts['status'] = np.where(counts['count']>=coverage_treshold, 'Retain', 'Filter out')
+        return counts
 
     elif coverage_treshold == 'medstd':
         coverage_treshold = counts['count'].median() + counts['count'].std()
         counts['status'] = np.where(counts['count']>=coverage_treshold, 'Retain', 'Filter out')
+        return counts
 
     elif coverage_treshold == 'GMM':
-        value_type = 'log' if use_log else 'count'
-        X = counts[value_type].values.reshape(-1,1)
+        x = counts['log']
+        counts['bin'] = pd.cut(x, bins=nbins)
+        x = counts.groupby('bin')['log'].median().values
+        test = ~np.isnan(x)
+        x = x[test].reshape(-1,1)
         gmm = GaussianMixture(n_components=n_mixtures, random_state=1234)  
-        gmm.fit(X)
+        gmm.fit(x)
         top_component_idx = np.argsort(gmm.means_.flatten())[-1]
-        counts['status'] = np.where(gmm.predict_proba(X)[:,top_component_idx]>.85, 'Retain', 'Filter out')
+        counts['status'] = np.where(gmm.predict_proba(x)[:,top_component_idx]>.85, 'Retain', 'Filter out')
+        return counts
+    
+    elif coverage_treshold == 'polyfit':
 
-    return counts
+        # Prep data
+        value_type = 'log'
+        x = counts[value_type]
+        counts['bin'] = pd.cut(x, bins=nbins)
+        x = counts.groupby('bin')['log'].median().values
+        test = ~np.isnan(x)
+        x = x[test]
+        y = counts.groupby('bin').size().values
+        y = np.log10(y[test])
+
+        # Fit polynomial of degree 3
+        degree = 3
+        a,b,c,d = np.polyfit(x, y, degree)
+        fitted_curve = np.poly1d([a,b,c,d])
+        y_fitted = fitted_curve(x)
+        r_squared = r2_score(y, y_fitted)
+        mse = mean_squared_error(y, y_fitted)
+
+        # Obtain roots
+        x0 = ( -2*b + np.sqrt((4*b**2)-(12*a*c)) ) / 6*a
+        x1 = ( -2*b - np.sqrt((4*b**2)-(12*a*c)) ) / 6*a
+        xmin = [x0, x1][np.argmin([x0,x1])]
+        ymin = a*xmin**3 + b*xmin**2 + c*xmin + d
+
+        # Define UMI status
+        counts['status'] = np.where(counts['count']>=10**xmin, 'Retain', 'Filter out')
+        d = {
+            'counts':counts, 'x':x, 'y':y, 'y_fitted':y_fitted, 
+            'r_squared':r_squared, 'mse':mse, 'xmin':xmin, 'ymin':ymin
+
+        }
+
+        return d
+
+
+## 
+    
+
+def viz_polyfit(x, y, y_fitted, xmin, ymin, r_squared, mse, ax=None):
+    """
+    Visualize polynomial fit used to find UMI nreads cutoff.
+    """
+    ax.plot(x, y, 'ko', markersize=5)
+    ax.plot(x, y_fitted)
+    ax.plot(xmin, ymin, 'rx')
+    ax.axvline(x=xmin, c='r')
+    format_ax(ax, title='Find polynomial root', xlabel='n reads (log10)', ylabel='n CBC-GBC-UMI combinations (log10)')
+    ax.text(.6, .9, f'R2: {r_squared:.2f}, MSE: {mse:.2f}', transform=ax.transAxes)
+    ax.text(.6, .86, f'n_reads treshold: {round(10**xmin)}', transform=ax.transAxes)
+
+    return ax
 
 
 ##
 
 
-def viz_UMIs(counts, ax, log=True, by=None):
+def sturges(x):   
+    return round(1 + 2 * 3.322 * np.log(len(x))) 
+
+
+##
+
+
+def viz_UMIs(counts, ax, log=True, by=None, nbins='sturges'):
     """
     Plot UMI n reads distribution.
     """
     value_type = 'log' if log else 'count'
+    nbins = nbins if nbins != 'sturges' else sturges(counts[value_type])
 
     if by is not None:
         colors = {'Filter out':'k', 'Retain':'r'}
-        hist(counts, value_type, by=by, c=colors, ax=ax, n=50, a=.7)
+        hist(counts, value_type, by=by, c=colors, ax=ax, n=nbins, a=.7)
         add_legend('UMI status', colors=colors, ax=ax, bbox_to_anchor=(1,1), loc='upper right',
                    label_size=10, ticks_size=9)
     else:
-        hist(counts, value_type, c='k', ax=ax, n=50, a=.7)
+        hist(counts, value_type, c='k', ax=ax, n=nbins, a=.7)
     format_ax(
         xticks=np.logspace(0,4,5), ax=ax, 
         xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
-        title='CBC-GBC-UMI combination \n n reads distribution'
+        title='CBC-GBC-UMI combination'
     )
     if log:
         ax.set_yscale('log')
@@ -201,18 +267,16 @@ def viz_UMIs(counts, ax, log=True, by=None):
 ##
 
 
-def get_combos(counts, sc_df, gbc_col='GBC_reference-free'):
+def get_combos(counts, gbc_col='GBC_reference-free'):
     """
     Compute CBC-GBC stats from filtered UMIs.
     """
     filtered = counts.loc[lambda x: x['status']=='Retain']
-    filtered = filtered[['CBC', gbc_col, 'UMI']].rename(columns={gbc_col:'GBC'}).reset_index(drop=True)
-    sc_df = sc_df[['CBC', gbc_col, 'UMI']].rename(columns={gbc_col:'GBC'})
     df_combos = (
-        pd.merge(sc_df, filtered, on=['CBC', 'GBC', 'UMI'], how='inner')
-        .groupby(['CBC', 'GBC'])['UMI']
-        .nunique().to_frame('umi')
-        .reset_index()
+        filtered
+        .rename(columns={gbc_col:'GBC'})
+        .groupby(['CBC', 'GBC'])['UMI'].nunique()
+        .to_frame('umi').reset_index()
         .assign(
             max_ratio=lambda x: \
             x.groupby('CBC')['umi'].transform(lambda x: x/x.max()),
@@ -220,7 +284,6 @@ def get_combos(counts, sc_df, gbc_col='GBC_reference-free'):
             x.groupby('CBC')['umi'].transform(lambda x: x/x.sum())
         )
     )
-
     return df_combos
 
 
@@ -297,7 +360,9 @@ def get_clones(M):
 
 def cell_assignment_workflow(
     path_bulk, path_sample_map, path_sc, sample, 
-    correction_type='reference-free', sc_correction_treshold=1, bulk_correction_treshold=1, ncores=8,  
+    sample_params=None,
+    correction_type='reference-free', sc_correction_treshold=1, 
+    bulk_correction_treshold=1, ncores=8,  
     filtering_method="medstd", coverage_treshold=10, 
     umi_treshold=5, p_treshold=.001, ratio_to_most_abundant_treshold=.3
     ):
@@ -312,7 +377,12 @@ def cell_assignment_workflow(
     T.start()
     f = open('clone_calling_summary.txt', 'w')
 
-    if filtering_method in ["medstd", "GMM"]:
+    if sample_params is not None:
+        coverage_treshold = sample_params['coverage_treshold']
+        umi_treshold = sample_params['umi_treshold']
+        p_treshold = sample_params['p_treshold']
+        ratio_to_most_abundant_treshold = ratio_to_most_abundant_treshold['ratio_to_most_abundant_treshold']
+    elif filtering_method in ["medstd", "GMM"]:
         coverage_treshold = filtering_method
     else:
         print(f'Use fixed coverage treshold...{coverage_treshold}')
@@ -404,7 +474,7 @@ def cell_assignment_workflow(
     fig.savefig('selected_UMIs.png', dpi=300)
 
     # Get CBC-GBC combos with selected UMIs
-    df_combos = get_combos(counts, sc_df, gbc_col=f'GBC_{correction_type}')
+    df_combos = get_combos(counts, gbc_col=f'GBC_{correction_type}')
 
     # Filter CBC-GBC combos
     M, _ = filter_and_pivot(

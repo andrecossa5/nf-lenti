@@ -37,6 +37,7 @@ process CELL_ASSIGNMENT {
   --umi_treshold ${params.umi_treshold} \
   --p_treshold ${params.p_treshold} \
   --ratio_to_most_abundant_treshold ${params.ratio_to_most_abundant_treshold} \
+  --sample_params ${params.sample_params}
   """
 
   stub:
