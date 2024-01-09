@@ -209,8 +209,8 @@ def main():
         """
 
         if sample_params is not None:
-            sample_params_df = pd.read_csv(sample_params, index_col=0)
-            sample_params_df = sample_params_df.loc[sample].to_dict()
+            sample_params = pd.read_csv(sample_params, index_col=0)
+            sample_params = sample_params.loc[sample].to_dict()
 
         cell_assignment_workflow(
             path_bulk, 

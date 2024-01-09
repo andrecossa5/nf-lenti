@@ -361,10 +361,10 @@ def get_clones(M):
 def cell_assignment_workflow(
     path_bulk, path_sample_map, path_sc, sample, 
     sample_params=None,
-    correction_type='reference-free', sc_correction_treshold=1, 
-    bulk_correction_treshold=1, ncores=8,  
-    filtering_method="medstd", coverage_treshold=10, 
-    umi_treshold=5, p_treshold=.001, ratio_to_most_abundant_treshold=.3
+    correction_type='reference-free', sc_correction_treshold=3, 
+    bulk_correction_treshold=3, ncores=8,  
+    filtering_method="medstd", coverage_treshold=15, 
+    umi_treshold=5, p_treshold=.5, ratio_to_most_abundant_treshold=.5
     ):
     """
     Complete clone calling and cell assignment workflow.
@@ -378,6 +378,7 @@ def cell_assignment_workflow(
     f = open('clone_calling_summary.txt', 'w')
 
     if sample_params is not None:
+        correction_type = sample_params['correction_type']
         coverage_treshold = sample_params['coverage_treshold']
         umi_treshold = sample_params['umi_treshold']
         p_treshold = sample_params['p_treshold']
