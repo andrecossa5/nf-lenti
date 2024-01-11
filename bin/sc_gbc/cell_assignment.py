@@ -213,8 +213,8 @@ def main():
         """
 
         if sample_params is not "NULL":
-            sample_params = pd.read_csv(sample_params, index_col=0)
-            sample_params = sample_params.loc[sample].to_dict()
+            params = pd.read_csv(sample_params, index_col=0)
+            params = params.loc[sample].to_dict()
 
         cell_assignment_workflow(
             path_bulk, 
@@ -231,7 +231,7 @@ def main():
             p_treshold=p_treshold,
             max_ratio_treshold=max_ratio_treshold,
             normalized_abundance_treshold=normalized_abundance_treshold,
-            sample_params=sample_params
+            sample_params=params
         )
 
     except:
