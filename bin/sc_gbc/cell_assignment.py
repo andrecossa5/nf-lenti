@@ -212,7 +212,7 @@ def main():
         * Nadalin et al., pre-print on biorxiv 2023
         """
 
-        if sample_params is not "NULL":
+        if sample_params != "NULL":
             params = pd.read_csv(sample_params, index_col=0)
             params = params.loc[sample].to_dict()
 
