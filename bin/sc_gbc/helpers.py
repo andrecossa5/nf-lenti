@@ -290,7 +290,7 @@ def get_combos(counts, gbc_col='GBC_reference-free'):
 ##
 
 
-def filter_and_pivot(df_combos, umi_treshold=5, p_treshold=.001, ratio_to_most_abundant_treshold=.3):
+def filter_and_pivot(df_combos, umi_treshold=5, p_treshold=.01, max_ratio_treshold=.8, normalized_abundance_treshold=.8):
     """
     Filter a CBC-GBC-UMI table and return it in large format.
     """
@@ -314,7 +314,8 @@ def filter_and_pivot(df_combos, umi_treshold=5, p_treshold=.001, ratio_to_most_a
     # Supported and unsupported CBC-GBC combinations
     test = (df_combos['umi'] >= umi_treshold) & \
         (df_combos['p'] <= p_treshold) & \
-        (df_combos['max_ratio'] >= ratio_to_most_abundant_treshold)
+        (df_combos['max_ratio'] >= max_ratio_treshold) & \
+        (df_combos['normalized_abundance'] >= normalized_abundance_treshold)
     df_combos['status'] = np.where(test, 'supported', 'unsupported')
 
     # Filter and pivot
@@ -364,7 +365,7 @@ def cell_assignment_workflow(
     correction_type='reference-free', sc_correction_treshold=3, 
     bulk_correction_treshold=3, ncores=8,  
     filtering_method="medstd", coverage_treshold=15, 
-    umi_treshold=5, p_treshold=.5, ratio_to_most_abundant_treshold=.5
+    umi_treshold=5, p_treshold=.5, max_ratio_treshold=.8, normalized_abundance_treshold=.8
     ):
     """
     Complete clone calling and cell assignment workflow.
@@ -382,7 +383,8 @@ def cell_assignment_workflow(
         coverage_treshold = sample_params['coverage_treshold']
         umi_treshold = sample_params['umi_treshold']
         p_treshold = sample_params['p_treshold']
-        ratio_to_most_abundant_treshold = ratio_to_most_abundant_treshold['ratio_to_most_abundant_treshold']
+        max_ratio_treshold = sample_params['max_ratio_treshold']
+        normalized_abundance_treshold = sample_params['normalized_abundance_treshold']
     elif filtering_method in ["medstd", "GMM"]:
         coverage_treshold = filtering_method
     else:
@@ -395,7 +397,8 @@ def cell_assignment_workflow(
     f.write(f'  * coverage_treshold: {coverage_treshold} \n')
     f.write(f'  * umi_treshold: {umi_treshold}\n')
     f.write(f'  * p_treshold: {p_treshold}\n')
-    f.write(f'  * ratio_to_most_abundant_treshold: {ratio_to_most_abundant_treshold}\n')
+    f.write(f'  * max_ratio_treshold: {max_ratio_treshold}\n')
+    f.write(f'  * normalized_abundance_treshold: {normalized_abundance_treshold}\n')
     f.write(f'\n')
 
     # Read and count
@@ -482,7 +485,8 @@ def cell_assignment_workflow(
         df_combos, 
         umi_treshold=umi_treshold, 
         p_treshold=p_treshold, 
-        ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold
+        max_ratio_treshold=max_ratio_treshold,
+        normalized_abundance_treshold=normalized_abundance_treshold
     )
 
 

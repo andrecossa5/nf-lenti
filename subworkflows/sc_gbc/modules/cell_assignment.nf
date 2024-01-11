@@ -36,7 +36,8 @@ process CELL_ASSIGNMENT {
   --correction_type ${params.correction_type} \
   --umi_treshold ${params.umi_treshold} \
   --p_treshold ${params.p_treshold} \
-  --ratio_to_most_abundant_treshold ${params.ratio_to_most_abundant_treshold} \
+  --max_ratio_treshold ${params.max_ratio_treshold} \
+  --normalized_abundance_treshold ${params.normalized_abundance_treshold} \
   --sample_params ${params.sample_params}
   """
 

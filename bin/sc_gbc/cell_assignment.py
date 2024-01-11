@@ -117,26 +117,28 @@ my_parser.add_argument(
     help='Min number of UMIs to consider a CBC-GBC combination supported. Default: 5.'
 )
 
-my_parser.add_argument(
-    '--from_subset', 
-    action='store_true',
-    help='If the qc needs to be done of a subsetted .h5ad matrix. Default: False.'
-)
-
 # p_treshold
 my_parser.add_argument(
     '--p_treshold',
     type=float,
-    default=.001,
+    default=.5,
     help='Max p_poisson treshold to consider a CBC-GBC combination supported. Default: .001.'
 )
 
 # ratio_to_most_abundant_treshold
 my_parser.add_argument(
-    '--ratio_to_most_abundant_treshold',
+    '--max_ratio_treshold',
     type=float,
-    default=.3,
-    help='Min coverage (nUMIs / nreads) to consider a CB-GBC combination supported. Default: .3.'
+    default=.8,
+    help='Min ratio between a GBC nUMIs and the most abundant (nUMIs) GBC found for a given CBC. Default: .8.'
+)
+
+# Normalized abundance
+my_parser.add_argument(
+    '--normalized_abundance_treshold',
+    type=float,
+    default=.8,
+    help='Min abundance (nUMIs fraction within a cell) of a CBC-GBC combination. Default: .8.'
 )
 
 # sample_params
@@ -165,7 +167,8 @@ filtering_method = args.filtering_method
 coverage_treshold = args.coverage_treshold
 umi_treshold = args.umi_treshold
 p_treshold = args.p_treshold
-ratio_to_most_abundant_treshold = args.ratio_to_most_abundant_treshold
+max_ratio_treshold = args.max_ratio_treshold
+normalized_abundance_treshold = args.normalized_abundance_treshold
 sample_params = args.sample_params
 
 # sample = 'AC_AC_mets_3'
@@ -176,11 +179,12 @@ sample_params = args.sample_params
 # bulk_correction_treshold = 3
 # sc_correction_treshold = 3
 # correction_type = 'reference-free'
-# filtering_method = 'GMM'
+# filtering_method = 'fixed'
 # coverage_treshold = 10
 # umi_treshold = 5
-# p_treshold = 0.01
-# ratio_to_most_abundant_treshold = .3
+# p_treshold = 0.5
+# max_ratio_treshold = .5
+# max_ratio_treshold = .5
 
 
 # Import code
@@ -225,7 +229,8 @@ def main():
             coverage_treshold=coverage_treshold,
             umi_treshold=umi_treshold, 
             p_treshold=p_treshold,
-            ratio_to_most_abundant_treshold=ratio_to_most_abundant_treshold,
+            max_ratio_treshold=max_ratio_treshold,
+            normalized_abundance_treshold=normalized_abundance_treshold,
             sample_params=sample_params
         )
 

@@ -23,8 +23,9 @@
     "coverage_treshold" : 20,
     "correction_type" : "reference-free",
     "umi_treshold" : 5,
-    "p_treshold" : 0.1,
-    "ratio_to_most_abundant_treshold" : 0.5,
+    "p_treshold" : 0.5,
+    "max_ratio_treshold" : 0.8,
+    "normalized_abundance_treshold" : 0.7,
     "sample_params" : "/Users/IEO5505/Desktop/example_mito/meta/sample_params.csv",
 
     "maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/maester",
