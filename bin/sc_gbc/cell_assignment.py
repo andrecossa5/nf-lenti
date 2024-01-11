@@ -215,7 +215,9 @@ def main():
         if sample_params != "NULL":
             params = pd.read_csv(sample_params, index_col=0)
             params = params.loc[sample].to_dict()
-
+        else:
+            params = None
+            
         cell_assignment_workflow(
             path_bulk, 
             path_sample_map, 
