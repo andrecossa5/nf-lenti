@@ -365,8 +365,7 @@ def get_clones(M):
 
 
 def cell_assignment_workflow(
-    path_sc,
-    #path_bulk, path_sample_map,path_sc , sample, 
+    path_bulk, path_sample_map,path_sc , sample, 
     sample_params=None,
     correction_type='reference-free', sc_correction_treshold=3, 
     bulk_correction_treshold=3, ncores=8,  
@@ -383,7 +382,7 @@ def cell_assignment_workflow(
 
     T.start()
     f = open('clone_calling_summary.txt', 'w')
-    """"
+    
     if sample_params is not None:
         correction_type = sample_params['correction_type']
         coverage_treshold = sample_params['coverage_treshold']
@@ -406,7 +405,7 @@ def cell_assignment_workflow(
     f.write(f'  * max_ratio_treshold: {max_ratio_treshold}\n')
     f.write(f'  * normalized_abundance_treshold: {normalized_abundance_treshold}\n')
     f.write(f'\n')
-    """
+    
     # Read and count
     #sc_df, bulk_df = read_data(path_bulk, path_sample_map, path_sc, sample=sample)
     sc_df= read_data(path_sc)
