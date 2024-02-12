@@ -407,8 +407,8 @@ def cell_assignment_workflow(
     f.write(f'\n')
     
     # Read and count
-    #sc_df, bulk_df = read_data(path_bulk, path_sample_map, path_sc, sample=sample)
-    sc_df= read_data(path_sc)
+    sc_df, bulk_df = read_data(path_bulk, path_sample_map, path_sc, sample=sample)
+    
 
     # Count
     COUNTS = {}
@@ -416,22 +416,22 @@ def cell_assignment_workflow(
     print('Correction')
     # Correction
     sc_map = map_GBCs(sc_df, sc_correction_treshold=sc_correction_treshold)
-    #bulk_map = map_GBCs(sc_df, bulk_df, bulk_correction_treshold=bulk_correction_treshold, ncores=ncores)
+    bulk_map = map_GBCs(sc_df, bulk_df, bulk_correction_treshold=bulk_correction_treshold, ncores=ncores)
     sc_df['GBC_reference-free'] = sc_df['GBC'].map(sc_map)
-    #sc_df['GBC_reference'] = sc_df['GBC'].map(bulk_map)
+    sc_df['GBC_reference'] = sc_df['GBC'].map(bulk_map)
     COUNTS['reference-free'] = count_UMIs(sc_df, gbc_col='GBC_reference-free')
-    #COUNTS['reference'] = count_UMIs(sc_df, gbc_col='GBC_reference')
+    COUNTS['reference'] = count_UMIs(sc_df, gbc_col='GBC_reference')
     
 
     # % of raw counts lost with bulk
     assert COUNTS['raw']['count'].sum() == COUNTS['reference-free']['count'].sum()
-    #perc_read_retained_bulk = COUNTS['reference']['count'].sum() / COUNTS['raw']['count'].sum()
+    perc_read_retained_bulk = COUNTS['reference']['count'].sum() / COUNTS['raw']['count'].sum()
     
     # % GBCs retained with sc and bulk corrections
     perc_gbc_retained_sc = COUNTS['reference-free']['GBC_reference-free'].value_counts().size / \
                            COUNTS['raw']['GBC'].value_counts().size
-    #perc_gbc_retained_bulk = COUNTS['reference']['GBC_reference'].value_counts().size / \
-                           #COUNTS['raw']['GBC'].value_counts().size
+    perc_gbc_retained_bulk = COUNTS['reference']['GBC_reference'].value_counts().size / \
+                           COUNTS['raw']['GBC'].value_counts().size
     
     
     ##
@@ -453,14 +453,14 @@ def cell_assignment_workflow(
     axs[1].text(.53, .91, f'% GBCs retained: {perc_gbc_retained_sc*100:.2f}%', transform=axs[1].transAxes)
     axs[1].text(.53, .87, f'n reads: {COUNTS["reference-free"]["count"].median():.2f} (+-{COUNTS["reference-free"]["count"].std():.2f})', 
                 transform=axs[1].transAxes)
-    """"
+    
     viz_UMIs(COUNTS['reference'], axs[2])
     axs[2].set(title='Bulk-DNA reference correction (PT)')
     axs[2].text(.53, .95, f'Reads retained: {perc_read_retained_bulk*100:.2f}%', transform=axs[2].transAxes)
     axs[2].text(.53, .91, f'GBCs retained: {perc_gbc_retained_bulk*100:.2f}%', transform=axs[2].transAxes)
     axs[2].text(.53, .87, f'n reads: {COUNTS["reference"]["count"].median():.2f} (+-{COUNTS["reference"]["count"].std():.2f})', 
                 transform=axs[2].transAxes)
-    """
+    
     # Save
     fig.tight_layout()
     fig.savefig('CBC_GBC_UMI_read_distribution.png', dpi=300)
@@ -506,7 +506,7 @@ def cell_assignment_workflow(
     f.write(f'- n supported CBC-GBC combos (N.B. only good GBCs): {(df_combos["status"]=="supported").sum()}\n')
     f.write(f'- Observed MOI (from supported CBC-GBC combos only): {(M>0).sum(axis=1).median():.2f} median, (+-{(M>0).sum(axis=1).std():.2f})\n')
     f.write(f'\n')
-    """"
+    
     # Relationship with bulk (GBC sequences) checks
     pseudobulk_sc = M.sum(axis=0) / M.sum(axis=0).sum()
     common = list(set(pseudobulk_sc.index) & set(bulk_df.index))
@@ -519,7 +519,7 @@ def cell_assignment_workflow(
         f.write(f'- Fraction of bulk GBCs found in sc: {bulk_df.index.isin(df_combos["GBC"].unique()).sum()/bulk_df.shape[0]:.2f}\n')
         f.write(f'- Common GBCs abundance (normalized nUMIs from pseudobulk scRNA-seq vs normalized read counts from bulk DNA-seq) correlation: {corr:.2f}\n')
         f.write(f'\n')
-    """
+
     # GBC sets checks
     sets = get_clones(M)
     GBC_set = list(chain.from_iterable(sets['GBC_set'].map(lambda x: x.split(';')).to_list()))
