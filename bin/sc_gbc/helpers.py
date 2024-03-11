@@ -239,7 +239,7 @@ def sturges(x):
 ##
 
 
-def viz_UMIs(counts, ax, log=True, by=None, nbins='sturges'):
+def viz_UMIs(counts, ax, log=True, by=None, nbins='sturges', c='r'):
     """
     Plot UMI n reads distribution.
     """
@@ -247,12 +247,12 @@ def viz_UMIs(counts, ax, log=True, by=None, nbins='sturges'):
     nbins = nbins if nbins != 'sturges' else sturges(counts[value_type])
 
     if by is not None:
-        colors = {'Filter out':'k', 'Retain':'r'}
+        colors = {'Filter out':'k', 'Retain': '#1f77b4'}
         hist(counts, value_type, by=by, c=colors, ax=ax, n=nbins, a=.7)
         add_legend('UMI status', colors=colors, ax=ax, bbox_to_anchor=(1,1), loc='upper right',
                    label_size=10, ticks_size=9)
     else:
-        hist(counts, value_type, c='k', ax=ax, n=nbins, a=.7)
+        hist(counts, value_type, c=c, ax=ax, n=nbins, a=.7)
     format_ax(
         xticks=np.logspace(0,4,5), ax=ax, 
         xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
