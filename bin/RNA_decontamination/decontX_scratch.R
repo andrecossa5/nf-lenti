@@ -1,5 +1,6 @@
+# DecontX 
 
-# Load the required library for reading CSV files
+# Code
 library(readr)
 library(celda)
 library(SingleCellExperiment)
@@ -8,14 +9,23 @@ library(umap)
 library(ggplot2)
 
 
+##
+
+
+# Args
+path_results <- '/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/RNA_decontamination/results/M_'
+
+
+
 
 # Read the CSV file into a data frame
-for (coverage_threshold in seq(0, 100, by = 20)) {
-  path_in<-paste("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/RNA_decontamination/results/M_", as.character(coverage_threshold), ".csv", sep = "")
+for (coverage_threshold in seq(0, 100, by=20)) {
+  
+  path_in <- paste("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/RNA_decontamination/results/M_", as.character(coverage_threshold), ".csv", sep = "")
   #path<-paste("/Users/ieo6943/Documents/Guido/NTS/M_", as.character(coverage_threshold), ".csv", sep = "")
-#MM<- list()
-#for (i in seq(1,10)){
-  data <- read.csv(path_in, header = TRUE, row.names = 1)
+  #MM<- list()
+  #for (i in seq(1,10)){
+  data <- read.csv(path_in, header=TRUE, row.names=1)
   data<-as.matrix(data)
   
 
@@ -59,3 +69,5 @@ for (coverage_threshold in seq(0, 100, by = 20)) {
                        dim1 = m_umap[, 1], dim2 = m_umap[, 2], )
 }
 
+
+##
