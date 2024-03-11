@@ -82,5 +82,5 @@ for line in file_in:
 
 file_in.close()
 file_out.close()
-file_out_not.close()
+file_out_not
 
