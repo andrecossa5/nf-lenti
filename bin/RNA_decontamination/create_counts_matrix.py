@@ -17,9 +17,9 @@ from helpers import *
 
 
 # Path
-# path_main = ''
-path_sc = os.path.join(path_main, 'data', 'GBC_read_elements.tsv.gz')
-path_count = os.path.join(path_main, 'data', 'counts.pickle')
+path_main = '/Users/ieo6943/Documents/data/8_clones'
+path_sc = os.path.join(path_main, 'GBC_read_elements.tsv.gz')
+path_count = os.path.join(path_main, 'counts.pickle')
 path_bulk = None
 path_sample_map = None
 
@@ -39,7 +39,7 @@ p_treshold = 1
 max_ratio_treshold = .8
 normalized_abundance_treshold = .8
 bulk_correction_treshold = 3
-
+sample = None
 
 ##
 
@@ -82,7 +82,7 @@ for coverage_treshold in list(range(0, 101, 20)):
     df_combos = get_combos(counts, gbc_col=f'GBC_{correction_type}')
     M = df_combos.pivot_table(index='CBC', columns='GBC', values='umi')
     M[M.isna()] = 0
-    M.to_csv(os.path.join(path, f'M_{coverage_treshold}.csv'))
+    M.to_csv(os.path.join(path_main,'count_matrix_&_DecontX', f'M_{coverage_treshold}.csv'))
 
 
 ##
