@@ -81,14 +81,13 @@ for r in range(0, 15):
     knn_indices, distances, connectivities = kNN_graph(X, k=15)
     z = leiden_clustering(connectivities, res=res)
     n_z_unique.append(len(np.unique(z)))
-    X_l = pd.DataFrame(z,index=X.index,columns=['GBC_set'])
+    X_l = pd.DataFrame(z,index=X.index,columns=['GBC_set']) 
     X_l_n, M_l_n = merge_common_rows(X_l, M_l)
     similarity.append(custom_ARI(X_l_n['GBC_set'], M_l_n['GBC_set']))
 
 # Change with fig, ax = plt.subplots() synthax
 plt.figure()
 plt.scatter(n_z_unique, similarity, s=5 )
-# Show the plot
 plt.xlabel('number of clusters')
 plt.ylabel('Similarity')
 plt.title('Data with Cossa filtering vs lognorm raw DecontX data & leiden clustering')

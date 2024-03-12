@@ -288,10 +288,12 @@ def create_boxplots(data_list, path, title, list_of_value, y_ax ):
 
     # Show the plot
     plt.savefig(path + f'{title}.png')
+
+    
 ##
 
 
-super_data={'corrections_perc':[], 'complete_correction': []}
+super_data = {'corrections_perc':[], 'complete_correction': []}
 
 for coverage_treshold in list(range(0, 101, 20)):
     
