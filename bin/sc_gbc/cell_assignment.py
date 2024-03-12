@@ -188,9 +188,9 @@ sample_params = args.sample_params
 
 
 # Import code
-# sys.path.append('/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/sc_gbc')
-# os.chdir('/Users/IEO5505/Desktop/example_mito/scratch_results')
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append('/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/sc_gbc')
+os.chdir('/Users/IEO5505/Desktop/example_mito/scratch_results')
+# sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from helpers import *
 
 
