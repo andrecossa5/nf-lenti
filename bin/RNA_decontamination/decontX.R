@@ -38,7 +38,7 @@ for (coverage_threshold in seq(0, 100, by=20)) {
   df <- as.data.frame(t(dense_matrix))
   count_matrix_dec <- paste("M_", as.character(coverage_threshold), "_dec.csv", sep = "")
   output_path <- file.path(path_main, count_matrix_dec)
-  write.csv(df, file =output_path, row.names = FALSE)
+  write.csv(df, file =output_path, row.names = TRUE)
   
   #Contamination
   contamination=sce_dec$estimates$all_cells$contamination
