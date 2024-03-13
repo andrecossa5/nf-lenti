@@ -1,13 +1,16 @@
 """
 Decontamination utils functions.
 """
-
+import sys
 import numpy as np
 import umap
 import matplotlib.pyplot as plt
+from plotting_utils._plotting_base import *
 from scipy.stats import pearsonr
 import seaborn as sns
 
+sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/sc_gbc")
+from helpers import *
 
 ##
 
@@ -202,6 +205,7 @@ def create_boxplots(data_list, plot_title, y_label, positions = [0, 20, 40, 60, 
 
 ##
 
+
 def get_df_combos(m_df):
     """
     From a count matrix it get the combos dataframe with normalized abundance a max_ratio of each couple CBC-GBC
@@ -215,3 +219,30 @@ def get_df_combos(m_df):
             x.groupby('CBC')['umi'].transform(lambda x: x/x.sum())
         )
     return df_combos
+
+
+##
+
+
+def viz_UMIs(counts, ax, log=True, by=None, nbins='sturges', colors = 'k' ):
+    """
+    Plot UMI n reads distribution.
+    """
+    value_type = 'log' if log else 'count'
+    nbins = nbins if nbins != 'sturges' else sturges(counts[value_type])
+
+    if by is not None:
+        colors = {'Filter out':'k', 'Retain':'r'}
+        hist(counts, value_type, by=by, c=colors, ax=ax, n=nbins, a=.7)
+        add_legend('UMI status', colors=colors, ax=ax, bbox_to_anchor=(1,1), loc='upper right',
+                   label_size=10, ticks_size=9)
+    else:
+        hist(counts, value_type, c= colors, ax=ax, n=nbins, a=.7)
+    format_ax(
+        xticks=np.logspace(0,4,5), ax=ax, 
+        xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
+        title='CBC-GBC-UMI combination'
+    )
+    if log:
+        ax.set_yscale('log')
+
