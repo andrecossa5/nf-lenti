@@ -112,15 +112,15 @@ def UMI_GBC_variation(m_df, m_df_dec):
 
     'It returns the percentage of the variation in the UMi counts and GBC counts after decontamination'
 
-    m_discrete=m_df.copy()
-    m_discrete[m_discrete>0]=1
+    m_discrete = m_df.copy()
+    m_discrete[m_discrete>0] = 1
     m_discrete_dec=m_df_dec.copy()
-    m_discrete_dec[m_discrete_dec>0]=1
-    m_discrete_dec[m_df_dec<0]=0
-    diff_dis=m_discrete-m_discrete_dec
-    dist_dis=[]
-    diff=m_df-m_df_dec
-    dist=[]
+    m_discrete_dec[m_discrete_dec>0] = 1
+    m_discrete_dec[m_df_dec<0] = 0
+    diff_dis = m_discrete-m_discrete_dec
+    dist_dis = []
+    diff = m_df-m_df_dec
+    dist = []
     assert (diff >= 0).all().all(), "The decontamination should only remove elements"
     assert (diff_dis >= 0).all().all(), "The decontamination should only remove elements"
     for i in range(m_df.shape[0]):
@@ -152,10 +152,10 @@ def scatter_correlation(other_feature, contamination,coverage_treshold, x_label=
     correlation_coef, p_value = pearsonr(other_feature, contamination)
     # Annotate plot with correlation coefficient and p-value
     plt.annotate(f'Correlation coefficient: {correlation_coef:.2f}\nP-value: {p_value:.2f}',
-                xy=(np.mean(correlation_coef), np.mean(contamination)),  # Position of the annotation
-                xytext=(0.4, 0.05),             # Offset of the text from the annotation position
-                textcoords='axes fraction',  # Coordinate system of xytext
-                fontsize=8,     )         # Font size of the annotation text
+                xy = (np.mean(correlation_coef), np.mean(contamination)),  # Position of the annotation
+                xytext = (0.4, 0.05),             # Offset of the text from the annotation position
+                textcoords = 'axes fraction',  # Coordinate system of xytext
+                fontsize = 8,     )         # Font size of the annotation text
                 #arrowprops=dict(facecolor='black', arrowstyle='->'))  # Arrow properties
         
     return fig
@@ -169,9 +169,9 @@ def complete_corr_relevance(m_df, m_df_dec):
     It returns the number of all the entrancies that have been changed by DecontX, 
     and the UMI normalized  cell abundancy of each GBC that has been completly removed by DecontX
     """
-    total_correction=m_df_dec[(m_df!=m_df_dec)].count().sum()
+    total_correction = m_df_dec[(m_df!=m_df_dec)].count().sum()
     X = m_df.apply(lambda x: x/x.sum(), axis=1)
-    level_of_correction=X[(m_df!=m_df_dec) & (m_df_dec==0)].values.flatten()
+    level_of_correction = X[(m_df!=m_df_dec) & (m_df_dec==0)].values.flatten()
     nan_mask = np.isnan(level_of_correction)
     level_of_correction = level_of_correction[~nan_mask]
 
@@ -190,7 +190,7 @@ def create_boxplots(data_list, plot_title, y_label, positions = [0, 20, 40, 60, 
         data_list (list of arrays): List containing the data arrays for boxplots.
 
     Returns:
-        None
+        fig
     """
     fig = plt.figure(figsize=(10, 6))
     sns.boxplot(data=data_list, width=0.5)
@@ -222,27 +222,4 @@ def get_df_combos(m_df):
 
 
 ##
-
-
-def viz_UMIs(counts, ax, log=True, by=None, nbins='sturges', colors = 'k' ):
-    """
-    Plot UMI n reads distribution.
-    """
-    value_type = 'log' if log else 'count'
-    nbins = nbins if nbins != 'sturges' else sturges(counts[value_type])
-
-    if by is not None:
-        colors = {'Filter out':'k', 'Retain':'r'}
-        hist(counts, value_type, by=by, c=colors, ax=ax, n=nbins, a=.7)
-        add_legend('UMI status', colors=colors, ax=ax, bbox_to_anchor=(1,1), loc='upper right',
-                   label_size=10, ticks_size=9)
-    else:
-        hist(counts, value_type, c= colors, ax=ax, n=nbins, a=.7)
-    format_ax(
-        xticks=np.logspace(0,4,5), ax=ax, 
-        xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
-        title='CBC-GBC-UMI combination'
-    )
-    if log:
-        ax.set_yscale('log')
 
