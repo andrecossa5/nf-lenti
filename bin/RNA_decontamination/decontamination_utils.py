@@ -2,6 +2,8 @@
 Decontamination utils functions.
 """
 import sys
+from matplotlib.patches import Patch
+import matplotlib.patches as mpatches
 import numpy as np
 import umap
 import matplotlib.pyplot as plt
@@ -182,25 +184,47 @@ def complete_corr_relevance(m_df, m_df_dec):
 
 
 
-def create_boxplots(data_list, plot_title, y_label, positions = [0, 20, 40, 60, 80, 100]):
+
+def create_boxplots(data_list, plot_title, y_label, colors=None, positions=[0, 20, 40, 60, 80, 100], ax = None):
     """
     Create a grid of 6 boxplots from a list of data arrays.
 
     Parameters:
         data_list (list of arrays): List containing the data arrays for boxplots.
+        plot_title (str): Title of the plot.
+        y_label (str): Label for the y-axis.
+        colors (list of str, optional): List of colors for the boxplots. Default is None.
+        positions (list of int, optional): List of positions for the x-axis ticks. Default is [0, 20, 40, 60, 80, 100].
 
     Returns:
-        fig
+        fig: The matplotlib figure object.
     """
-    fig = plt.figure(figsize=(10, 6))
-    sns.boxplot(data=data_list, width=0.5)
-    plt.xticks(range(len(positions)), positions)
-    plt.title(plot_title)
-    plt.xlabel('Coverage threshold')
-    plt.ylabel(y_label)
-    plt.grid(True)
 
-    return fig
+    if ax == None:
+        fig = plt.figure(figsize=(10, 6))
+        sns.boxplot(data=data_list, width=0.5, palette=colors)
+        plt.xticks(range(len(positions)), positions)
+        plt.title(plot_title)
+        plt.xlabel('Coverage threshold')
+        plt.ylabel(y_label)
+        plt.grid(True)
+        # Create a legend
+        legend_labels = ['Raw', 'After decontamination']
+        if colors is not None:
+            plt.legend(handles=[Patch(color=color) for color in colors], labels=legend_labels)
+        return fig
+    
+    else:
+        sns.boxplot(data=data_list, width=0.5, palette=colors)
+        format_ax(
+        xticks=np.logspace(0,4,5), ax=ax, 
+        xlabel='Coverage threshold', ylabel= y_label,
+        title= plot_title
+        )
+        return ax
+
+    
+
 
 
 ##

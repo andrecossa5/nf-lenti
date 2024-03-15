@@ -34,7 +34,7 @@ path_sample_map = '/Users/ieo6943/Documents/data/8_clones/sample_map.csv'
 
 #Args
 sample_params=None
-correction_type='reference' 
+correction_type='reference-free' 
 sc_correction_treshold=3
 bulk_correction_treshold = 3
 ncores=8
@@ -80,8 +80,8 @@ M_empty[M_empty.isna()] = 0
 #M_empty.to_csv(os.path.join(path_main,'count_matrix_&_DecontX', f'M_empty_{coverage_treshold}.csv'))
 #M_empty = pd.read_csv(os.path.join(path_decontX, f'M_empty_{coverage_treshold}.csv'), index_col=0) 
 M_empty_l = pd.DataFrame(M_empty.idxmax(axis=1), columns=['GBC_set'])
-counts_empty_major = counts_empty[counts_empty['GBC_reference'].isin(M_empty_l['GBC_set'])]
-counts_empty_other = counts_empty[~counts_empty['GBC_reference'].isin(M_empty_l['GBC_set'])]
+counts_empty_major = counts_empty[counts_empty['GBC_reference-free'].isin(M_empty_l['GBC_set'])]
+counts_empty_other = counts_empty[~counts_empty['GBC_reference-free'].isin(M_empty_l['GBC_set'])]
 
 
 ##
@@ -97,8 +97,8 @@ df_combos = get_combos(counts, gbc_col=f'GBC_{correction_type}')
 M =df_combos.pivot_table(index='CBC', columns='GBC', values='umi')
 M[M.isna()] = 0
 M_l = pd.DataFrame(M.idxmax(axis=1), columns=['GBC_set'])
-counts_major = counts[counts['CBC'].isin(M_l.index) & counts['GBC_reference'].isin(M_l['GBC_set'])]
-counts_other = counts[~counts['GBC_reference'].isin(M_l['GBC_set'])]
+counts_major = counts[counts['CBC'].isin(M_l.index) & counts['GBC_reference-free'].isin(M_l['GBC_set'])]
+counts_other = counts[~counts['GBC_reference-free'].isin(M_l['GBC_set'])]
 
 
 ##
@@ -108,7 +108,7 @@ fig, axs = plt.subplots(1, 3, figsize=(15, 5))
 
 ##
 
-value_type = 'count'
+value_type = 'log'
 nbins = sturges(counts[value_type])
 sns.kdeplot(counts[value_type], color='r', ax=axs[0], label='good bead')
 sns.kdeplot(counts_empty[value_type], color='g', ax=axs[0], label='empty bead')
@@ -118,7 +118,7 @@ format_ax(
     title='CBC-GBC-UMI combination'
 )
 axs[0].set_xlim(right=counts[value_type].max())  
-axs[0].set_ylim(bottom=0)  
+axs[0].set_ylim(bottom=0, top=1)  
 
 ##
 
@@ -132,7 +132,7 @@ format_ax(
     title='CBC-GBC-UMI combination'
 )
 axs[1].set_xlim(right=counts_empty[value_type].max())  
-axs[1].set_ylim(bottom=0)  
+axs[1].set_ylim(bottom=0, top=1)    
 
 ##
 
@@ -146,7 +146,7 @@ format_ax(
     title='CBC-GBC-UMI combination'
 )
 axs[2].set_xlim(right=counts_empty[value_type].max())  
-axs[2].set_ylim(bottom=0)  
+axs[2].set_ylim(bottom=0, top=1)   
 
 axs[0].set(title='All count')
 axs[1].set(title='Counts supporting major GBC')
