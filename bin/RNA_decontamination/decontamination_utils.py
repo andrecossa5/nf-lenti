@@ -14,6 +14,14 @@ import seaborn as sns
 sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/sc_gbc")
 from helpers import *
 
+
+##
+
+
+def keep_max(row):
+    max_val = row.max(skipna=True)
+    return row.apply(lambda x: x if x == max_val else 0)
+
 ##
 
 
@@ -144,21 +152,21 @@ def scatter_correlation(other_feature, contamination,coverage_treshold, x_label=
     fig = plt.figure()
     plt.scatter(other_feature, contamination, s=3)
     plt.gca().set_aspect('equal', adjustable='box')
-    m, q = np.polyfit(other_feature, contamination, 1)
-    plt.plot(np.array(other_feature), m*np.array(other_feature) + q, color='red')
-    plt.xlim(0, 1)  
-    plt.ylim(0, 1)
+    #m, q = np.polyfit(other_feature, contamination, 1)
+    #plt.plot(np.array(other_feature), m*np.array(other_feature) + q, color='red')
+    #plt.xlim(0, 1)  
+    #plt.ylim(0, 1)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(f'Correlation with th= {coverage_treshold}')
     correlation_coef, p_value = pearsonr(other_feature, contamination)
     # Annotate plot with correlation coefficient and p-value
-    plt.annotate(f'Correlation coefficient: {correlation_coef:.2f}\nP-value: {p_value:.2f}',
-                xy = (np.mean(correlation_coef), np.mean(contamination)),  # Position of the annotation
-                xytext = (0.4, 0.05),             # Offset of the text from the annotation position
-                textcoords = 'axes fraction',  # Coordinate system of xytext
-                fontsize = 8,     )         # Font size of the annotation text
-                #arrowprops=dict(facecolor='black', arrowstyle='->'))  # Arrow properties
+    #plt.annotate(f'Correlation coefficient: {correlation_coef:.2f}\nP-value: {p_value:.2f}',
+    #            xy = (np.mean(correlation_coef), np.mean(contamination)),  # Position of the annotation
+    #            xytext = (0.4, 0.05),             # Offset of the text from the annotation position
+    #            textcoords = 'axes fraction',  # Coordinate system of xytext
+    #            fontsize = 8,     )         # Font size of the annotation text
+    #            #arrowprops=dict(facecolor='black', arrowstyle='->'))  # Arrow properties
         
     return fig
 

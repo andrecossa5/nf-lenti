@@ -13,6 +13,8 @@ from plotting_utils._plotting_base import *
 import umap
 from mito_utils.kNN import *
 from mito_utils.clustering import *
+from scipy.spatial.distance import pdist, squareform
+from itertools import combinations
 
 sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/RNA_decontamination")
 sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/sc_gbc")
@@ -25,11 +27,12 @@ from helpers import *
 
 
 # Paths
-path_main = '/Users/ieo6943/Documents/data/8_clones/'
+path_main = '/Users/ieo6943/Documents/data/8_clones'
+##path_main = '/Users/ieo6943/Documents/data/complex_experiment'
 path_decontX = os.path.join(path_main,'count_matrix_&_DecontX')
-path_count = os.path.join(path_main,'counts.pickle')
+path_count = os.path.join(path_main, 'counts.pickle')
+#path_results = '/Users/ieo6943/Documents/results/complex_experiment/'
 path_results = '/Users/ieo6943/Documents/results/8_clones/'
-
 
 ##
 
@@ -38,8 +41,9 @@ path_results = '/Users/ieo6943/Documents/results/8_clones/'
 correction_type='reference' 
 umi_treshold=5
 p_treshold=1
-max_ratio_treshold=.8
-normalized_abundance_treshold=.8
+max_ratio_treshold=.5
+normalized_abundance_treshold=.5
+th_list = list(range(0, 101, 20))
 
 
 ##
@@ -54,8 +58,10 @@ median_GBC_abundance_boxplot = False
 density_plot = False
 GBCs_cluster_violin_distribution = False
 DecontX_efficiency_of_decontamination_box_plot = False
-loss_good_read_boxplot = True
-
+loss_good_read_boxplot = False
+decontaminated_filtered = False
+distribution_read_UMI = True
+UMI_error_distance = True 
 
 ##
 
@@ -65,12 +71,68 @@ with open(path_count, 'rb') as p:
 
 super_data = {'corrections_perc':[], 'complete_correction':[], 'median_data':{}, 'loss_good_read':[], 'loss_good_UMI':[], 'change_in_GBC': []}
 decontamination_efficency_data = {'C/GBC':[], 'C_dec/GBC_dec':[], 'GBC_dec/GBC':[], 'C_dec/C':[], 'C_dec':[], 'C':[] }
+decontamination_filtering = {'change_in_GBC':[], 'survived_cell':[]}
+
+##
+
+
+#Calculating the mean hamming distance of the UMI sequences for eac group of CBC-GBC ---- OPTION 1
+
+counts = mark_UMIs(COUNTS[correction_type], coverage_treshold=0)
+unique_UMI_df = counts.groupby(['CBC', 'GBC_reference'])['UMI'].unique().to_frame('umi').reset_index()
+unique_UMI_df['humming_mean'] = 0
+unique_UMI_df['humming_error'] = 0
+
+for k in range(unique_UMI_df['umi'].shape[0]):
+    print(k, ' su ', unique_UMI_df['umi'].shape[0])
+    matrix = np.tile(unique_UMI_df['umi'][k], (unique_UMI_df['umi'][k].shape[0], 1))
+    results = []
+    for i, row in enumerate(matrix):
+        diagonal_element = row[i]  # Elemento della diagonale
+        distances_mean = np.array(([hamming(diagonal_element, other) for j, other in enumerate(row) if j != i])).mean()
+        distances_std = np.array(([hamming(diagonal_element, other) for j, other in enumerate(row) if j != i])).std()
+        results.append([distances_mean, distances_std])
+
+    results = np.array((results))
+    weights = 1 / (results[:,1] ** 2)
+    weighted_mean = np.average(results[:,0], weights=weights)
+    weighted_mean_error = np.sqrt(1 / np.sum(weights))
+    unique_UMI_df['humming_mean'][k] = weighted_mean
+    unique_UMI_df['humming_error'][k] = weighted_mean_error
+
+
+##
+    
+
+#Calculating the mean hamming distance of the UMI sequences for eac group of CBC-GBC ---- OPTION 2
+counts = mark_UMIs(COUNTS[correction_type], coverage_treshold=0)
+unique_UMI_df = counts.groupby(['CBC', 'GBC_reference'])['UMI'].unique().to_frame('umi').reset_index()
+unique_UMI_df['humming_mean'] = 0
+unique_UMI_df['humming_error'] = 0
+
+for k in range(unique_UMI_df['umi'].shape[0]):
+    print ('k =', k, 'su ',unique_UMI_df['umi'].shape[0])
+    matrix = np.zeros((unique_UMI_df['umi'][k].shape[0],unique_UMI_df['umi'][k].shape[0]))
+
+    for i in range(len(unique_UMI_df['umi'][k])):
+        for j in range (len(unique_UMI_df['umi'][k]) ):
+            matrix[i,j] = hamming(unique_UMI_df['umi'][k][i], unique_UMI_df['umi'][k][j])
+
+    mean_row = np.array(np.mean(np.ma.masked_array(matrix, np.eye(matrix.shape[0], dtype=bool)), axis=1))
+    std_row = np.array((np.std(np.ma.masked_array(matrix, np.eye(matrix.shape[0], dtype=bool)), axis=1)))
+    weights = 1 / (std_row ** 2)
+    weighted_mean = np.average(mean_row, weights=weights)
+    weighted_mean_error = np.sqrt(1 / np.sum(weights))
+    unique_UMI_df['humming_mean'][k] = weighted_mean
+    unique_UMI_df['humming_error'][k] = weighted_mean_error
 
 
 ##
 
 
-for coverage_treshold in list(range(0, 101, 20)):
+## Create all the neede distributions
+for coverage_treshold in th_list:
+    print('coverage_treshold =', coverage_treshold )
      
     #Creation of the all the dataframe
     m_df = pd.read_csv(os.path.join(path_decontX, f'M_{coverage_treshold}.csv'), index_col=0) #count matrix
@@ -87,26 +149,43 @@ for coverage_treshold in list(range(0, 101, 20)):
     m_df_dec_l = pd.DataFrame(m_df_dec.idxmax(axis=1), columns=['GBC_reference'])
     m_df_dec_l.index.name = 'CBC'
 
+    if decontaminated_filtered==True:
     #Filtered Count matrix
-    #M, _ = filter_and_pivot(
-    #df_combos, 
-    #umi_treshold=umi_treshold, 
-    #p_treshold=p_treshold, 
-    #max_ratio_treshold=max_ratio_treshold,
-    #normalized_abundance_treshold=normalized_abundance_treshold
-    #)  
-    
+        M, _ = filter_and_pivot(
+        df_combos, 
+        umi_treshold=umi_treshold, 
+        p_treshold=p_treshold, 
+        max_ratio_treshold=max_ratio_treshold,
+        normalized_abundance_treshold=normalized_abundance_treshold
+        )  
+
+        #Filtered and decontaminated Count matrix
+        M_dec, _ = filter_and_pivot(
+        df_combos_dec, 
+        umi_treshold=umi_treshold, 
+        p_treshold=p_treshold, 
+        max_ratio_treshold=max_ratio_treshold,
+        normalized_abundance_treshold=normalized_abundance_treshold
+        )  
+        
+        M_l = pd.DataFrame(M.idxmax(axis=1), columns=['GBC_reference'])
+        M_dec_l = pd.DataFrame(M_dec.idxmax(axis=1), columns=['GBC_reference'])
+        M_merge = pd.merge(M_l, M_dec_l, on=['CBC', 'GBC_reference'], how='inner' )
+        decontamination_filtering['change_in_GBC'].append((M.shape[0]- M_merge.shape[0])/M.shape[0])
+        decontamination_filtering['survived_cell'].append((M_dec.shape[0]- M_merge.shape[0])/M.shape[0])
 
     ##
 
 
     # GBC abundance for eac cell
     if median_GBC_abundance_boxplot==True:
+        print ('median_GBC_abundance_boxplot')
 
         super_data['median_data'][coverage_treshold]=df_combos.groupby('CBC')['normalized_abundance'].median().values
 
     # histogram of the MOI of each cell
     if moi_histogram==True:
+        print('moi_histogram')
 
         moi_df=list(m_df.count(axis=1))
         moi_df_dec=list(m_df_dec.count(axis=1))
@@ -115,6 +194,7 @@ for coverage_treshold in list(range(0, 101, 20)):
 
     # correlational scatter plot of true contamination and contamination detected by DecontX
     if true_contamination_vs_decontXcontamination_correlation==True:
+        print('moi_histogram')
 
         major_feature_density = m_df.max(axis=1)/m_df.sum(axis=1)
         other_feature_density=list(1-np.array(major_feature_density))
@@ -123,12 +203,14 @@ for coverage_treshold in list(range(0, 101, 20)):
 
     # percentage of the variation in the UMi counts and GBC counts after decontamination
     if UMI_GBC_DecontX_correction_percentage_histogram==True:
+        print('UMI_GBC_DecontX_correction_percentage_histogram')
 
         delta_UMI_GBC=UMI_GBC_variation(m_df, m_df_dec)
         super_data['corrections_perc'].append(delta_UMI_GBC)
 
     # it returns for each cell the list of the normalized abundancy of the umi counts associated to each GBC tha have been removed by DecontX
     if GBC_completely_removed_relevance_boxplot ==True:
+        print('GBC_completely_removed_relevance_boxplot')
 
         total_n_correction, complete_correction_relevance=complete_corr_relevance(m_df, m_df_dec)
         percentage_complete_correction=complete_correction_relevance.shape[0]/total_n_correction
@@ -136,6 +218,7 @@ for coverage_treshold in list(range(0, 101, 20)):
 
     #KDE plot: GBC normalized abundance vs GBC max ratio
     if density_plot==True:
+        print('density_plot')
 
         fig, axs = plt.subplots(1, 2, figsize=(12, 6))
         sns.kdeplot(data=df_combos_dec, x = df_combos_dec['max_ratio'], y =df_combos_dec['normalized_abundance'], ax=axs[1])
@@ -147,6 +230,7 @@ for coverage_treshold in list(range(0, 101, 20)):
     
     #Violin distribution of the GBCs in each DecontX cluster
     if GBCs_cluster_violin_distribution==True:
+        print('GBCs_cluster_violin_distribution')
 
         df = pd.DataFrame({'CBC': list(m_df.index), 'cluster': list(z.values.flatten())})
         z_cluster = np.unique(z)
@@ -220,6 +304,66 @@ for coverage_treshold in list(range(0, 101, 20)):
         super_data['loss_good_read'].append(loss_good_read[loss_good_read['loss_good_read']!=0]['loss_good_read'].values)
         super_data['loss_good_UMI'].append(loss_good_UMI_perc)
         super_data['change_in_GBC'].append(loss_good_GBC)
+    
+    if distribution_read_UMI==True:
+        filtered = counts.loc[lambda x: x['status']=='Retain']
+        R_median = filtered.groupby(['CBC', 'GBC_reference'])['count'].median().reset_index()
+        R_median = R_median.rename(columns={'count': 'read_median'})
+        filtered= pd.merge(filtered, R_median, on=['CBC', 'GBC_reference'], how='left') 
+        R = filtered.pivot_table(index='CBC', columns='GBC_reference', values='read_median')
+        R[R.isna()] = 0
+        decontamination_ratios = m_df_dec / m_df
+        R_dec = R * decontamination_ratios
+        M_major = m_df.apply(keep_max, axis=1)
+        M_major[M_major!=0] = 'Major_GBC'
+        M_major[M_major==0] = 'Other'
+        M_major_dec = m_df_dec.apply(keep_max, axis=1)
+        M_major_dec[M_major_dec!=0] = 'Major_GBC'
+        M_major_dec[M_major_dec==0] = 'Other'
+
+        data_major = M_major.values.flatten()
+        data_major_dec = M_major_dec.values.flatten()
+
+        data_R = R.values.flatten()
+        data_R_dec = R_dec.values.flatten()
+        data_m_df = m_df.values.flatten()
+        data_m_df_dec = m_df_dec.values.flatten()
+    
+        fig = plt.figure()
+        colors = {'Major_GBC': 'green', 'Other': 'red'}
+        sns.scatterplot(x=data_m_df, y=data_R, hue=data_major, palette=colors, s=1)
+        legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markersize=3, markerfacecolor=color, label=label)
+                        for label, color in colors.items()]
+        plt.legend(title='data_type')
+        plt.title(f'Coverage threshold= {coverage_treshold}')
+        plt.xlabel('# unique UMI supporting a CBC-GBC')
+        plt.ylabel('median of Read supporting a CBC-GBC')
+        fig.savefig(os.path.join(path_results, f'UMI_vs_Read_{coverage_treshold}.png'), dpi=300)
+
+        fig = plt.figure()
+        colors = {'Major_GBC': 'green', 'Other': 'red'}
+        sns.scatterplot(x=np.repeat(list(range(m_df.shape[0])),m_df.shape[1]), y=data_R, hue=data_major, palette=colors, s=1)
+        legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markersize=3, markerfacecolor=color, label=label)
+                        for label, color in colors.items()]
+        plt.legend(title='data_type')
+        plt.title(f'Coverage threshold= {coverage_treshold}')
+        plt.xlabel('Cell')
+        plt.ylabel('median of Read supporting a CBC-GBC')
+        fig.savefig(os.path.join(path_results, f'cell_reads{coverage_treshold}.png'), dpi=300)
+
+        fig = plt.figure()
+        colors = {'Major_GBC': 'green', 'Other': 'red'}
+        sns.scatterplot(x=np.repeat(list(range(m_df.shape[0])),m_df.shape[1]), y=data_m_df, hue=data_major, palette=colors, s=1)
+        legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markersize=3, markerfacecolor=color, label=label)
+                        for label, color in colors.items()]
+        plt.legend(title='data_type')
+        plt.title(f'Coverage threshold= {coverage_treshold}')
+        plt.xlabel('Cell')
+        plt.ylabel('# unique UMI supporting a CBC-GBC')
+        fig.savefig(os.path.join(path_results, f'cell_UMI{coverage_treshold}.png'), dpi=300)
+
+
+
 
 
 ##
@@ -251,7 +395,7 @@ if UMI_GBC_DecontX_correction_percentage_histogram==True:
 if GBC_completely_removed_relevance_boxplot ==True:
     complete_correction = super_data['complete_correction']
     data=[complete_correction[0][1],complete_correction[1][1],complete_correction[2][1],complete_correction[3][1],complete_correction[4][1],complete_correction[5][1]]
-    fig = create_boxplots(data, plot_title='GBC abundancy of removed GBC in each cell', y_label='GBC abundancy')
+    fig = create_boxplots(data, plot_title='GBC abundancy of removed GBC in each cell', y_label='GBC abundancy', positions=th_list)
     fig.savefig(os.path.join(path_results, 'Relevance_of_removed_GBCs.png'), dpi=300)
 
 
@@ -262,7 +406,7 @@ if GBC_completely_removed_relevance_boxplot ==True:
 if median_GBC_abundance_boxplot==True:
     median_data = super_data['median_data']
     data = [median_data[0],median_data[20],median_data[40],median_data[60],median_data[80],median_data[100]]
-    fig = create_boxplots(data, plot_title='Median of the GBCs abundances for each cell', y_label='GBC abundancy')
+    fig = create_boxplots(data, plot_title='Median of the GBCs abundances for each cell', y_label='GBC abundancy', positions=th_list)
     fig.savefig(os.path.join(path_results, 'median_GBCs.png'), dpi=300)
 
 
@@ -277,7 +421,7 @@ if DecontX_efficiency_of_decontamination_box_plot==True:
     for i in range(len(decontamination_efficency_data['C'])): 
         data.append(decontamination_efficency_data['C'][i])
         data.append(decontamination_efficency_data['C_dec'][i])
-    positions = [0,0, 20, 20, 40, 40, 60, 60, 80, 80, 100, 100]
+    positions = [12, 12, 24, 24, 36, 36, 48, 48, 60, 60]
     #positions = [-1,19,39,59,79,99,1,21,41,61,81,101]
     title = 'Contamination count before and after decontamination for each cell'
     y_ax='Contamination count'
@@ -285,29 +429,29 @@ if DecontX_efficiency_of_decontamination_box_plot==True:
     fig.savefig(os.path.join(path_results, 'CvsC.png'), dpi=300)
     
 
-    #data = decontamination_efficency_data['C/GBC']
-    #title = 'Ratio of Contamination percentage and major GBC percentage before decontamination for each cell'
-    #y_ax='Contamination % / major GBC %'
-    #fig = create_boxplots(data_list=data, plot_title=title, y_label=y_ax )
-    #fig.savefig(os.path.join(path_results, 'C_GBC.png'), dpi=300)
-#
-    #data = decontamination_efficency_data['C_dec/GBC_dec']
-    #title = 'Ratio of Contamination percentage and major GBC percentage after decontamination for each cell'
-    #y_ax='Contamination % / major GBC %'
-    #fig = create_boxplots(data_list=data, plot_title=title, y_label=y_ax )
-    #fig.savefig(os.path.join(path_results, 'C_dec_GBC_dec.png'), dpi=300)
-#
-    #data = decontamination_efficency_data['GBC_dec/GBC']
-    #title = 'Ratio of the major GBC percentage after and before decontamination for each cell'
-    #y_ax='major decontaminated GBC % / major GBC %'
-    #fig = create_boxplots(data_list=data, plot_title=title, y_label=y_ax)
-    #fig.savefig(os.path.join(path_results, 'GBC_dec_GBC.png'), dpi=300)
-#
-    #data = decontamination_efficency_data['C_dec/C']
-    #title = 'Ratio of Contamination percentage after and before decontamination for each cell'
-    #y_ax=' decontaminated Contamination % / Contamination %'
-    #fig = create_boxplots(data_list=data, plot_title=title, y_label=y_ax )
-    #fig.savefig(os.path.join(path_results, 'C_dec_C.png'), dpi=300)
+    data = decontamination_efficency_data['C/GBC']
+    title = 'Ratio of Contamination percentage and major GBC percentage before decontamination for each cell'
+    y_ax='Contamination % / major GBC %'
+    fig = create_boxplots(data_list=data, plot_title=title, y_label=y_ax, positions=th_list )
+    fig.savefig(os.path.join(path_results, 'C_GBC.png'), dpi=300)
+
+    data = decontamination_efficency_data['C_dec/GBC_dec']
+    title = 'Ratio of Contamination percentage and major GBC percentage after decontamination for each cell'
+    y_ax='Contamination % / major GBC %'
+    fig = create_boxplots(data_list=data, plot_title=title, y_label=y_ax, positions=th_list )
+    fig.savefig(os.path.join(path_results, 'C_dec_GBC_dec.png'), dpi=300)
+
+    data = decontamination_efficency_data['GBC_dec/GBC']
+    title = 'Ratio of the major GBC percentage after and before decontamination for each cell'
+    y_ax='major decontaminated GBC % / major GBC %'
+    fig = create_boxplots(data_list=data, plot_title=title, y_label=y_ax, positions=th_list)
+    fig.savefig(os.path.join(path_results, 'GBC_dec_GBC.png'), dpi=300)
+
+    data = decontamination_efficency_data['C_dec/C']
+    title = 'Ratio of Contamination percentage after and before decontamination for each cell'
+    y_ax=' decontaminated Contamination % / Contamination %'
+    fig = create_boxplots(data_list=data, plot_title=title, y_label=y_ax, positions=th_list )
+    fig.savefig(os.path.join(path_results, 'C_dec_C.png'), dpi=300)
 
 if loss_good_read_boxplot==True:
 
@@ -315,12 +459,12 @@ if loss_good_read_boxplot==True:
 
     fig = plt.figure()
     data = super_data['loss_good_read']
-    fig = create_boxplots(data, plot_title='Good reads loss after decontX', y_label='number of reads')
+    fig = create_boxplots(data, plot_title='Good reads loss after decontX', y_label='number of reads', positions=th_list)
     fig.savefig(os.path.join(path_results, 'Loss_good_read.png'), dpi=300)
 
     fig = plt.figure()
     data = super_data['loss_good_UMI']
-    fig = create_boxplots(data, plot_title='Good UMI perc loss after decontX', y_label='# good UMI loss / # UMI before DecontX')
+    fig = create_boxplots(data, plot_title='Good UMI perc loss after decontX', y_label='# good UMI loss / # UMI before DecontX', positions=th_list)
     fig.savefig(os.path.join(path_results, 'Loss_UMI_perc.png'), dpi=300)
 
     fig = plt.figure()

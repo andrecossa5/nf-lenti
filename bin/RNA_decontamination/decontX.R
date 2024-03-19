@@ -13,7 +13,7 @@ library(ggplot2)
 
 
 # path
-path_main <- '/Users/ieo6943/Documents/data/8_clones/count_matrix_&_DecontX'
+path_main <- '/Users/ieo6943/Documents/data/complex_experiment/count_matrix_&_DecontX'
 
 
 ##
