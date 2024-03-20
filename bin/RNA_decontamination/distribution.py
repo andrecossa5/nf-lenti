@@ -80,8 +80,8 @@ decontamination_filtering = {'change_in_GBC':[], 'survived_cell':[]}
 
 counts = mark_UMIs(COUNTS[correction_type], coverage_treshold=0)
 unique_UMI_df = counts.groupby(['CBC', 'GBC_reference'])['UMI'].unique().to_frame('umi').reset_index()
-unique_UMI_df['humming_mean'] = 0
-unique_UMI_df['humming_error'] = 0
+unique_UMI_df['hamming_mean'] = 0
+unique_UMI_df['hamming_error'] = 0
 
 from sklearn.metrics.pairwise import pairwise_distances
 import numpy as np
@@ -102,7 +102,7 @@ for k in range(unique_UMI_df['umi'].shape[0]):
     hist_bad_UMI.append([bad_UMI.mean(), bad_UMI.std()])
 
 
-#perc
+# perc
 hist_bad_UMI_perc = np.array(hist_bad_UMI_perc)
 pseudo_zero = (hist_bad_UMI_perc[:,1][hist_bad_UMI_perc[:,1]!=0].min())/10
 weights = 1/(hist_bad_UMI_perc[:,1]+pseudo_zero )**2
@@ -132,6 +132,8 @@ plt.xlabel(f'mean # of UMI with hamming distance <3')
 #plt.ylabel(y_label)
 plt.title(f'mean # of UMI with hamming distance <3 for each CBC-GBC')
 fig.savefig(os.path.join(path_results, 'bad_UMI.png'), dpi=300)
+
+
 ##
 
 
