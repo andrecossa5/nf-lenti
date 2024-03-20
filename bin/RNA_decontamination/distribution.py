@@ -83,50 +83,55 @@ unique_UMI_df = counts.groupby(['CBC', 'GBC_reference'])['UMI'].unique().to_fram
 unique_UMI_df['humming_mean'] = 0
 unique_UMI_df['humming_error'] = 0
 
+from sklearn.metrics.pairwise import pairwise_distances
+import numpy as np
+
+hist_bad_UMI_perc = []
+hist_bad_UMI = []
+strange = []
 for k in range(unique_UMI_df['umi'].shape[0]):
     print(k, ' su ', unique_UMI_df['umi'].shape[0])
-    matrix = np.tile(unique_UMI_df['umi'][k], (unique_UMI_df['umi'][k].shape[0], 1))
-    results = []
-    for i, row in enumerate(matrix):
-        diagonal_element = row[i]  # Elemento della diagonale
-        distances_mean = np.array(([hamming(diagonal_element, other) for j, other in enumerate(row) if j != i])).mean()
-        distances_std = np.array(([hamming(diagonal_element, other) for j, other in enumerate(row) if j != i])).std()
-        results.append([distances_mean, distances_std])
-
-    results = np.array((results))
-    weights = 1 / (results[:,1] ** 2)
-    weighted_mean = np.average(results[:,0], weights=weights)
-    weighted_mean_error = np.sqrt(1 / np.sum(weights))
-    unique_UMI_df['humming_mean'][k] = weighted_mean
-    unique_UMI_df['humming_error'][k] = weighted_mean_error
+    stringhe = unique_UMI_df['umi'][k]
+    str_to_int = np.array([[ord(char) for char in s] for s in stringhe])
+    distance = 12*pairwise_distances(str_to_int, metric='hamming')
+    bad_UMI_perc = ((distance<3).sum(axis=1)-1)/len(stringhe)
+    bad_UMI = (distance<3).sum(axis=1)-1
+    if bad_UMI.std()==0:
+        strange.append(k)
+    hist_bad_UMI_perc.append([bad_UMI_perc.mean(), bad_UMI_perc.std()])
+    hist_bad_UMI.append([bad_UMI.mean(), bad_UMI.std()])
 
 
-##
-    
+#perc
+hist_bad_UMI_perc = np.array(hist_bad_UMI_perc)
+pseudo_zero = (hist_bad_UMI_perc[:,1][hist_bad_UMI_perc[:,1]!=0].min())/10
+weights = 1/(hist_bad_UMI_perc[:,1]+pseudo_zero )**2
+bad_UMI_null_std_mean_perc = hist_bad_UMI_perc[:,0][hist_bad_UMI_perc[:,1]==0].mean()
+bad_UMI_mean_perc = np.average(hist_bad_UMI_perc[:,0], weights=weights)
 
-#Calculating the mean hamming distance of the UMI sequences for eac group of CBC-GBC ---- OPTION 2
-counts = mark_UMIs(COUNTS[correction_type], coverage_treshold=0)
-unique_UMI_df = counts.groupby(['CBC', 'GBC_reference'])['UMI'].unique().to_frame('umi').reset_index()
-unique_UMI_df['humming_mean'] = 0
-unique_UMI_df['humming_error'] = 0
+fig = plt.figure()
+sns.histplot(hist_bad_UMI_perc[:,0])
+#sns.histplot(hist_bad_UMI[:,0][hist_bad_UMI[:,1]==0])
+plt.xlabel(f'mean % of UMI with hamming distance <3')
+#plt.ylabel(y_label)
+plt.title(f'mean % of UMI with hamming distance <3 for each CBC-GBC')
+fig.savefig(os.path.join(path_results, 'bad_UMI_perc.png'), dpi=300)
 
-for k in range(unique_UMI_df['umi'].shape[0]):
-    print ('k =', k, 'su ',unique_UMI_df['umi'].shape[0])
-    matrix = np.zeros((unique_UMI_df['umi'][k].shape[0],unique_UMI_df['umi'][k].shape[0]))
+#abs
+hist_bad_UMI = np.array(hist_bad_UMI)
+pseudo_zero = (hist_bad_UMI[:,1][hist_bad_UMI[:,1]!=0].min())/10
+weights = 1/(hist_bad_UMI[:,1]+pseudo_zero )**2
+bad_UMI_null_std_mean = hist_bad_UMI[:,0][hist_bad_UMI[:,1]==0].mean()
+bad_UMI_mean = np.average(hist_bad_UMI[:,0], weights=weights)
+hist_bad_UMI[:,0].sum()
 
-    for i in range(len(unique_UMI_df['umi'][k])):
-        for j in range (len(unique_UMI_df['umi'][k]) ):
-            matrix[i,j] = hamming(unique_UMI_df['umi'][k][i], unique_UMI_df['umi'][k][j])
-
-    mean_row = np.array(np.mean(np.ma.masked_array(matrix, np.eye(matrix.shape[0], dtype=bool)), axis=1))
-    std_row = np.array((np.std(np.ma.masked_array(matrix, np.eye(matrix.shape[0], dtype=bool)), axis=1)))
-    weights = 1 / (std_row ** 2)
-    weighted_mean = np.average(mean_row, weights=weights)
-    weighted_mean_error = np.sqrt(1 / np.sum(weights))
-    unique_UMI_df['humming_mean'][k] = weighted_mean
-    unique_UMI_df['humming_error'][k] = weighted_mean_error
-
-
+fig = plt.figure()
+sns.histplot(hist_bad_UMI[:,0])
+#sns.histplot(hist_bad_UMI[:,0][hist_bad_UMI[:,1]==0])
+plt.xlabel(f'mean # of UMI with hamming distance <3')
+#plt.ylabel(y_label)
+plt.title(f'mean # of UMI with hamming distance <3 for each CBC-GBC')
+fig.savefig(os.path.join(path_results, 'bad_UMI.png'), dpi=300)
 ##
 
 
