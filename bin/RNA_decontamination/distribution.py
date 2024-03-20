@@ -13,8 +13,7 @@ from plotting_utils._plotting_base import *
 import umap
 from mito_utils.kNN import *
 from mito_utils.clustering import *
-from scipy.spatial.distance import pdist, squareform
-from itertools import combinations
+from sklearn.metrics.pairwise import pairwise_distances
 
 sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/RNA_decontamination")
 sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/sc_gbc")
@@ -80,37 +79,35 @@ decontamination_filtering = {'change_in_GBC':[], 'survived_cell':[]}
 
 counts = mark_UMIs(COUNTS[correction_type], coverage_treshold=0)
 unique_UMI_df = counts.groupby(['CBC', 'GBC_reference'])['UMI'].unique().to_frame('umi').reset_index()
-unique_UMI_df['hamming_mean'] = 0
-unique_UMI_df['hamming_error'] = 0
 
-from sklearn.metrics.pairwise import pairwise_distances
-import numpy as np
-
-hist_bad_UMI_perc = []
-hist_bad_UMI = []
-strange = []
+list_bad_UMI_perc = [] #fare un dct
+list_bad_UMI = [] #fare un dct
+strange = [] #fare un dct
 for k in range(unique_UMI_df['umi'].shape[0]):
-    print(k, ' su ', unique_UMI_df['umi'].shape[0])
+    print(k+1, ' su ', unique_UMI_df['umi'].shape[0])
     stringhe = unique_UMI_df['umi'][k]
     str_to_int = np.array([[ord(char) for char in s] for s in stringhe])
     distance = 12*pairwise_distances(str_to_int, metric='hamming')
-    bad_UMI_perc = ((distance<3).sum(axis=1)-1)/len(stringhe)
+    bad_UMI_perc = ((distance<3).sum(axis=1)-1)/distance.shape[0]
     bad_UMI = (distance<3).sum(axis=1)-1
     if bad_UMI.std()==0:
         strange.append(k)
-    hist_bad_UMI_perc.append([bad_UMI_perc.mean(), bad_UMI_perc.std()])
-    hist_bad_UMI.append([bad_UMI.mean(), bad_UMI.std()])
+    list_bad_UMI_perc.append([bad_UMI_perc.mean(), bad_UMI_perc.std()])
+    list_bad_UMI.append([bad_UMI.mean(), bad_UMI.std()])
 
 
 # perc
-hist_bad_UMI_perc = np.array(hist_bad_UMI_perc)
-pseudo_zero = (hist_bad_UMI_perc[:,1][hist_bad_UMI_perc[:,1]!=0].min())/10
-weights = 1/(hist_bad_UMI_perc[:,1]+pseudo_zero )**2
-bad_UMI_null_std_mean_perc = hist_bad_UMI_perc[:,0][hist_bad_UMI_perc[:,1]==0].mean()
-bad_UMI_mean_perc = np.average(hist_bad_UMI_perc[:,0], weights=weights)
+list_bad_UMI_perc = np.array(list_bad_UMI_perc)
+
+pseudo_zero = (list_bad_UMI_perc[:,1][list_bad_UMI_perc[:,1]!=0].min())/10
+weights = 1/(list_bad_UMI_perc[:,1]+pseudo_zero )**2
+bad_UMI_null_std_mean_perc = list_bad_UMI_perc[:,0][list_bad_UMI_perc[:,1]==0].mean()
+bad_UMI_mean_perc = np.average(list_bad_UMI_perc[:,0], weights=weights)
+
+np.median(list_bad_UMI[:,0])
 
 fig = plt.figure()
-sns.histplot(hist_bad_UMI_perc[:,0])
+sns.histplot(list_bad_UMI_perc[:,0])
 #sns.histplot(hist_bad_UMI[:,0][hist_bad_UMI[:,1]==0])
 plt.xlabel(f'mean % of UMI with hamming distance <3')
 #plt.ylabel(y_label)
@@ -118,15 +115,15 @@ plt.title(f'mean % of UMI with hamming distance <3 for each CBC-GBC')
 fig.savefig(os.path.join(path_results, 'bad_UMI_perc.png'), dpi=300)
 
 #abs
-hist_bad_UMI = np.array(hist_bad_UMI)
-pseudo_zero = (hist_bad_UMI[:,1][hist_bad_UMI[:,1]!=0].min())/10
-weights = 1/(hist_bad_UMI[:,1]+pseudo_zero )**2
-bad_UMI_null_std_mean = hist_bad_UMI[:,0][hist_bad_UMI[:,1]==0].mean()
-bad_UMI_mean = np.average(hist_bad_UMI[:,0], weights=weights)
-hist_bad_UMI[:,0].sum()
+list_bad_UMI = np.array(list_bad_UMI)
+pseudo_zero = (list_bad_UMI[:,1][list_bad_UMI[:,1]!=0].min())/10
+weights = 1/(list_bad_UMI[:,1]+pseudo_zero )**2
+bad_UMI_null_std_mean = list_bad_UMI[:,0][list_bad_UMI[:,1]==0].mean()
+bad_UMI_mean = np.average(list_bad_UMI[:,0], weights=weights)
+list_bad_UMI[:,0].sum()
 
 fig = plt.figure()
-sns.histplot(hist_bad_UMI[:,0])
+sns.histplot(list_bad_UMI[:,0])
 #sns.histplot(hist_bad_UMI[:,0][hist_bad_UMI[:,1]==0])
 plt.xlabel(f'mean # of UMI with hamming distance <3')
 #plt.ylabel(y_label)
