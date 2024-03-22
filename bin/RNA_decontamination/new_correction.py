@@ -51,6 +51,12 @@ with open(path_counts, 'rb') as p:
     counts = pickle.load(p)['raw']
 
 
+counts.groupby(['CBC', 'UMI']).size()
+counts.query('CBC=="AAACCCAAGCCTCCAG" and UMI=="AACAGAGACTTC"').sort_values('count', ascending=False)
+
+
+
+
 ##
 
 
@@ -98,7 +104,7 @@ def f():
     monitoring convenience.
     """
     processed = (
-        counts#.head(100000)
+        counts# .head(1000000)
         .groupby(['CBC', 'UMI'])
         .apply(lambda x: process_consensus_UMI(x)) # Need to be speeded up in parallel, if possible...
         # pandasparallel --> soluzione pandas-specifica
@@ -114,19 +120,17 @@ processed = run_command(f, verbose=True)           # ~4 minutes.
 
 ##
 
-
-
+~
 # UMI-deduplication
 UMIs = processed.query('CBC=="AAACCCAAGCCTCCAG"')['UMI'].values.tolist()
 numeric_UMIs = np.array([ [ ord(char) for char in s ] for s in UMIs ]) 
 D = 12 * pairwise_distances(numeric_UMIs, metric='hamming') 
 np.sum((D==1).sum(axis=1)==1) / D.shape[0]
-
-# rows, cols = np.where(D==1)
-# umi1 = UMIs[rows[0]]
-# umi2 = UMIs[cols[0]]
-# processed.query('CBC=="AAACCCAAGCCTCCAG" and UMI==@umi1')['GBC'].values[0] == \
-# processed.query('CBC=="AAACCCAAGCCTCCAG" and UMI==@umi2')['GBC'].values[0]
+rows, cols = np.where(D==1)
+umi1 = UMIs[rows[0]]
+umi2 = UMIs[cols[0]]
+processed.query('CBC=="AAACCCAAGCCTCCAG" and UMI==@umi1')['GBC'].values[0] == \
+processed.query('CBC=="AAACCCAAGCCTCCAG" and UMI==@umi2')['GBC'].values[0]
 
 
 
