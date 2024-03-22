@@ -11,8 +11,11 @@ from scipy.spatial.distance import pdist
 from sklearn.metrics.pairwise import pairwise_distances
 from plotting_utils._utils import *
 from plotting_utils._plotting_base import *
-sys.path.append("/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/RNA_decontamination")
-sys.path.append("/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/sc_gbc")
+#sys.path.append("/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/RNA_decontamination")
+#sys.path.append("/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/sc_gbc")
+
+sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/RNA_decontamination")
+sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/sc_gbc")
 # sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from decontamination_utils import *
 from helpers import *
@@ -22,9 +25,23 @@ from helpers import *
 
 
 # Read counts
-path_counts = '/Users/IEO5505/Desktop/mito_bench/data/AML_clones/counts.pickle'
+#path_counts = '/Users/IEO5505/Desktop/mito_bench/data/AML_clones/counts.pickle'
+path_main = '/Users/ieo6943/Documents/data/complex_experiment'
+path_counts = os.path.join(path_main, 'counts.pickle')
 with open(path_counts, 'rb') as p:
     counts = pickle.load(p)['raw']
+
+
+##
+    
+
+# Parameters
+correction_threshold = 3
+umi_treshold = 5
+p_treshold = 1
+max_ratio_treshold = .5
+normalized_abundance_treshold = .5
+coverage_treshold = 100
 
 
 # Example
@@ -130,10 +147,10 @@ def find_bad_UMI(df, ham_th=1):
 # Process CBC-UMIs
 t = Timer()
 t.start()
-correction_threshold = 6
+#correction_threshold = 6
 pandarallel.initialize(nb_workers=8)
 processed = (
-    counts.head(500000)
+    counts#.head(500000)
     .groupby(['CBC', 'UMI'])
     .parallel_apply(lambda x: process_consensus_UMI(x, correction_threshold=correction_threshold))
     .droplevel(2).reset_index()
@@ -186,7 +203,7 @@ M = M.loc[single_cbc]
 print(f'Assigned {single_cbc.size} ({single_cbc.size/starting_cells*100:.2f}%) cells')
 
 # Correlation with known GBC reference if available (optional)
-path_bulk = # ...  '/Users/IEO5505/Desktop/mito_bench/data/bulk_GBC_reference.csv'            
+#path_bulk = # ...  '/Users/IEO5505/Desktop/mito_bench/data/bulk_GBC_reference.csv'            
 
 if os.path.exists(path_bulk):
     bulk_df = pd.read_csv(path_bulk, index_col=0).query('sample=="AML_clones"')
