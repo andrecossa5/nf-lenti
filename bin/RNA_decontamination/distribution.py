@@ -83,15 +83,15 @@ unique_UMI_df = counts.groupby(['CBC', 'GBC_reference'])['UMI'].unique().to_fram
 list_bad_UMI_perc = [] #fare un dct
 list_bad_UMI = [] #fare un dct
 strange = [] #fare un dct
-for k in range(unique_UMI_df['umi'].shape[0]):
-    print(k+1, ' su ', unique_UMI_df['umi'].shape[0])
-    stringhe = unique_UMI_df['umi'][k]
+for index, UMI_list in enumerate(unique_UMI_df['umi']):
+    print(index+1, ' su ', unique_UMI_df['umi'].shape[0])
+    stringhe = UMI_list
     str_to_int = np.array([[ord(char) for char in s] for s in stringhe])
     distance = 12*pairwise_distances(str_to_int, metric='hamming')
     bad_UMI_perc = ((distance<3).sum(axis=1)-1)/distance.shape[0]
     bad_UMI = (distance<3).sum(axis=1)-1
     if bad_UMI.std()==0:
-        strange.append(k)
+        strange.append(index)
     list_bad_UMI_perc.append([bad_UMI_perc.mean(), bad_UMI_perc.std()])
     list_bad_UMI.append([bad_UMI.mean(), bad_UMI.std()])
 

@@ -109,14 +109,33 @@ fig, axs = plt.subplots(1, 3, figsize=(15, 5))
 ##
 
 value_type = 'log'
+
+##
+
+
 nbins = sturges(counts[value_type])
 sns.kdeplot(counts[value_type], color='r', ax=axs[0], label='good bead')
+mean = round(np.mean(counts[value_type]),2)
+median = round(np.median(counts[value_type]), 2)
+std = round(np.std(counts[value_type]), 2)
+
 sns.kdeplot(counts_empty[value_type], color='g', ax=axs[0], label='empty bead')
+mean_empty = round(np.mean(counts_empty[value_type]), 2)
+median_empty = round(np.median(counts_empty[value_type]), 2)
+std_empty = round(np.std(counts_empty[value_type]), 2)
 format_ax(
     ax=axs[0], 
     xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
     title='CBC-GBC-UMI combination'
 )
+axs[0].text(.53, .66, f'Mean good: {mean}', transform=axs[0].transAxes)
+axs[0].text(.53, .62, f'Std good: {std}', transform=axs[0].transAxes)
+axs[0].text(.53, .58, f'Median good: {median}', transform=axs[0].transAxes)
+
+axs[0].text(.53, .80, f'Mean empty: {mean_empty}', transform=axs[0].transAxes)
+axs[0].text(.53, .76, f'Std empty: {std_empty}', transform=axs[0].transAxes)
+axs[0].text(.53, .72, f'Median empty: {median_empty}', transform=axs[0].transAxes)
+
 axs[0].set_xlim(right=counts[value_type].max())  
 axs[0].set_ylim(bottom=0, top=1)  
 
@@ -125,12 +144,27 @@ axs[0].set_ylim(bottom=0, top=1)
 
 nbins = sturges(counts_empty[value_type])
 sns.kdeplot(counts_major[value_type], color='r', ax=axs[1], label='good bead')
+mean = round(np.mean(counts_major[value_type]), 2)
+median = round(np.median(counts_major[value_type]), 2)
+std = round(np.std(counts_major[value_type]), 2)
+
 sns.kdeplot(counts_empty_major[value_type], color='g', ax=axs[1], label='empty bead')
+mean_empty = round(np.mean(counts_empty_major[value_type]), 2)
+median_empty = round(np.median(counts_empty_major[value_type]), 2)
+std_empty = round(np.std(counts_empty_major[value_type]), 2)
+
 format_ax(
     ax=axs[1], 
     xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
     title='CBC-GBC-UMI combination'
 )
+axs[1].text(.53, .66, f'Mean good: {mean}', transform=axs[1].transAxes)
+axs[1].text(.53, .62, f'Std good: {std}', transform=axs[1].transAxes)
+axs[1].text(.53, .58, f'Median good: {median}', transform=axs[1].transAxes)
+axs[1].text(.53, .80, f'Mean empty: {mean_empty}', transform=axs[1].transAxes)
+axs[1].text(.53, .76, f'Std empty: {std_empty}', transform=axs[1].transAxes)
+axs[1].text(.53, .72, f'Median empty: {median_empty}', transform=axs[1].transAxes)
+
 axs[1].set_xlim(right=counts_empty[value_type].max())  
 axs[1].set_ylim(bottom=0, top=1)    
 
@@ -139,14 +173,31 @@ axs[1].set_ylim(bottom=0, top=1)
 
 nbins = sturges(counts_empty[value_type])
 sns.kdeplot(counts_other[value_type], color='r', ax=axs[2], label='good bead')
+
+mean = round(np.mean(counts_other[value_type]), 2)
+median = round(np.median(counts_other[value_type]), 2)
+std = round(np.std(counts_other[value_type]), 2)
+
 sns.kdeplot(counts_empty_other[value_type], color='g', ax=axs[2], label='empty bead')
+mean = round(np.mean(counts_empty_other[value_type]), 2)
+median = round(np.median(counts_empty_other[value_type]), 2)
+std = round(np.std(counts_empty_other[value_type]), 2)
+
 format_ax(
     ax=axs[2], 
     xlabel='n reads', ylabel='n CBC-GBC-UMI combination',
     title='CBC-GBC-UMI combination'
 )
 axs[2].set_xlim(right=counts_empty[value_type].max())  
-axs[2].set_ylim(bottom=0, top=1)   
+axs[2].set_ylim(bottom=0, top=1)
+
+axs[2].text(.53, .66, f'Mean good: {mean}', transform=axs[2].transAxes)
+axs[2].text(.53, .62, f'Std good: {std}', transform=axs[2].transAxes)
+axs[2].text(.53, .58, f'Median good: {median}', transform=axs[2].transAxes)
+axs[2].text(.53, .80, f'Mean empty: {mean_empty}', transform=axs[2].transAxes)
+axs[2].text(.53, .76, f'Std empty: {std_empty}', transform=axs[2].transAxes)
+axs[2].text(.53, .72, f'Median empty: {median_empty}', transform=axs[2].transAxes)
+
 
 axs[0].set(title='All count')
 axs[1].set(title='Counts supporting major GBC')

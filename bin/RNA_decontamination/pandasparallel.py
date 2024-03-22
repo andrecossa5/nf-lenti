@@ -78,6 +78,17 @@ def process_consensus_UMI(df, correction_threshold=3):     # SPOSTARE in helpers
 
 ##
 
+#find bad UMI
+def find_bad_UMI(df, ham_th=1):
+    UMIs = df['UMI'].unique()
+    numeric_UMIs = np.array([ [ ord(char) for char in s ] for s in UMIs ]) 
+    D = 12 * pairwise_distances(numeric_UMIs, metric='hamming')
+    bad_UMI_count = ( df['GBC'].iloc[np.where(D==ham_th)[0]].values == df['GBC'].iloc[np.where(D==ham_th)[1]].values ).sum()
+    bad_UMI_ratio = bad_UMI_count / D.shape[0]
+    res = pd.DataFrame([bad_UMI_ratio])
+    res.columns = ['bad_UMI_ratio']
+    return res
+
 
 # # Process each cell UMI into a consensus GBC sequence.
 # def f(ncores=1, n=10000, correction_threshold=5):
@@ -175,7 +186,8 @@ M = M.loc[single_cbc]
 print(f'Assigned {single_cbc.size} ({single_cbc.size/starting_cells*100:.2f}%) cells')
 
 # Correlation with known GBC reference if available (optional)
-path_bulk = # ...  '/Users/IEO5505/Desktop/mito_bench/data/bulk_GBC_reference.csv'
+path_bulk = # ...  '/Users/IEO5505/Desktop/mito_bench/data/bulk_GBC_reference.csv'            
+
 if os.path.exists(path_bulk):
     bulk_df = pd.read_csv(path_bulk, index_col=0).query('sample=="AML_clones"')
     pseudobulk_sc = M.sum(axis=0) / M.sum(axis=0).sum()
@@ -188,3 +200,56 @@ if os.path.exists(path_bulk):
 
 ##
 
+
+#Micheals
+#UMI-deduplication
+
+count_bad_UMI = (
+    processed
+    .groupby(['CBC'])
+    .apply(lambda x: find_bad_UMI(x))
+    .droplevel(1).reset_index()
+    .dropna()
+    
+)
+
+count_bad_UMI['bad_UMI_ratio'].values.mean()
+count_bad_UMI['bad_UMI_ratio'].values.std()
+
+##
+
+#Micheals
+#cell loss
+
+cell_loss = 1 - processed['CBC'].nunique()/counts['CBC'].nunique()
+
+##
+
+
+#Weinreb et al 
+
+CBC_GBCs = df_combos[df_combos['status']=='supported'][['CBC', 'GBC']]
+filtered = counts.loc[lambda x: x['status']=='Retain']
+processed_W = get_combos(counts_Weinreb, gbc_col='GB')
+
+M, processed_W = filter_and_pivot(
+    processed_W, 
+    umi_treshold=umi_treshold, 
+    p_treshold=p_treshold, 
+    max_ratio_treshold=max_ratio_treshold, 
+    normalized_abundance_treshold=normalized_abundance_treshold
+)
+processed_W_UMI = filtered.merge(processed_W[processed_W['status']=='supported'], on=['CBC', 'GBC'], how='inner')
+
+count_bad_UMI_W = (
+    processed_W_UMI
+    .groupby(['CBC'])
+    .apply(lambda x: find_bad_UMI(x))
+    .droplevel(1).reset_index()
+    .dropna()
+    
+)
+
+count_bad_UMI_W['bad_UMI_ratio'].values.mean()
+
+cell_loss_W = 1 - processed['CBC'].nunique()/counts['CBC'].nunique()
