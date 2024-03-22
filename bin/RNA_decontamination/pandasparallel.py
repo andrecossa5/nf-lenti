@@ -26,7 +26,7 @@ from helpers import *
 
 # Read counts
 #path_counts = '/Users/IEO5505/Desktop/mito_bench/data/AML_clones/counts.pickle'
-path_main = '/Users/ieo6943/Documents/data/complex_experiment'
+path_main = '/Users/ieo6943/Documents/data/8_clones'
 path_counts = os.path.join(path_main, 'counts.pickle')
 with open(path_counts, 'rb') as p:
     counts = pickle.load(p)['raw']
@@ -198,7 +198,7 @@ M, df_combos = filter_and_pivot(                    # Argomenti fissi, per ora, 
 print(f'Median MOI: {(M>0).sum(axis=1).median()}')
 
 # Final cell assignment
-single_cbc = (M>0).sum(axis=1).loc[lambda x: x==1].index
+single_cbc = (M>0).sum(axis=1).loc[lambda x: x==1].index 
 M = M.loc[single_cbc]
 print(f'Assigned {single_cbc.size} ({single_cbc.size/starting_cells*100:.2f}%) cells')
 
@@ -245,11 +245,12 @@ cell_loss = 1 - processed['CBC'].nunique()/counts['CBC'].nunique()
 
 #Weinreb et al 
 
-CBC_GBCs = df_combos[df_combos['status']=='supported'][['CBC', 'GBC']]
+#CBC_GBCs = df_combos[df_combos['status']=='supported'][['CBC', 'GBC']]
+counts = mark_UMIs(counts, coverage_treshold=coverage_treshold)
 filtered = counts.loc[lambda x: x['status']=='Retain']
-processed_W = get_combos(counts_Weinreb, gbc_col='GB')
+processed_W = get_combos(counts, gbc_col='GBC')
 
-M, processed_W = filter_and_pivot(
+M_W, processed_W = filter_and_pivot(
     processed_W, 
     umi_treshold=umi_treshold, 
     p_treshold=p_treshold, 
@@ -269,4 +270,12 @@ count_bad_UMI_W = (
 
 count_bad_UMI_W['bad_UMI_ratio'].values.mean()
 
-cell_loss_W = 1 - processed['CBC'].nunique()/counts['CBC'].nunique()
+cell_loss_W = 1 - processed_W_UMI['CBC'].nunique()/counts['CBC'].nunique()
+
+starting_CBC_GBC_UMIs = counts.shape[0]
+final_CBC_GBC_UMIs = processed_W_UMI.shape[0]
+print(f'Retained {final_CBC_GBC_UMIs} ({final_CBC_GBC_UMIs/starting_CBC_GBC_UMIs*100:.2f}%) CBC-GBC-UMIs')
+
+single_cbc_W = (M_W>0).sum(axis=1).loc[lambda x: x==1].index 
+M_W = M_W.loc[single_cbc_W]
+print(f'Assigned {single_cbc.size} ({single_cbc.size/starting_cells*100:.2f}%) cells')
