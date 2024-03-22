@@ -255,3 +255,16 @@ def get_df_combos(m_df):
 
 ##
 
+def get_combos_not_filtered(counts):
+    df_combos = (
+        counts
+        .groupby(['CBC', 'GBC'])['UMI'].nunique()
+        .to_frame('umi').reset_index()
+        .assign(
+            max_ratio=lambda x: \
+            x.groupby('CBC')['umi'].transform(lambda x: x/x.max()),
+            normalized_abundance=lambda x: \
+            x.groupby('CBC')['umi'].transform(lambda x: x/x.sum())
+        )
+    )
+    return df_combos
