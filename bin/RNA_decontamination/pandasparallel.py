@@ -28,8 +28,10 @@ with open(path_counts, 'rb') as p:
 
 
 # Example
-counts.groupby(['CBC', 'UMI']).size()
-
+n_reads_total = counts['count'].sum()
+median_n_reads_per_UMI = counts.groupby(['CBC', 'UMI'])['count'].sum().median()
+print(f'n_reads_total: {n_reads_total}')   
+print(f'n_reads_total: {median_n_reads_per_UMI}')   
 
 # counts.query('GBC=="TATGGCGGTTGTGCTGTC"').groupby('CBC')['UMI'].nunique().describe()#apply(lambda x: x)#.sum().size().describe()
 # counts.query('GBC=="CGGCGCTTCTGTGCCCGG"').groupby('CBC')['UMI'].nunique().describe()
@@ -114,32 +116,27 @@ def process_consensus_UMI(df, correction_threshold=3):     # SPOSTARE in helpers
 ##
 
 
-# Process
+# Process CBC-UMIs
 t = Timer()
 t.start()
 correction_threshold = 6
 pandarallel.initialize(nb_workers=8)
 processed = (
-    counts
+    counts.head(500000)
     .groupby(['CBC', 'UMI'])
     .parallel_apply(lambda x: process_consensus_UMI(x, correction_threshold=correction_threshold))
     .droplevel(2).reset_index()
     .dropna()  
 )
 print(f'Elapsed {t.stop()}')
-print(f'Retained cells: {processed["CBC"].nunique()/counts["CBC"].nunique()*100:.2f}%')     
-print(f'Retained triplets: {processed.shape[0]/counts.shape[0]*100:.2f}%') 
-print(f'Retained GBCs: {processed["GBC"].nunique()/counts["GBC"].nunique()*100:.2f}%')   
-processed["GBC"].nunique()
-processed["GBC"].value_counts().head(10)#.describe()
-
 
 
 ##
 
 
-
 # Before-after checks: CBCs and CBC-UMI-GBC retained
+
+# More stats to collect
 starting_cells = counts["CBC"].nunique()
 final_cells = processed["CBC"].nunique()
 print(f'Retained {final_cells} ({final_cells/starting_cells*100:.2f}%) CBCs')
@@ -161,52 +158,33 @@ df_combos = (
 )
 
 # Filter CBC-GBC combos and pivot
-M, df_combos = filter_and_pivot(
+M, df_combos = filter_and_pivot(                    # Argomenti fissi, per ora, da mettere ad inizio script
     df_combos, 
-    umi_treshold=5, 
+    umi_treshold=5,     
     p_treshold=1, 
     max_ratio_treshold=.5, 
     normalized_abundance_treshold=.5
 )
-single_cbc = (M>0).sum(axis=1).loc[lambda x: x==1].index
-M = M.loc[single_cbc]
+
+# More stats
+print(f'Median MOI: {(M>0).sum(axis=1).median()}')
 
 # Final cell assignment
+single_cbc = (M>0).sum(axis=1).loc[lambda x: x==1].index
+M = M.loc[single_cbc]
 print(f'Assigned {single_cbc.size} ({single_cbc.size/starting_cells*100:.2f}%) cells')
 
-# Correlation with known GBC reference
-path_bulk = '/Users/IEO5505/Desktop/mito_bench/data/bulk_GBC_reference.csv'
-bulk_df = pd.read_csv(path_bulk, index_col=0).query('sample=="AML_clones"')
-pseudobulk_sc = M.sum(axis=0) / M.sum(axis=0).sum()
-common = list(set(pseudobulk_sc.index) & set(bulk_df.index))
-
-pseudobulk_sc = pseudobulk_sc.loc[common]
-bulk = bulk_df.loc[common]['read_count'] / bulk_df.loc[common]['read_count'].sum()
-corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
-
-
-plt.scatter(sets.set_index('GBC_set').loc[common]['prevalence'], pseudobulk_sc)
-plt.show()
-
-
-
-
-
-
-
-sets = get_clones(M)
-GBC_set = list(chain.from_iterable(sets['GBC_set'].map(lambda x: x.split(';')).to_list()))
-redundancy = 1-np.unique(GBC_set).size/len(GBC_set)
-occurrences = pd.Series(GBC_set).value_counts().sort_values(ascending=False)
+# Correlation with known GBC reference if available (optional)
+path_bulk = # ...  '/Users/IEO5505/Desktop/mito_bench/data/bulk_GBC_reference.csv'
+if os.path.exists(path_bulk):
+    bulk_df = pd.read_csv(path_bulk, index_col=0).query('sample=="AML_clones"')
+    pseudobulk_sc = M.sum(axis=0) / M.sum(axis=0).sum()
+    common = list(set(pseudobulk_sc.index) & set(bulk_df.index))
+    pseudobulk_sc = pseudobulk_sc.loc[common]
+    bulk = bulk_df.loc[common]['read_count'] / bulk_df.loc[common]['read_count'].sum()
+    corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
+    print(f'Correlation bulk read counts vs pseudobulk umi counts {corr:.2f}%) cells')
 
 
 ##
-
-
-# Visualize CBC-GBC filtering
-fig, ax = plt.subplots(figsize=(5,5))
-sns.scatterplot(data=df_combos, x='normalized_abundance', y='max_ratio', ax=ax)
-fig.tight_layout()
-plt.show()
-
 
