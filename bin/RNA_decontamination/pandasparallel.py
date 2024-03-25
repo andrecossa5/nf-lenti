@@ -191,7 +191,7 @@ if read_elements_path != None:
     counts = count_UMIs(sc_df)
 else:
     with open(path_counts, 'rb') as p:
-        counts = pickle.load(p)['raw'][:10000]
+        counts = pickle.load(p)['raw']
 
 ##
 
@@ -306,7 +306,7 @@ else:
     STATS.append(np.nan, np.nan)
 
 # Percorso del file CSV
-STATS_path = f'/Users/ieo6943/Documents/results/STATS_{sample}.csv'
+STATS_path = f'/hpcnfs/home/ieo6943/mito_preprocessing/bin/RNA_decontamination/STATS_{sample}.csv'
 
 # Scrivere la lista nel file CSV
 with open(STATS_path, 'w', newline='') as file:
