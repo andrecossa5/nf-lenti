@@ -16,9 +16,9 @@ import csv
 #sys.path.append("/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/RNA_decontamination")
 #sys.path.append("/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/sc_gbc")
 
-sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/RNA_decontamination")
-sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/sc_gbc")
-# sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+#sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/RNA_decontamination")
+#sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/sc_gbc")
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from decontamination_utils import *
 from helpers import *
 
@@ -129,6 +129,14 @@ my_parser.add_argument(
     help='Min abundance (nUMIs fraction within a cell) of a CBC-GBC combination. Default: .5.'
 )
 
+# number of core for paralelization
+my_parser.add_argument(
+    '--ncore',
+    type=float,
+    default= 8 ,
+    help='Number of cores'
+)
+
 
 ##
 
@@ -147,6 +155,7 @@ p_treshold = args.p_treshold
 max_ratio_treshold = args.max_ratio_treshold
 normalized_abundance_treshold = args.normalized_abundance_treshold
 path_bulk = args.path_bulk
+n_cores = args.ncore
 
 
 ##
@@ -178,7 +187,7 @@ print(f'n_reads_total: {n_reads_total}')
 print(f'n_reads_total: {median_n_reads_per_UMI}') 
 
 # UMI redundancy
-pandarallel.initialize(nb_workers=8)
+pandarallel.initialize(nb_workers=n_cores)
 count_bad_UMI = (
     counts
     .groupby(['CBC'])
