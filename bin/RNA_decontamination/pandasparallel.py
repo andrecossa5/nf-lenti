@@ -132,7 +132,7 @@ my_parser.add_argument(
 # number of core for paralelization
 my_parser.add_argument(
     '--ncore',
-    type=float,
+    type=int,
     default= 8 ,
     help='Number of cores'
 )
