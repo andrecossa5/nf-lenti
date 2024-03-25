@@ -161,6 +161,23 @@ n_cores = args.ncore
 ##
 
 
+#sample = 'AML'
+#read_elements_path = None
+#path_counts = '/Users/ieo6943/Documents/data/AML_clones/counts.pickle'
+#method = "Micheals"
+#modality = 'GBC'
+#correction_threshold = 6
+#coverage_treshold = 10
+#umi_treshold = 5
+#p_treshold = 1
+#max_ratio_treshold = 0.5
+#normalized_abundance_treshold = 0.5
+#path_bulk = '/Users/ieo6943/Documents/data/AML_clones/bulk_reference.csv'
+#n_cores = 10
+
+
+##
+
 if read_elements_path != None:
 # Counts n reads per CBC-UMI-feature
     sc_df = pd.read_csv(read_elements_path, sep='\t', header=None, dtype='str')
@@ -174,7 +191,7 @@ if read_elements_path != None:
     counts = count_UMIs(sc_df)
 else:
     with open(path_counts, 'rb') as p:
-        counts = pickle.load(p)['raw']
+        counts = pickle.load(p)['raw'][:10000]
 
 ##
 
@@ -280,7 +297,8 @@ if modality == 'GBC':
         corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
         print(f'Correlation bulk read counts vs pseudobulk umi counts {corr:.2f}%) cells')
         STATS.append(corr)
-    STATS.append(np.nan)
+    else:
+        STATS.append(np.nan)
 
 ##
 
@@ -288,11 +306,12 @@ else:
     STATS.append(np.nan, np.nan)
 
 # Percorso del file CSV
-STATS_path = f'../reults/STATS_{sample}.csv'
+STATS_path = f'/Users/ieo6943/Documents/results/STATS_{sample}.csv'
 
 # Scrivere la lista nel file CSV
 with open(STATS_path, 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(STATS)
+
 # Create and save .csv
 # Save STATS...
