@@ -221,12 +221,13 @@ STATS.append(count_bad_UMI['bad_UMI_ratio'].values.std()*100)
 ##
 
 
-# UMI filtering/processing
-t = Timer()
-t.start()
+
 
 methods = ["Weinreb", "Micheals"]
 for method in methods:
+    # UMI filtering/processing
+    t = Timer()
+    t.start()
 
     if method == "Weinreb":
         print('Im using Weinreb')
