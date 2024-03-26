@@ -146,7 +146,7 @@ args = my_parser.parse_args()
 sample =args.sample
 read_elements_path = args.read_elements_path
 path_counts = args.path_counts
-method = args.method
+#method = args.method
 modality = args.modality
 correction_threshold = args.correction_threshold
 coverage_treshold = args.coverage_treshold
@@ -225,88 +225,92 @@ STATS.append(count_bad_UMI['bad_UMI_ratio'].values.std()*100)
 t = Timer()
 t.start()
 
-if method == "Weinreb":
-    print('Im using Weinreb')
-    counts = mark_UMIs(counts, coverage_treshold=coverage_treshold)
-    processed = counts.loc[lambda x: x['status']=='Retain']
-elif method == "Micheals":
-    print('Im using Micheals')
-    processed = (
-        counts
-        .groupby(['CBC', 'UMI'])
-        .parallel_apply(lambda x: process_consensus_UMI(x,modality=modality, correction_threshold=correction_threshold))
-        .droplevel(2).reset_index()
-        .dropna()  
-    )
-t_stop = t.stop()
-print(f'Elapsed {t_stop}')
-STATS.append(t_stop)
+methods = ["Weinreb", "Micheals"]
+for method in methods:
 
+    if method == "Weinreb":
+        print('Im using Weinreb')
+        counts = mark_UMIs(counts, coverage_treshold=coverage_treshold)
+        processed = counts.loc[lambda x: x['status']=='Retain']
+    elif method == "Micheals":
+        print('Im using Micheals')
+        processed = (
+            counts
+            .groupby(['CBC', 'UMI'])
+            .parallel_apply(lambda x: process_consensus_UMI(x,modality=modality, correction_threshold=correction_threshold))
+            .droplevel(2).reset_index()
+            .dropna()  
+        )
+    t_stop = t.stop()
+    print(f'Elapsed {t_stop}')
+    STATS.append(t_stop)
 
-##
-
-
-# Before-after checks: CBCs and CBC-UMI-GBC retained
-
-# More stats to collect
-starting_cells = counts["CBC"].nunique()
-final_cells = processed["CBC"].nunique()
-print(f'Retained {final_cells} ({final_cells/starting_cells*100:.2f}%) CBCs')
-STATS.append(final_cells/starting_cells*100)
-starting_CBC_feature_UMIs = counts.shape[0]
-final_CBC_feature_UMIs = processed.shape[0]
-print(f'Retained {final_CBC_feature_UMIs} ({final_CBC_feature_UMIs/starting_CBC_feature_UMIs*100:.2f}%) CBC-GBC-UMIs')
-STATS.append(final_CBC_feature_UMIs/starting_CBC_feature_UMIs*100)
-
-##
-
-
-if modality == 'GBC':
-
-    # Get CBC-GBC combos
-    df_combos = get_combos_not_filtered(processed)
-
-    # Filter CBC-GBC combos and pivot
-    M, df_combos = filter_and_pivot(                    # Argomenti fissi, per ora, da mettere ad inizio script
-        df_combos, 
-        umi_treshold=5,     
-        p_treshold=1, 
-        max_ratio_treshold=.5, 
-        normalized_abundance_treshold=.5
-    )
-
-    # More stats
-    print(f'Median MOI: {(M>0).sum(axis=1).median()}')
-    STATS.append((M>0).sum(axis=1).median())
-    # Final cell assignment
-    single_cbc = (M>0).sum(axis=1).loc[lambda x: x==1].index 
-    M = M.loc[single_cbc]
-    print(f'Assigned {single_cbc.size} ({single_cbc.size/starting_cells*100:.2f}%) cells')
-    STATS.append(single_cbc.size/starting_cells*100)
 
     ##
 
 
-    # Correlation with known GBC reference if available (optional)           
-    if os.path.exists(path_bulk):
-        bulk_df = pd.read_csv(path_bulk, index_col=0).query('sample=="AML_clones"')
-        pseudobulk_sc = M.sum(axis=0) / M.sum(axis=0).sum()
-        common = list(set(pseudobulk_sc.index) & set(bulk_df.index))
-        pseudobulk_sc = pseudobulk_sc.loc[common]
-        bulk = bulk_df.loc[common]['read_count'] / bulk_df.loc[common]['read_count'].sum()
-        corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
-        print(f'Correlation bulk read counts vs pseudobulk umi counts {corr:.2f}%) cells')
-        STATS.append(corr)
+    # Before-after checks: CBCs and CBC-UMI-GBC retained
+
+    # More stats to collect
+    starting_cells = counts["CBC"].nunique()
+    final_cells = processed["CBC"].nunique()
+    print(f'Retained {final_cells} ({final_cells/starting_cells*100:.2f}%) CBCs')
+    STATS.append(final_cells/starting_cells*100)
+    starting_CBC_feature_UMIs = counts.shape[0]
+    final_CBC_feature_UMIs = processed.shape[0]
+    print(f'Retained {final_CBC_feature_UMIs} ({final_CBC_feature_UMIs/starting_CBC_feature_UMIs*100:.2f}%) CBC-GBC-UMIs')
+    STATS.append(final_CBC_feature_UMIs/starting_CBC_feature_UMIs*100)
+
+    ##
+
+
+    if modality == 'GBC':
+
+        # Get CBC-GBC combos
+        df_combos = get_combos_not_filtered(processed)
+
+        # Filter CBC-GBC combos and pivot
+        M, df_combos = filter_and_pivot(                    # Argomenti fissi, per ora, da mettere ad inizio script
+            df_combos, 
+            umi_treshold=5,     
+            p_treshold=1, 
+            max_ratio_treshold=.5, 
+            normalized_abundance_treshold=.5
+        )
+
+        # More stats
+        print(f'Median MOI: {(M>0).sum(axis=1).median()}')
+        STATS.append((M>0).sum(axis=1).median())
+        # Final cell assignment
+        single_cbc = (M>0).sum(axis=1).loc[lambda x: x==1].index 
+        M = M.loc[single_cbc]
+        print(f'Assigned {single_cbc.size} ({single_cbc.size/starting_cells*100:.2f}%) cells')
+        STATS.append(single_cbc.size/starting_cells*100)
+
+        ##
+
+
+        # Correlation with known GBC reference if available (optional)           
+        if os.path.exists(path_bulk):
+            bulk_df = pd.read_csv(path_bulk, index_col=0).query(f'sample=="{sample}"')
+            pseudobulk_sc = M.sum(axis=0) / M.sum(axis=0).sum()
+            common = list(set(pseudobulk_sc.index) & set(bulk_df.index))
+            pseudobulk_sc = pseudobulk_sc.loc[common]
+            bulk = bulk_df.loc[common]['read_count'] / bulk_df.loc[common]['read_count'].sum()
+            corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
+            print(f'Correlation bulk read counts vs pseudobulk umi counts {corr:.2f}%) cells')
+            STATS.append(corr)
+        else:
+            STATS.append(np.nan)
+
+    ##
+
     else:
-        STATS.append(np.nan)
-
-##
-
-else:
-    STATS.append(np.nan, np.nan)
+        STATS.append(np.nan, np.nan)
 
 # Percorso del file CSV
 STATS_path = f'/hpcnfs/home/ieo6943/mito_preprocessing/bin/RNA_decontamination/STATS_{sample}.csv'
+
 
 # Scrivere la lista nel file CSV
 with open(STATS_path, 'w', newline='') as file:
