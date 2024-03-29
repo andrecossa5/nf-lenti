@@ -31,6 +31,8 @@
     "maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/maester",
     "maester_outdir" : "/Users/IEO5505/Desktop/example_mito/results/maester",
     "maester_code_dir" : "/maegatk/maegatk",
-    "maester_min_reads" : 3
+    "maester_min_reads" : 3,
+    "min_base_qual" : 30,
+    "min_alignment_quality" : 3
 
 }
