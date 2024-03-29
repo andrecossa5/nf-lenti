@@ -25,11 +25,11 @@ from helpers import *
 
 
 # Read counts
-#path_counts = '/Users/IEO5505/Desktop/mito_bench/data/AML_clones/counts.pickle'
-path_main = '/Users/ieo6943/Documents/data/8_clones'
-path_counts = os.path.join(path_main, 'counts.pickle')
-with open(path_counts, 'rb') as p:
-    counts = pickle.load(p)['raw']
+# path_counts = '/Users/IEO5505/Desktop/mito_bench/data/AML_clones/counts.pickle'
+# path_main = '/Users/ieo6943/Documents/data/8_clones'
+# path_counts = os.path.join(path_main, 'counts.pickle')
+# with open(path_counts, 'rb') as p:
+#     counts = pickle.load(p)['raw']
 
 
 ##
@@ -49,10 +49,6 @@ n_reads_total = counts['count'].sum()
 median_n_reads_per_UMI = counts.groupby(['CBC', 'UMI'])['count'].sum().median()
 print(f'n_reads_total: {n_reads_total}')   
 print(f'n_reads_total: {median_n_reads_per_UMI}')   
-
-# counts.query('GBC=="TATGGCGGTTGTGCTGTC"').groupby('CBC')['UMI'].nunique().describe()#apply(lambda x: x)#.sum().size().describe()
-# counts.query('GBC=="CGGCGCTTCTGTGCCCGG"').groupby('CBC')['UMI'].nunique().describe()
-# df = counts.query('CBC=="AAACCCAAGCCTCCAG" and UMI=="AACAGAGACTTC"').sort_values('count', ascending=False)
 
 
 ##
@@ -173,6 +169,21 @@ final_CBC_GBC_UMIs = processed.shape[0]
 print(f'Retained {final_CBC_GBC_UMIs} ({final_CBC_GBC_UMIs/starting_CBC_GBC_UMIs*100:.2f}%) CBC-GBC-UMIs')
 
 # Get CBC-GBC combos
+
+
+df_combos = (
+    filtered
+    .rename(columns={gbc_col:'GBC'})
+    .groupby(['CBC', 'GBC'])['UMI'].nunique()
+    .to_frame('umi').reset_index()
+    .assign(
+        max_ratio=lambda x: \
+        x.groupby('CBC')['umi'].transform(lambda x: x/x.max()),
+        normalized_abundance=lambda x: \
+        x.groupby('CBC')['umi'].transform(lambda x: x/x.sum())
+    )
+)
+
 df_combos = (
     processed
     .groupby(['CBC', 'GBC'])['UMI'].nunique()
@@ -220,7 +231,6 @@ if os.path.exists(path_bulk):
 
 #Micheals
 #UMI-deduplication
-
 count_bad_UMI = (
     processed
     .groupby(['CBC'])
@@ -235,10 +245,6 @@ count_bad_UMI['bad_UMI_ratio'].values.std()
 
 ##
 
-#Micheals
-#cell loss
-
-cell_loss = 1 - processed['CBC'].nunique()/counts['CBC'].nunique()
 
 ##
 
