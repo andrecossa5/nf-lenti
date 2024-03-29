@@ -14,6 +14,7 @@ from scipy.stats import poisson
 from itertools import chain
 from plotting_utils._plotting_base import *
 from plotting_utils._utils import Timer
+from scipy.spatial.distance import pdist
 
 
 ##
@@ -581,3 +582,50 @@ def cell_assignment_workflow(
 
 
 ##
+    
+
+def process_consensus_UMI(df, modality, correction_threshold=3):     # SPOSTARE in helpers, o simili, quando e' finita!
+    """
+    Process a CBC-UMI features, and their read counts.
+    """
+    df = df.sort_values('count', ascending=False).set_index(modality)
+    features = df.index
+
+    if features.size == 1:
+        l = [ features[0], df['count'].sum(), 1, np.nan ] 
+    else:
+        numeric_GBCs = np.array([ [ ord(char) for char in s ] for s in features ])
+        D = 18 * pdist(numeric_GBCs, metric='hamming')
+        # D = 18 * pairwise_distances(numeric_GBCs, metric='hamming')                     # pdist
+        if (D<=correction_threshold).mean():
+            # Simplest alternative: majority barcode as consensus
+            top_feature = features[0]                                   
+            l = [ top_feature, df['count'].sum(), df.loc[top_feature, 'count']/df['count'].sum(), D.mean() ]
+            # More advanced (but more computationally intensive...)
+            """
+            AAAC 40
+            ACGC 35
+            ACGT 30
+            ACGA 25
+            top_GBC = ACGC
+            """
+        else:
+            l =  [np.nan] * 3 + [ D.mean() ]
+
+    res = pd.DataFrame(l).T
+    res.columns = [modality, 'total_reads', 'max_ratio', 'mean_hamming']
+
+    return res
+
+##
+
+
+def find_bad_UMI(df, modality, ham_th=1):
+    UMIs = df['UMI'].unique()
+    numeric_UMIs = np.array([ [ ord(char) for char in s ] for s in UMIs ]) 
+    D = 12 * pairwise_distances(numeric_UMIs, metric='hamming')
+    bad_UMI_count = ( df[modality].iloc[np.where(D==ham_th)[0]].values == df[modality].iloc[np.where(D==ham_th)[1]].values ).sum()
+    bad_UMI_ratio = bad_UMI_count / D.shape[0]
+    res = pd.DataFrame([bad_UMI_ratio])
+    res.columns = ['bad_UMI_ratio']
+    return res
