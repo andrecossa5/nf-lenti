@@ -7,8 +7,7 @@
     "bulk_gbc_anchor_sequence" : "GGGTTTAAACGGGCCCTCTAG",
     "bulk_gbc_spikeins_table" : "/Users/IEO5505/Desktop/example_perturb/meta/spikeins_table.csv",
     
-    "sc_tenx_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_tenx/",
-    "sc_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_gbc/",
+    "sc_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc/",
     "sc_maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/maester/",
     "sc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/sc/",
 
@@ -17,16 +16,23 @@
 
     "gbc_sample_map" : "/Users/IEO5505/Desktop/example_mito/meta/sample_map.csv",
     "sc_gbc_anchor_sequence" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
-    "sc_gbc_anchor_treshold" : 1,
-    "bulk_sc_treshold" : 1,
-    "umi_treshold" : 3,
-    "read_treshold" : 15,
-    "coverage_treshold" : 5,
-    "ratio_to_most_abundant_treshold" : 0.3,
+    "sc_gbc_anchor_treshold" : 3,
+    "bulk_correction_treshold" : 3,
+    "sc_correction_treshold" : 3,
+    "umi_filtering_method" : "fixed",
+    "coverage_treshold" : 20,
+    "correction_type" : "reference-free",
+    "umi_treshold" : 5,
+    "p_treshold" : 0.5,
+    "max_ratio_treshold" : 0.8,
+    "normalized_abundance_treshold" : 0.7,
+    "sample_params" : "/Users/IEO5505/Desktop/example_mito/meta/sample_params.csv",
 
     "maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/maester",
     "maester_outdir" : "/Users/IEO5505/Desktop/example_mito/results/maester",
     "maester_code_dir" : "/maegatk/maegatk",
-    "maester_min_reads" : 3
+    "maester_min_reads" : 3,
+    "min_base_qual" : 30,
+    "min_alignment_quality" : 3
 
 }

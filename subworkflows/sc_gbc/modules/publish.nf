@@ -13,26 +13,34 @@ process publish_sc {
     tuple val(sample_name), 
           path(CBC_GBC), 
           path(CBC_GBC_plot), 
+          path(CBC_GBC_UMI_plot), 
           path(cells_summary), 
           path(clones_summary), 
+          path(cell_assignment_summary),
           path(bam), 
           path(stats),
-          path(summary), 
+          path(alignment_summary), 
           path(filtered), 
-          path(raw), 
-          path(run_summary)
+          path(raw),
+          path(run_summary),
+          path(counts),
+          path(selected_umi_plot)
 
     output:
-    path raw
     path CBC_GBC
     path CBC_GBC_plot
+    path CBC_GBC_UMI_plot
     path cells_summary
     path clones_summary
     path bam
     path stats
-    path summary
+    path raw
     path filtered
+    path alignment_summary
     path run_summary
+    path cell_assignment_summary
+    path counts
+    path selected_umi_plot 
 
     script:
     """

@@ -4,7 +4,7 @@ nextflow.enable.dsl = 2
 
 //
 
-process MERGE {
+process MERGE_BAM {
 
   tag "${sample_name}"
 

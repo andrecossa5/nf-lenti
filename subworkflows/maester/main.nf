@@ -9,7 +9,7 @@ include { STAR } from "./modules/STAR.nf"
 include { FILTER_I } from "./modules/filter_bam.nf"
 include { FILTER_II } from "./modules/filter_bam.nf"
 include { FIX_TAGS } from "./modules/fix_tags.nf"
-include { MERGE } from "./modules/merge_bams.nf"
+include { MERGE_BAM } from "./modules/merge_bams.nf"
 include { INDEX } from "./modules/index_bam.nf"
 include { MAEGATK } from "./modules/maegatk.nf"
 include { TO_H5AD } from "./modules/to_h5ad.nf"
@@ -61,8 +61,8 @@ workflow maester {
         FILTER_I(not_enriched_bam)
         FILTER_II(STAR.out.bam)
         FIX_TAGS(FILTER_II.out.mitobam)
-        MERGE(FILTER_I.out.mitobam.combine(FIX_TAGS.out.mitobam, by:0))
-        INDEX(MERGE.out.mitobam)
+        MERGE_BAM(FILTER_I.out.mitobam.combine(FIX_TAGS.out.mitobam, by:0))
+        INDEX(MERGE_BAM.out.mitobam)
         MAEGATK(INDEX.out.bam.combine(INDEX.out.index, by:0).combine(filtered, by:0))
         TO_H5AD(MAEGATK.out.output)
         

@@ -1,1 +1,0 @@
-2023-12-04 01:28:27	5.5s	soggy_pauling	OK	7b8ee03cf598cbac440dc4ff040d02d0	7e5eeb58-c3a0-4232-9140-dbea6ced3d38	nextflow run main.nf -c config/nextflow.config -params-file params/params_local.json -profile conda_local -entry SC_GBC_MITO -stub

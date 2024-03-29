@@ -23,7 +23,9 @@ process MAEGATK {
   ${mitobam} \
   ${task.cpus} \
   ./barcodes.txt \
-  ${params.maester_min_reads} 
+  ${params.maester_min_reads} \
+  ${params.min_base_qual} \
+  ${params.min_alignment_quality}
   """
 
   stub:
