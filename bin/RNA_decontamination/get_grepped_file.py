@@ -4,10 +4,20 @@ import dnaio
 import os
 
 # File path
-main_path = '/hpcnfs/scratch/PGP/MI_TO_benchmark/preprocessing/pp/data/maester/AML_clones'
-input_read_1 = os.path.join(main_path, "S46393_AML_854_MAESTER_S2_L001_R1_001.fastq.gz")
-input_read_2 = os.path.join(main_path,"S46393_AML_854_MAESTER_S2_L001_R2_001.fastq.gz")
-output_read = "/hpcnfs/home/ieo6943/scracth/grepped.txt"
+sample = 'a'
+type = 'b'
+name = 'c'
+
+#main_path = f'/hpcnfs/scratch/PGP/MI_TO_benchmark/preprocessing/pp/data/maester/AML_clones'
+main_path = f'/hpcnfs/scratch/PGP/MI_TO_benchmark/preprocessing/pp/data/sc_tenx/AML_clones'
+input_read_1 = os.path.join(main_path, "S45555_854_S11_L001_R1_001.fastq.gz")
+input_read_2 = os.path.join(main_path,"S45555_854_S11_L001_R2_001.fastq.gz")
+#output_read = "/hpcnfs/home/ieo6943/scracth/grepped.txt"
+
+#main_path = f'/hpcnfs/scratch/PGP/MI_TO_benchmark/preprocessing/pp/data/{type}/{sample}'
+#input_read_1 = os.path.join(main_path, f"{name}_R1_001.fastq.gz")
+#input_read_2 = os.path.join(main_path,f"{name}_R2_001.fastq.gz")
+output_read = "/hpcnfs/home/ieo6943/scracth/grepped_sc_tenex.txt"
     
 #
         
