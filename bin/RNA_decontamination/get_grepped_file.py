@@ -64,6 +64,8 @@ input_read_2 = os.path.join(main_path,read2)
 output_read = f"/hpcnfs/home/ieo6943/results/{type}/grepped.txt"
     
 #
+
+print('input_read=', input_read_1)
         
 with dnaio.open(input_read_1, input_read_2) as reader, open(output_read,'w') as writer:
     writer.write(f"Name\tcbc\tumi\tfeature\n")
