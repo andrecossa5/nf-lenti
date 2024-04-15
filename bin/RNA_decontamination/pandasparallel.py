@@ -15,9 +15,9 @@ from plotting_utils._plotting_base import *
 import csv
 #sys.path.append("/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/RNA_decontamination")
 #sys.path.append("/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/sc_gbc")
-#sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/RNA_decontamination")
-#sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/sc_gbc")
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/RNA_decontamination")
+sys.path.append("/Users/ieo6943/Documents/Guido/mito_preprocessing/bin/sc_gbc")
+#sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from decontamination_utils import *
 from helpers import *
 
@@ -49,6 +49,13 @@ my_parser.add_argument(
     type=str,
     default=None,
     help='Path to input tsv. Default: None.'
+)
+
+my_parser.add_argument(
+    '--barcodes', 
+    type=str,
+    default=None,
+    help='Path to the CBC barcodes associated to th input. Default: None.'
 )
 
 my_parser.add_argument(
@@ -146,6 +153,7 @@ sample =args.sample
 read_elements_path = args.read_elements_path
 path_counts = args.path_counts
 #method = args.method
+barcodes_path = args.barcodes
 modality = args.modality
 correction_threshold = args.correction_threshold
 coverage_treshold = args.coverage_treshold
@@ -161,10 +169,11 @@ n_cores = args.ncore
 
 
 #sample = 'AML'
-#read_elements_path = None
+#read_elements_path = '/Users/ieo6943/Documents/data/AML_clones/maester/grepped_head.txt'
 #path_counts = '/Users/ieo6943/Documents/data/AML_clones/counts.pickle'
 #method = "Micheals"
-#modality = 'GBC'
+#modality = 'feature'
+#barcodes_path = '/Users/ieo6943/Documents/data/AML_clones/barcodes.tsv.gz'
 #correction_threshold = 6
 #coverage_treshold = 10
 #umi_treshold = 5
@@ -179,7 +188,7 @@ n_cores = args.ncore
 
 if read_elements_path != None:
 # Counts n reads per CBC-UMI-feature
-    sc_df = pd.read_csv(read_elements_path, sep='\t', header=None, dtype='str')
+    sc_df = pd.read_csv(read_elements_path, sep='\t', dtype='str')
     sc_df.columns = ['name', 'CBC', 'UMI', modality]
     if modality == 'GBC':
         d_rev = {'A':'T', 'G':'C', 'T':'A', 'C':'G', 'N':'N'}
@@ -187,7 +196,10 @@ if read_elements_path != None:
             sc_df[modality]
             .map(lambda x: ''.join([ d_rev[x] for x in reversed(x) ]))
         )
-    counts = count_UMIs(sc_df)
+    counts = count_UMIs(sc_df, gbc_col=modality)
+    barcodes = pd.read_csv(barcodes_path)
+    barcodes = barcodes.iloc[:,0].tolist()
+    counts = counts[counts['CBC'].isin(barcodes)]
 else:
     with open(path_counts, 'rb') as p:
         counts = pickle.load(p)['raw']
