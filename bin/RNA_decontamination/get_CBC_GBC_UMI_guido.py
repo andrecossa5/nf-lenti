@@ -19,20 +19,36 @@ my_parser = argparse.ArgumentParser(
 
 my_parser.add_argument(
     '--grepped_path', 
-    path_data=str,
+    type=str,
     default=None,
     help='path of the grepped file'
 )
 
 my_parser.add_argument(
     '--grepped_path', 
-    path_barcodes=str,
+    type=str,
     default=None,
     help='path of the barcodes'
 )
 
+my_parser.add_argument(
+    '--type', 
+    type=str,
+    default=None,
+    help='type of experiment: lentiviral, GEX, mitocondrial'
+)
+
+my_parser.add_argument(
+    '--sample', 
+    type=str,
+    default=None,
+    help='Datasample: AML_clones, MDA_clones, ...'
+)
+
 # Paths
 args = my_parser.parse_args()
+type =args.type
+sample = args.sample
 path_data = args.path_data
 path_barcodes = args.path_barcodes
 path_barcodes = os.path.join(path_data, 'barcodes.tsv.gz')
@@ -58,7 +74,7 @@ solo_CBCs = pd.read_csv(
 # From unsorted bam, grepped
 file_in = gzip.open(path_grepped, 'rb')
 next(file_in)
-file_out = gzip.open('GBC_read_elements.tsv.gz', 'wb')
+file_out = gzip.open(f'/hpcnfs/home/ieo6943/results/{type}/{sample}/GBC_read_elements.tsv.gz', 'wb')
 anchor = 'TAGCAAACTGGGGCACAAGCTTAATTAAGAATT'
 
 
