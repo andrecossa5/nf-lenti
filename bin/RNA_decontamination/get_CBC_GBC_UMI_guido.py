@@ -25,7 +25,7 @@ my_parser.add_argument(
 )
 
 my_parser.add_argument(
-    '--grepped_path', 
+    '--barcodes_path', 
     type=str,
     default=None,
     help='path of the barcodes'
@@ -49,10 +49,10 @@ my_parser.add_argument(
 args = my_parser.parse_args()
 type =args.type
 sample = args.sample
-path_data = args.path_data
-path_barcodes = args.path_barcodes
-path_barcodes = os.path.join(path_data, 'barcodes.tsv.gz')
-path_grepped = os.path.join(path_data, 'grepped.txt.gz')
+grepped_path = args.grepped_path
+path_barcodes = args.barcodes_path
+path_barcodes = os.path.join(path_barcodes, 'barcodes.tsv.gz')
+path_data = os.path.join(grepped_path, 'grepped.txt.gz')
 
 
 ##
@@ -72,7 +72,7 @@ solo_CBCs = pd.read_csv(
 )
 
 # From unsorted bam, grepped
-file_in = gzip.open(path_grepped, 'rb')
+file_in = gzip.open(path_data, 'rb')
 next(file_in)
 file_out = gzip.open(f'/hpcnfs/home/ieo6943/results/{type}/{sample}/GBC_read_elements.tsv.gz', 'wb')
 anchor = 'TAGCAAACTGGGGCACAAGCTTAATTAAGAATT'
