@@ -3,7 +3,7 @@
 import dnaio
 import os
 import argparse
-import gzip
+import pandas as pd
 
 
 ##
@@ -46,6 +46,13 @@ my_parser.add_argument(
     help='read2'
 )
 
+my_parser.add_argument(
+    '--barcodes_path', 
+    type=str,
+    default=None,
+    help='path of the barcodes'
+)
+
 
 # Parse arguments
 args = my_parser.parse_args()
@@ -61,35 +68,26 @@ read2 = args.read2
 main_path = f'/hpcnfs/scratch/PGP/MI_TO_benchmark/preprocessing/pp/data/{type}/{sample}'
 input_read_1 = os.path.join(main_path, read1)
 input_read_2 = os.path.join(main_path,read2)
+path_barcodes = args.barcodes_path
+path_barcodes = os.path.join(path_barcodes, 'barcodes.tsv.gz')
 output_read = f"/hpcnfs/home/ieo6943/results/{type}/{sample}/grepped.txt"
 
-print('path_read1=', input_read_1 )
-print('path_read2=', input_read_2)
 
-print('read2')
-#main_path = f'/Users/ieo6943/Documents/data/AML_clones/'
-#input_read_1 = os.path.join(main_path, 'head_S45545_854_enrichment_PCR_S2_L001_R1_001.fastq.gz')
-#input_read_2 = os.path.join(main_path,'head_S45545_854_enrichment_PCR_S2_L001_R2_001.fastq.gz')
-#output_read = os.path.join(main_path,'enrich_grepped.txt')
-#    
 ##
-#
-#print('input_read=', input_read_1)
-#print(output_read)
-#
-with gzip.open(input_read_2, 'rb') as file:
-    # Leggi le prime 8 righe
-    for _ in range(8):
-        riga = file.readline()
-        print(riga.decode().strip())
-#
-#with open(output_read, 'r') as file:
-#    # Leggi le prime dieci righe
-#    for i in range(10):
-#        riga = file.readline()
-#        print(riga.strip())
+
+
+solo_CBCs = pd.read_csv(
+    path_barcodes, 
+    header=None, index_col=0
+)
+
+
         
 with dnaio.open(input_read_1, input_read_2) as reader, open(output_read,'w') as writer:
     writer.write(f"Name\tcbc\tumi\tfeature\n")
     for record_1, record_2 in reader:
-        writer.write(f"{record_1.name}\t{record_1.sequence[:16]}\t{record_1.sequence[16:]}\t{record_2.sequence}\n")
+        cbc = record_1.sequence[:16]
+        umi = record_1.sequence[16:]
+        feature = record_2.sequence
+        if  cbc in solo_CBCs:
+            writer.write(f"{record_1.name}\t{cbc}\t{umi}\t{feature}\n")

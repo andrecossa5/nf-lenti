@@ -54,6 +54,16 @@ path_barcodes = args.barcodes_path
 path_barcodes = os.path.join(path_barcodes, 'barcodes.tsv.gz')
 path_data = os.path.join(grepped_path, 'grepped.txt.gz')
 
+##
+
+
+#type = 'sc'
+#sample = 'AML_clones'
+#grepped_path = '/Users/ieo6943/Documents/data/AML_clones/'
+#path_barcodes = '/Users/ieo6943/Documents/data/AML_clones/'
+#path_barcodes = os.path.join(path_barcodes, 'barcodes.tsv.gz')
+#path_data = os.path.join(grepped_path, 'grepped.txt.gz')
+
 
 ##
 
@@ -75,9 +85,9 @@ solo_CBCs = pd.read_csv(
 file_in = gzip.open(path_data, 'rb')
 next(file_in)
 file_out = gzip.open(f'/hpcnfs/home/ieo6943/results/{type}/{sample}/GBC_read_elements.tsv.gz', 'wb')
+#file_out = gzip.open('/Users/ieo6943/Documents/data/AML_clones/GBC_read_elements.tsv.gz', 'wb')
 anchor = 'TAGCAAACTGGGGCACAAGCTTAATTAAGAATT'
-
-
+i=0
 for line in file_in:
     fields = line.decode('utf-8').strip().split('\t')
     #print(f'fields:{fields}')
@@ -96,10 +106,17 @@ for line in file_in:
         gbc = fields[3][33:33+18]
         #print(f'gbc:{gbc}')
         h = hamming(list(a_), list(anchor)) * 33
-
+        if h<= int(treshold):
+            print('++++++++++++++++++++++++++++++++++++++++++++')
+        else:
+            print('----------------------------------')
         if h <= int(treshold) and cr in solo_CBCs.index:
+            i+=1
             r = f'@{read_name}\t{cr}\t{ur}\t{gbc}\n'
-            #file_out.write(r.encode('utf-8'))
+            file_out.write(r.encode('utf-8'))
+            print(i)
+            if i==10000:
+                break
 
 
 
