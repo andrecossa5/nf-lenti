@@ -73,6 +73,13 @@ path_barcodes = os.path.join(path_barcodes, 'barcodes.tsv.gz')
 output_read = f"/hpcnfs/home/ieo6943/results/{type}/{sample}/grepped.txt"
 
 
+#main_path = '/Users/ieo6943/Documents/data/AML_clones/'
+#input_read_1 = os.path.join(main_path, 'head_S45545_854_enrichment_PCR_S2_L001_R1_001.fastq.gz')
+#input_read_2 = os.path.join(main_path,'head_S45545_854_enrichment_PCR_S2_L001_R2_001.fastq.gz')
+#path_barcodes = os.path.join(main_path, 'barcodes.tsv.gz')
+#output_read = os.path.join(main_path,'grepped_scratch.txt.gz')
+
+
 ##
 
 
@@ -80,8 +87,7 @@ solo_CBCs = pd.read_csv(
     path_barcodes, 
     header=None, index_col=0
 )
-
-
+solo_CBCs = list(solo_CBCs.index.unique())
         
 with dnaio.open(input_read_1, input_read_2) as reader, open(output_read,'w') as writer:
     writer.write(f"Name\tcbc\tumi\tfeature\n")
