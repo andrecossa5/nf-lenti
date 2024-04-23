@@ -48,7 +48,6 @@ my_parser.add_argument(
 
 my_parser.add_argument(
     '--gbc',
-    type=bool,
     action='store_true',
     help='filtering for lentiviral. Default: False.'
 )
