@@ -146,7 +146,7 @@ else:
     
 
 # Viz correction effect
-fig, axs = plt.subplots(1,1,figsize=(5,5))
+fig, axs = plt.subplots(1,3,figsize=(15,5))
 
 viz_UMIs(COUNTS['raw'], axs[0])
 axs[0].set(title='Raw')
