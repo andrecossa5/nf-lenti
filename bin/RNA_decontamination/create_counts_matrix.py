@@ -149,11 +149,11 @@ else:
 fig, axs = plt.subplots(1,1,figsize=(5,5))
 
 viz_UMIs(COUNTS['raw'], axs)
-axs[0].set(title='Raw')
-axs[0].text(.53, .95, f'Total reads: {COUNTS["raw"]["count"].sum():.2e}', transform=axs[0].transAxes)
-axs[0].text(.53, .91, f'Total GBCs: {COUNTS["raw"]["GBC"].unique().size:.2e}', transform=axs[0].transAxes)
-axs[0].text(.53, .87, f'n reads: {COUNTS["raw"]["count"].median():.2f} (+-{COUNTS["raw"]["count"].std():.2f})', 
-            transform=axs[0].transAxes)
+axs.set(title='Raw')
+axs.text(.53, .95, f'Total reads: {COUNTS["raw"]["count"].sum():.2e}', transform=axs.transAxes)
+axs.text(.53, .91, f'Total GBCs: {COUNTS["raw"]["GBC"].unique().size:.2e}', transform=axs.transAxes)
+axs.text(.53, .87, f'n reads: {COUNTS["raw"]["count"].median():.2f} (+-{COUNTS["raw"]["count"].std():.2f})', 
+            transform=axs.transAxes)
 
 #viz_UMIs(COUNTS['reference-free'], axs[1])
 #axs[1].set(title='Reference-free correction')
