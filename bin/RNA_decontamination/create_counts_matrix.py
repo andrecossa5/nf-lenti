@@ -89,9 +89,9 @@ correction_type = 'raw'
 ##
 
 # Path
-#sample = 'AML_clones'
-#path_main = '/Users/ieo6943/Documents/data/'
-#path_count = os.path.join(path_main,f'{sample}/counts.pickle')
+sample = 'AML_clones'
+path_main = '/Users/ieo6943/Documents/data/'
+path_counts = os.path.join(path_main,f'{sample}/counts.pickle')
 #path_main = '/Users/ieo6943/Documents/data/complex_experiment'
 #path_sc = '/Users/ieo6943/Documents/data/AML_clones/GBC_read_elements_scratch.tsv'
 #path_count = path_counts
@@ -146,9 +146,9 @@ else:
     
 
 # Viz correction effect
-fig, axs = plt.subplots(1,3,figsize=(15,5))
+fig, axs = plt.subplots(1,1,figsize=(5,5))
 
-viz_UMIs(COUNTS['raw'], axs[0])
+viz_UMIs(COUNTS['raw'], axs)
 axs[0].set(title='Raw')
 axs[0].text(.53, .95, f'Total reads: {COUNTS["raw"]["count"].sum():.2e}', transform=axs[0].transAxes)
 axs[0].text(.53, .91, f'Total GBCs: {COUNTS["raw"]["GBC"].unique().size:.2e}', transform=axs[0].transAxes)
