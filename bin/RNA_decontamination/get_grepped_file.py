@@ -19,13 +19,6 @@ my_parser = argparse.ArgumentParser(
 )
 
 my_parser.add_argument(
-    '--input_path', 
-    type=str,
-    default=None,
-    help='tinput path of the data'
-)
-
-my_parser.add_argument(
     '--output_path', 
     type=str,
     default=None,
@@ -55,6 +48,7 @@ my_parser.add_argument(
 
 my_parser.add_argument(
     '--gbc',
+    type=bool,
     action='store_true',
     help='filtering for lentiviral. Default: False.'
 )
@@ -75,7 +69,6 @@ my_parser.add_argument(
 
 # Parse arguments
 args = my_parser.parse_args()
-input_path =args.input_path
 input_read_1 = args.read1_path
 input_read_2 = args.read2_path
 barcodes_path = args.barcodes_path
