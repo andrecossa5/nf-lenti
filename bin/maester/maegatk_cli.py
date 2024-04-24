@@ -328,7 +328,7 @@ def main():
     # Run
     os.system(snakecmd_gather)
     click.echo(gettime() + "OK post gather!!")
-        click.echo(gettime() + "Successfully created final output files", logf)
+    click.echo(gettime() + "Successfully created final output files", logf)
     
     
     ##
@@ -337,6 +337,3 @@ def main():
 # Run
 if __name__ == '__main__':
     main()
-
-
-##
