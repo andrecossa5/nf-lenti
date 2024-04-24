@@ -92,11 +92,11 @@ my_parser.add_argument(
 
 
 #Path
-main = '/Users/ieo6943/Documents/data/AML_clones/'
-input_fastq1_path = os.path.join(main, 'head_S45545_854_enrichment_PCR_S2_L001_R1_001.fastq.gz')
-input_fastq2_path = os.path.join(main, 'head_S45545_854_enrichment_PCR_S2_L001_R2_001.fastq.gz')
-output_path = os.path.join(main,'cbc/')
-barcodes_path = os.path.join(main, 'barcodes.tsv.gz')
+#main = '/Users/ieo6943/Documents/data/AML_clones/'
+#input_fastq1_path = os.path.join(main, 'head_S45545_854_enrichment_PCR_S2_L001_R1_001.fastq.gz')
+#input_fastq2_path = os.path.join(main, 'head_S45545_854_enrichment_PCR_S2_L001_R2_001.fastq.gz')
+#output_path = os.path.join(main,'cbc/')
+#barcodes_path = os.path.join(main, 'barcodes.tsv.gz')
 
 # Parse arguments
 args = my_parser.parse_args()
