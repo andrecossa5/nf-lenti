@@ -276,7 +276,6 @@ def main():
     }
     
     snakeclust = ""
-    
     njobs = int(jobs)
     
     if njobs > 0 and cluster != "":
