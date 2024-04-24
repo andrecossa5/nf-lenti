@@ -15,47 +15,47 @@ from multiprocessing import Pool
 ##
 
 
-# Optional args. STRICTLY, THE ONLY ONE THAT NEED TO BE PASSED.
-script_dir = sys.argv[1]
-bam = sys.argv[2]
-ncores = sys.argv[3]
-barcodes = sys.argv[4]
-min_reads = sys.argv[5]
-min_base_qual = sys.argv[6]
-min_alignment_quality = sys.argv[7]
-output = os.getcwd()
-
-# Default
-mito_genome = 'rCRS'
-barcode_tag = 'CR'
-min_barcode_reads = 100
-nsamples = 1500
-# base_qual = 0
-umi_barcode = 'UR'
-# alignment_quality = 0
-nhmax = 2
-nmmax = 15
-max_javamem = '6000m'
-skip_r = True
-jobs = 0
-name = 'maegatk'
-snake_stdout = True
-cluster = ''
-
-
-
-##
-
-
 def main():
+
+
+    # Args
+
+    # Optional args. STRICTLY, THE ONLY ONE THAT NEED TO BE PASSED.
+    script_dir = sys.argv[1]
+    bam = sys.argv[2]
+    ncores = sys.argv[3]
+    barcodes = sys.argv[4]
+    min_reads = sys.argv[5]
+    min_base_qual = sys.argv[6]
+    min_alignment_quality = sys.argv[7]
+    output = os.getcwd()
+
+    # Default args
+    mito_genome = 'rCRS'
+    barcode_tag = 'CR'
+    min_barcode_reads = 100
+    nsamples = 1500
+    umi_barcode = 'UR'
+    nhmax = 2
+    nmmax = 15
+    max_javamem = '6000m'
+    skip_r = True
+    jobs = 0
+    name = 'maegatk'
+    snake_stdout = True
+    cluster = ''
+
+
+    ##
+
 
     # CHECK-IN: CORES, REFERENCE GENOME, BAM, BARCODES
     
     ## Cores
     if ncores == "detect":
-        ncpus = str(available_cpu_count())
+        ncores = str(available_cpu_count())
     else:
-        ncpus = str(ncores)
+        ncores = str(ncores)
     
         
     ##
@@ -176,7 +176,7 @@ def main():
         samples.append(basename)
         samplebams.append(bam)
     
-    pool = Pool(processes=int(ncpus))
+    pool = Pool(processes=int(ncores))
     pm = pool.map(verify_bai, samplebams)
     pool.close()
     
@@ -281,7 +281,7 @@ def main():
     if njobs > 0 and cluster != "":
         snakeclust = " --jobs " + jobs + " --cluster '" + cluster + "' " 
         click.echo(gettime() + "Recognized flags to process jobs on a computing cluster.", logf)
-        click.echo(gettime() + "Processing samples with "+ ncpus +" threads", logf) 
+        click.echo(gettime() + "Processing samples with "+ ncores +" threads", logf) 
     
     y_s = of + "/.internal/parseltongue/snake.scatter.yaml"
     with open(y_s, 'w') as yaml_file:
@@ -296,7 +296,7 @@ def main():
     if not snake_stdout:
         snake_log_out = ' &>' + snake_log
     
-    snakecmd_scatter = 'snakemake' + snakeclust + ' --snakefile ' + script_dir + '/bin/snake/Snakefile.maegatk.Scatter --cores '+ ncpus +' --config cfp="'  + y_s + '" --stats '+snake_stats + snake_log_out 
+    snakecmd_scatter = 'snakemake' + snakeclust + ' --snakefile ' + script_dir + '/bin/snake/Snakefile.maegatk.Scatter --cores '+ ncores +' --config cfp="'  + y_s + '" --stats '+snake_stats + snake_log_out 
     click.echo(gettime() + "OK until scatter!!")
     
     # Run 
@@ -322,14 +322,13 @@ def main():
     snake_stats = logs + "/" + name + ".snakemake_gather.stats"
     snake_log = logs + "/" + name + ".snakemake_gather.log"
     
-    snakecmd_gather = 'snakemake --snakefile ' + script_dir + '/bin/snake/Snakefile.maegatk.Gather --cores '+ncpus+' --config cfp="' + y_g + '" --stats '+snake_stats + snake_log_out 
+    snakecmd_gather = 'snakemake --snakefile ' + script_dir + '/bin/snake/Snakefile.maegatk.Gather --cores '+ncores+' --config cfp="' + y_g + '" --stats '+snake_stats + snake_log_out 
     click.echo(gettime() + "OK until gather!!")
     
     # Run
     os.system(snakecmd_gather)
     click.echo(gettime() + "OK post gather!!")
-    
-    click.echo(gettime() + "Successfully created final output files", logf)
+        click.echo(gettime() + "Successfully created final output files", logf)
     
     
     ##
