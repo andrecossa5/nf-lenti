@@ -53,9 +53,9 @@ def main():
     
     ## Cores
     if ncores == "detect":
-        ncores = str(available_cpu_count())
+        ncpus = str(available_cpu_count())
     else:
-        ncores = str(ncores)
+        ncpus = str(ncores)
     
         
     ##
@@ -153,7 +153,7 @@ def main():
     click.echo(gettime() + f'Reference mito genome: {mito_genome}')
     click.echo(gettime() + f'Min reads: {min_reads}')
     click.echo(gettime() + f'Find barcodes: {find_barcodes}')
-    click.echo(gettime() + f'N cores: {ncores}')
+    click.echo(gettime() + f'N cores: {ncpus}')
     
     
     ##
@@ -176,7 +176,7 @@ def main():
         samples.append(basename)
         samplebams.append(bam)
     
-    pool = Pool(processes=int(ncores))
+    pool = Pool(processes=int(ncpus))
     pm = pool.map(verify_bai, samplebams)
     pool.close()
     
@@ -282,7 +282,7 @@ def main():
     if njobs > 0 and cluster != "":
         snakeclust = " --jobs " + jobs + " --cluster '" + cluster + "' " 
         click.echo(gettime() + "Recognized flags to process jobs on a computing cluster.", logf)
-        click.echo(gettime() + "Processing samples with "+ ncores +" threads", logf) 
+        click.echo(gettime() + "Processing samples with "+ ncpus +" threads", logf) 
     
     y_s = of + "/.internal/parseltongue/snake.scatter.yaml"
     with open(y_s, 'w') as yaml_file:
@@ -297,7 +297,7 @@ def main():
     if not snake_stdout:
         snake_log_out = ' &>' + snake_log
     
-    snakecmd_scatter = 'snakemake' + snakeclust + ' --snakefile ' + script_dir + '/bin/snake/Snakefile.maegatk.Scatter --cores '+ ncores +' --config cfp="'  + y_s + '" --stats '+snake_stats + snake_log_out 
+    snakecmd_scatter = 'snakemake' + snakeclust + ' --snakefile ' + script_dir + '/bin/snake/Snakefile.maegatk.Scatter --cores '+ ncpus +' --config cfp="'  + y_s + '" --stats '+snake_stats + snake_log_out 
     click.echo(gettime() + "OK until scatter!!")
     
     # Run 
@@ -323,7 +323,7 @@ def main():
     snake_stats = logs + "/" + name + ".snakemake_gather.stats"
     snake_log = logs + "/" + name + ".snakemake_gather.log"
     
-    snakecmd_gather = 'snakemake --snakefile ' + script_dir + '/bin/snake/Snakefile.maegatk.Gather --cores '+ncores+' --config cfp="' + y_g + '" --stats '+snake_stats + snake_log_out 
+    snakecmd_gather = 'snakemake --snakefile ' + script_dir + '/bin/snake/Snakefile.maegatk.Gather --cores '+ncpus+' --config cfp="' + y_g + '" --stats '+snake_stats + snake_log_out 
     click.echo(gettime() + "OK until gather!!")
     
     # Run
