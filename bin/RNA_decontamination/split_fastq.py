@@ -19,36 +19,33 @@ def cbc_split_fastq(input_fastq1_path, input_fastq2_path, output_folder, barcode
     # Dictionary to store output file handles based on CBC
     cbc_writers = {}
     
-    with open_fastq(input_fastq1_path) as fastq1, open_fastq(input_fastq2_path) as fastq2:
-        for record1, record2 in zip(fastq1, fastq2):
+    with dnaio.open(input_fastq1_path, input_fastq2_path) as reader:
+        for record1, record2 in reader:
             # Extract CBC from the read1 ID (assuming the CBC is at the end of the read ID)
             cbc = record1.sequence[:16]
 
             if cbc in barcodes:
-                print('sto analizzando questo:',cbc)
                 fastq_cbc = os.path.join(output_folder,f'{cbc}/')
-                #print('nome cartella fastq:', fastq_cbc)
                 os.makedirs(fastq_cbc, exist_ok=True)
                 
                 # Check if output file writer for CBC exists, create if not
                 if cbc not in cbc_writers:
-                    cbc_writers[cbc] = {
-                        "read1": dnaio.open(os.path.join(fastq_cbc, f"reads_{cbc}_R1.fastq"), mode='w', fileformat='fastq'),
-                        "read2": dnaio.open(os.path.join(fastq_cbc, f"reads_{cbc}_R2.fastq"), mode='w', fileformat='fastq')
-                    }
+                    #cbc_writers[cbc] = {
+                    #    "read1": dnaio.open(os.path.join(fastq_cbc, f"reads_{cbc}_R1.fastq"), mode='w', fileformat='fastq'),
+                    #    "read2": dnaio.open(os.path.join(fastq_cbc, f"reads_{cbc}_R2.fastq"), mode='w', fileformat='fastq')
+                    #}
 
-                else:
-                    print('++++++++++++++++++++++++')
-                    print(cbc, ' questo cbc non è nuovo')
+                    cbc_writers[cbc] = dnaio.open(os.path.join(fastq_cbc, f"reads_{cbc}_R1.fastq"),os.path.join(fastq_cbc, f"reads_{cbc}_R2.fastq"), mode='w', fileformat='fastq')
 
                 # Write record1 and record2 to corresponding output files
-                cbc_writers[cbc]["read1"].write(record1)
-                cbc_writers[cbc]["read2"].write(record2)
+                #cbc_writers[cbc]["read1"].write(record1)
+                #cbc_writers[cbc]["read2"].write(record2)
+                cbc_writers[cbc].write(record1, record2)
     
     # Close all output files
     for writers in cbc_writers.values():
-        for writer in writers.values():
-            writer.close()
+        #for writer in writers.values():
+        writers.close()
 
 ##
 
@@ -95,11 +92,11 @@ my_parser.add_argument(
 
 
 #Path
-#main = '/Users/ieo6943/Documents/data/AML_clones/'
-#input_fastq1_path = os.path.join(main, 'head_S45545_854_enrichment_PCR_S2_L001_R1_001.fastq.gz')
-#input_fastq2_path = os.path.join(main, 'head_S45545_854_enrichment_PCR_S2_L001_R2_001.fastq.gz')
-#output_path = os.path.join(main,'cbc/')
-#barcodes_path = os.path.join(main, 'barcodes.tsv.gz')
+main = '/Users/ieo6943/Documents/data/AML_clones/'
+input_fastq1_path = os.path.join(main, 'head_S45545_854_enrichment_PCR_S2_L001_R1_001.fastq.gz')
+input_fastq2_path = os.path.join(main, 'head_S45545_854_enrichment_PCR_S2_L001_R2_001.fastq.gz')
+output_path = os.path.join(main,'cbc/')
+barcodes_path = os.path.join(main, 'barcodes.tsv.gz')
 
 # Parse arguments
 args = my_parser.parse_args()
@@ -116,9 +113,9 @@ solo_CBCs = pd.read_csv(
     header=None, index_col=0
 )
 solo_CBCs = list(solo_CBCs.index.unique())
-
+barcodes = solo_CBCs[:30]
 ##
 
 
 #
-cbc_split_fastq(input_fastq1_path, input_fastq2_path, output_path, solo_CBCs)
+cbc_split_fastq(input_fastq1_path, input_fastq2_path, output_path, barcodes)
