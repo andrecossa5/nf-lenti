@@ -153,7 +153,7 @@ def main():
     click.echo(gettime() + f'Reference mito genome: {mito_genome}')
     click.echo(gettime() + f'Min reads: {min_reads}')
     click.echo(gettime() + f'Find barcodes: {find_barcodes}')
-    click.echo(gettime() + f'N cores: {ncpus}')
+    click.echo(gettime() + f'N cores: {ncores}')
     
     
     ##
@@ -263,7 +263,6 @@ def main():
     
     
     # HERE WE GO: SCATTER!
-    
     click.echo(gettime() + f"Starting analysis with maegatk: {len(samples)} to process...", logf)
     
     # Conf and call
