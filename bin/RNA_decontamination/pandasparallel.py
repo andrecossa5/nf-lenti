@@ -169,11 +169,11 @@ n_cores = args.ncore
 
 
 #sample = 'AML'
-#read_elements_path = '/Users/ieo6943/Documents/data/AML_clones/maester/grepped_head.txt'
+read_elements_path = '/Users/ieo6943/Documents/data/AML_clones/maester/grepped_head.txt'
 #path_counts = '/Users/ieo6943/Documents/data/AML_clones/counts.pickle'
 #method = "Micheals"
 #modality = 'feature'
-#barcodes_path = '/Users/ieo6943/Documents/data/AML_clones/barcodes.tsv.gz'
+barcodes_path = '/Users/ieo6943/Documents/data/AML_clones/barcodes.tsv.gz'
 #correction_threshold = 6
 #coverage_treshold = 10
 #umi_treshold = 5
@@ -205,8 +205,9 @@ else:
         counts = pickle.load(p)['raw']
 
 ##
-
-
+counts[counts['count']>4]
+len(counts['feature'].iloc[0])
+sc_df
 
 # Stats
 STATS = []
