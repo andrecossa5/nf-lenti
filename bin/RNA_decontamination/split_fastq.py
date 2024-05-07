@@ -119,3 +119,4 @@ barcodes = solo_CBCs
 
 #
 cbc_split_fastq(input_fastq1_path, input_fastq2_path, output_path, barcodes)
+
