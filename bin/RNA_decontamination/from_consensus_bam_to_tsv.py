@@ -38,9 +38,12 @@ args = my_parser.parse_args()
 bam_file = args.input_path
 output_tsv = args.output_path
 cbc = args.cbc
+
 #bam_file = '/Users/ieo6943/Documents/Guido/scratch/consensus.bam'
 #output_tsv = '/Users/ieo6943/Documents/Guido/scratch/consensus.tsv'
 #cbc = 'ACCACACACACACAAAA'
+
+pysam.index(bam_file)
 
 with pysam.AlignmentFile(bam_file, "rb", check_sq=False) as bam:
     with open(output_tsv, "w") as tsv:
