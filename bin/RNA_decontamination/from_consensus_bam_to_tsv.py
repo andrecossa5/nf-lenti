@@ -35,7 +35,7 @@ my_parser.add_argument(
 
 # Parse arguments
 args = my_parser.parse_args()
-bam_file = args.input_file
+bam_file = args.input_path
 output_tsv = args.output_path
 cbc = args.cbc
 
