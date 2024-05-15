@@ -89,33 +89,17 @@ file_out = gzip.open(f'/hpcnfs/home/ieo6943/results/{type}/{sample}/GBC_read_ele
 #i=0
 for line in file_in:
     fields = line.decode('utf-8').strip().split('\t')
-    #print(f'fields:{fields}')
-    #print('len fields=', len(fields))
-    if len(fields)>=4:
-        
+    if len(fields)>=4: 
         read_name = fields[0]
-        #print(f'read_name:{read_name}')
-        
         cr = fields[1]
-        #print(f'cr:{cr}')
         ur = fields[2]
-        #print(f'ur:{ur}')
         a_ = fields[3][:33]
-        #print(f'a_:{a_}')
         gbc = fields[3][33:33+18]
-        #print(f'gbc:{gbc}')
         h = hamming(list(a_), list(anchor)) * 33
-        if h<= int(treshold):
-            print('++++++++++++++++++++++++++++++++++++++++++++')
-        else:
-            print('----------------------------------')
         if h <= int(treshold):
-            #i+=1
             r = f'@{read_name}\t{cr}\t{ur}\t{gbc}\n'
             file_out.write(r.encode('utf-8'))
-            #print(i)
-            #if i==10000:
-                #break
+
 
 
 

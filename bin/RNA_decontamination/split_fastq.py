@@ -113,9 +113,10 @@ solo_CBCs = pd.read_csv(
     header=None, index_col=0
 )
 solo_CBCs = list(solo_CBCs.index.unique())
-barcodes = solo_CBCs[:30]
+barcodes = solo_CBCs
 ##
 
 
 #
 cbc_split_fastq(input_fastq1_path, input_fastq2_path, output_path, barcodes)
+
