@@ -597,7 +597,7 @@ def process_consensus_UMI(df, modality, correction_threshold=3):     # SPOSTARE 
         numeric_GBCs = np.array([ [ ord(char) for char in s ] for s in features ])
         D = 18 * pdist(numeric_GBCs, metric='hamming')
         # D = 18 * pairwise_distances(numeric_GBCs, metric='hamming')                     # pdist
-        if (D<=correction_threshold).mean():
+        if (D.mean()<=correction_threshold):
             # Simplest alternative: majority barcode as consensus
             top_feature = features[0]                                   
             l = [ top_feature, df['count'].sum(), df.loc[top_feature, 'count']/df['count'].sum(), D.mean() ]
@@ -619,13 +619,16 @@ def process_consensus_UMI(df, modality, correction_threshold=3):     # SPOSTARE 
 
 ##
 
-
 def find_bad_UMI(df, modality, ham_th=1):
-    UMIs = df['UMI'].unique()
+    UMIs = df['UMI']
     numeric_UMIs = np.array([ [ ord(char) for char in s ] for s in UMIs ]) 
     D = 12 * pairwise_distances(numeric_UMIs, metric='hamming')
-    bad_UMI_count = ( df[modality].iloc[np.where(D==ham_th)[0]].values == df[modality].iloc[np.where(D==ham_th)[1]].values ).sum()
-    bad_UMI_ratio = bad_UMI_count / D.shape[0]
+    same_UMI_couple = D==ham_th
+    GBC_matrix = np.tile(df[modality], (D.shape[0], 1)) 
+    close_UMI_same_GBC_couple =  GBC_matrix [same_UMI_couple] == GBC_matrix .T[same_UMI_couple] 
+    close_UMI_same_GBC_couple_count = close_UMI_same_GBC_couple.sum()/2
+    bad_UMI_ratio = close_UMI_same_GBC_couple_count / ((D.shape[0])*(D.shape[0]-1)/2)
     res = pd.DataFrame([bad_UMI_ratio])
     res.columns = ['bad_UMI_ratio']
     return res
+

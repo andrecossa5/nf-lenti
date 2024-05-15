@@ -1,4 +1,4 @@
-// mi_to_preprocessing
+// Main pipeline mi_to_preprocessing
 nextflow.enable.dsl = 2
 include { bulk_gbc } from "./subworkflows/bulk_gbc/main"
 include { tenx } from "./subworkflows/tenx/main"
@@ -24,6 +24,7 @@ ch_maester = Channel
 
 
 //
+
 
 //----------------------------------------------------------------------------//
 // mito_preprocessing pipeline
@@ -79,7 +80,7 @@ workflow SC_GBC_MITO {
 //
 
 // Mock
-workflow  {
+workflow {
     
     Channel.of(1,2,3,4) | view
 

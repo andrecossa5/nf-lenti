@@ -15,39 +15,39 @@ from multiprocessing import Pool
 ##
 
 
-# Optional args. STRICTLY, THE ONLY ONE THAT NEED TO BE PASSED.
-script_dir = sys.argv[1]
-bam = sys.argv[2]
-ncores = sys.argv[3]
-barcodes = sys.argv[4]
-min_reads = sys.argv[5]
-min_base_qual = sys.argv[6]
-min_alignment_quality = sys.argv[7]
-output = os.getcwd()
-
-# Default
-mito_genome = 'rCRS'
-barcode_tag = 'CR'
-min_barcode_reads = 100
-nsamples = 1500
-# base_qual = 0
-umi_barcode = 'UR'
-# alignment_quality = 0
-nhmax = 2
-nmmax = 15
-max_javamem = '6000m'
-skip_r = True
-jobs = 0
-name = 'maegatk'
-snake_stdout = True
-cluster = ''
-
-
-
-##
-
-
 def main():
+
+
+    # Args
+
+    # Optional args. STRICTLY, THE ONLY ONE THAT NEED TO BE PASSED.
+    script_dir = sys.argv[1]
+    bam = sys.argv[2]
+    ncores = sys.argv[3]
+    barcodes = sys.argv[4]
+    min_reads = sys.argv[5]
+    min_base_qual = sys.argv[6]
+    min_alignment_quality = sys.argv[7]
+    output = os.getcwd()
+
+    # Default args
+    mito_genome = 'rCRS'
+    barcode_tag = 'CR'
+    min_barcode_reads = 100
+    nsamples = 1500
+    umi_barcode = 'UR'
+    nhmax = 2
+    nmmax = 15
+    max_javamem = '6000m'
+    skip_r = True
+    jobs = 0
+    name = 'maegatk'
+    snake_stdout = True
+    cluster = ''
+
+
+    ##
+
 
     # CHECK-IN: CORES, REFERENCE GENOME, BAM, BARCODES
     
@@ -263,7 +263,6 @@ def main():
     
     
     # HERE WE GO: SCATTER!
-    
     click.echo(gettime() + f"Starting analysis with maegatk: {len(samples)} to process...", logf)
     
     # Conf and call
@@ -276,7 +275,6 @@ def main():
     }
     
     snakeclust = ""
-    
     njobs = int(jobs)
     
     if njobs > 0 and cluster != "":
@@ -329,7 +327,6 @@ def main():
     # Run
     os.system(snakecmd_gather)
     click.echo(gettime() + "OK post gather!!")
-    
     click.echo(gettime() + "Successfully created final output files", logf)
     
     
@@ -339,6 +336,3 @@ def main():
 # Run
 if __name__ == '__main__':
     main()
-
-
-##
