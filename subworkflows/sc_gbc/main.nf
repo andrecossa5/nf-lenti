@@ -18,7 +18,7 @@ include { publish_sc } from "./modules/publish.nf"
 workflow sc_gbc {
     
     take:
-        ch_input
+        ch_sc_gbc
 
     main:
  

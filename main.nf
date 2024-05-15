@@ -7,17 +7,22 @@ include { maester } from "./subworkflows/maester/main"
 
 //
 
-// Bulk DNA target GBC sequencing
+// (Bulk DNA) targeted DNA sequencing of GBC
 ch_bulk_gbc = Channel
     .fromPath("${params.bulk_gbc_indir}/*", type:'dir') 
     .map{ tuple(it.getName(), it) }
     
-// 10x and GBC data, single-cell
-ch_sc = Channel
-    .fromPath("${params.sc_indir}/*", type:'dir')
+// GBC enrichment from 10x library
+ch_sc_gbc = Channel
+    .fromPath("${params.sc_gbc_indir}/*", type:'dir')
     .map{ tuple(it.getName(), it) }
 
-// MAESTER
+// 10x GEX library
+ch_tenx = Channel
+    .fromPath("${params.sc_tenx_indir}/*", type:'dir')
+    .map{ tuple(it.getName(), it) }
+
+// MAESTER library
 ch_maester = Channel
     .fromPath("${params.sc_maester_indir}/*", type:'dir') 
     .map{ tuple(it.getName(), it) }
@@ -34,7 +39,7 @@ ch_maester = Channel
 
 workflow TENX {
 
-    tenx(ch_sc)
+    tenx(ch_tenx)
     tenx.out.filtered.view()
 
 }
@@ -43,7 +48,7 @@ workflow TENX {
 
 workflow TENX_MITO {
 
-    tenx(ch_sc)
+    tenx(ch_tenx)
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
     maester.out.afm.view()
 
@@ -60,19 +65,21 @@ workflow BULK_GBC {
 
 //
 
-workflow SC_GBC {
+workflow TENX_GBC {
 
-    sc_gbc(ch_sc)
+    tenx(ch_tenx)
+    sc_gbc(ch_sc_gbc, tenx.out.filtered)
     sc_gbc.out.summary.view()
 
 }
 
 //
 
-workflow SC_GBC_MITO {
+workflow TENX_GBC_MITO {
 
-    sc_gbc(ch_sc)
-    maester(ch_maester, sc_gbc.out.filtered, sc_gbc.out.bam)
+    tenx(ch_tenx)
+    sc_gbc(ch_sc_gbc, tenx.out.filtered)
+    maester(ch_maester, tenx.out.filtered, tenx.out.bam)
     maester.out.afm.view()
 
 }

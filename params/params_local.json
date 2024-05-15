@@ -1,14 +1,15 @@
 {
 
-    "bulk_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/bulk/",
-    "bulk_gbc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/bulk/",
+    "bulk_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/bulk_gbc/",
+    "bulk_gbc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/bulk_gbc/",
     "bulk_gbc_graph_clustering_hamming_treshold" : 3,
     "bulk_gbc_min_n_reads" : 1000,
     "bulk_gbc_anchor_sequence" : "GGGTTTAAACGGGCCCTCTAG",
     "bulk_gbc_spikeins_table" : "/Users/IEO5505/Desktop/example_perturb/meta/spikeins_table.csv",
-    
-    "sc_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc/",
-    "sc_maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/maester/",
+
+    "sc_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_gbc/",
+    "sc_tenx_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_tenx/",
+    "sc_maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_maester/",
     "sc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/sc/",
 
     "ref" : "/Users/IEO5505/Desktop/example_mito/meta/ref",
@@ -28,8 +29,6 @@
     "normalized_abundance_treshold" : 0.7,
     "sample_params" : "/Users/IEO5505/Desktop/example_mito/meta/sample_params.csv",
 
-    "maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/maester",
-    "maester_outdir" : "/Users/IEO5505/Desktop/example_mito/results/maester",
     "maester_code_dir" : "/maegatk/maegatk",
     "maester_min_reads" : 3,
     "min_base_qual" : 30,

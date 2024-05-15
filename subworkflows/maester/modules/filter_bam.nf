@@ -1,10 +1,10 @@
-// FILTER module
+// FILTER BAM modules
 
 nextflow.enable.dsl = 2
 
 //
 
-process FILTER_I {
+process FILTER_10X_BAM {
 
   tag "${sample_name}"
 
@@ -16,8 +16,7 @@ process FILTER_I {
 
   script:
   """
-  samtools sort -l 1 -@ ${task.cpus} ${bam} > sorted.bam
-  samtools index -@ ${task.cpus} sorted.bam
+  samtools index -@ ${task.cpus} ${bam}
   samtools view sorted.bam -b -@ ${task.cpus} chrM > mitobam_I.bam
   """
 
@@ -30,7 +29,7 @@ process FILTER_I {
 
 //
 
-process FILTER_II {
+process FILTER_MAESTER_BAM {
 
   tag "${sample_name}"
 
