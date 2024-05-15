@@ -1,4 +1,4 @@
-// Main pipeline mi_to_preprocessing
+// mi_to_preprocessing
 nextflow.enable.dsl = 2
 include { bulk_gbc } from "./subworkflows/bulk_gbc/main"
 include { tenx } from "./subworkflows/tenx/main"
