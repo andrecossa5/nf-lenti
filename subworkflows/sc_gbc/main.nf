@@ -5,6 +5,7 @@ nextflow.enable.dsl = 2
 include { MERGE_R1 } from "../maester/modules/merge_R1.nf"
 include { MERGE_R2 } from "../maester/modules/merge_R2.nf"
 include { SOLO } from "./modules/Solo.nf"
+include { FILTER_LENTIBAM } from "./modules/filter_lentibam.nf"
 include { SPLIT_BAM } from "./modules/split_bam.nf"
 include { CONSENSUS_BAM } from "./modules/consensus_bam.nf"
 include { CONSENSUS_TSV } from "./modules/consensus_tsv.nf"
@@ -31,7 +32,8 @@ workflow sc_gbc {
         SOLO(MERGE_R1.out.R1.combine(MERGE_R2.out.R2, by:0))
  
         // Create consensus reads from each cell UMI read group
-        SPLIT_BAM(SOLO.out.bam.combine(ch_filtered, by:0))
+        FILTER_LENTIBAM(SOLO.out.bam)
+        SPLIT_BAM(FILTER_LENTIBAM.out.bam.combine(ch_filtered, by:0))
         ch_cell_bams = SPLIT_BAM.out.cell_bams
             .map { it ->
                 def sample = it[0]
