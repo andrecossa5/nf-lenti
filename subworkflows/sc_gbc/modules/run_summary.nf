@@ -30,7 +30,8 @@ process generate_run_summary_sc {
     echo "- Working directory: ${PWD}" >> run_summary.txt
     echo "" >> run_summary.txt
     echo "Parameters" >> run_summary.txt
-    echo "--sc_indir:                         ${params.sc_indir}" >> run_summary.txt
+    echo "--sc_tenx_indir:                         ${params.sc_tenx_indir}" >> run_summary.txt
+    echo "--sc_gbc_indir:                         ${params.sc_gbc_indir}" >> run_summary.txt
     echo "--sc_outdir:                        ${params.sc_outdir}" >> run_summary.txt
     echo "--pattern:                          ${params.sc_gbc_anchor_sequence}" >> run_summary.txt
     echo "--ref:                              ${params.ref}" >> run_summary.txt

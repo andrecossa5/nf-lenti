@@ -73,8 +73,7 @@ workflow TENX_GBC {
 
     tenx(ch_tenx)
     sc_gbc(ch_sc_gbc, tenx.out.filtered)
-    sc_gbc.out.ch_test
-    // sc_gbc.out.summary.view()
+    sc_gbc.out.summary.view()
 
 }
 

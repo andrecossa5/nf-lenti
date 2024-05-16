@@ -6,17 +6,17 @@ nextflow.enable.dsl = 2
 
 process CONSENSUS_TSV {
 
-  tag "${sample_name}"
+  tag "${sample_name}: ${cell}"
 
   input:
-  tuple val(sample_name), path(consensus_bam)
+  tuple val(sample_name), val(cell), path(consensus_bam)
 
   output:
-  tuple val(sample_name), path('filtered_consensus.tsv'), emit: filtered_consensus_tsv
+  tuple val(sample_name), val(cell), path("${cell}_filtered_consensus.tsv"), emit: filtered_consensus_tsv
 
   script:
   """
-  touch filtered_consensus.tsv
+  touch "${cell}_filtered_consensus.tsv"
   # fgbio stuff + arguments --> 
   # cell_bams: un folder con tutti i bam delle singole cellule. Solo reads pulite e ben
   # allineate e clippate.
@@ -24,7 +24,7 @@ process CONSENSUS_TSV {
 
   stub:
   """
-  touch filtered_consensus.tsv
+  touch "${cell}_filtered_consensus.tsv"
   """
 
 }

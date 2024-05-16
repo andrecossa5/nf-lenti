@@ -7,13 +7,13 @@ nextflow.enable.dsl = 2
 
 process COLLAPSE_TSV {
  
-    tag "${cells}"
+    tag "${sample}"
  
     input:
-        path(files)
+        tuple val(sample), path(files)
  
     output:
-        path("cells.tsv.gz"), emit: elements
+        tuple val(sample), path("GBC_read_elements.tsv.gz"), emit: elements
  
     script:
     """
@@ -28,7 +28,7 @@ process COLLAPSE_TSV {
 
     stub:
     """
-    touch cells.tsv.gz
+    touch GBC_read_elements.tsv.gz
     """
  
 }

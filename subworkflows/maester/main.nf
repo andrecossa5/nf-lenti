@@ -11,7 +11,6 @@ include { FILTER_MAESTER_BAM } from "./modules/filter_bam.nf"
 include { FIX_TAGS } from "./modules/fix_tags.nf"
 include { MERGE_BAM } from "./modules/merge_bams.nf"
 include { INDEX } from "./modules/index_bam.nf"
-include { MAEGATK } from "./modules/maegatk.nf"
 include { TO_H5AD } from "./modules/to_h5ad.nf"
 
 // 

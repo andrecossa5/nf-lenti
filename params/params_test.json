@@ -1,6 +1,7 @@
 {
 
     "bulk_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/bulk_gbc/",
+    "bulk_gbc_outdir" :  "/Users/IEO5505/Desktop/example_mito/results/bulk_gbc/",
 
     "sc_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_gbc/",
     "sc_tenx_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_tenx/",
@@ -8,6 +9,15 @@
     "sc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/sc/",
 
     "ref" : "/Users/IEO5505/Desktop/example_mito/meta/ref",
-    "whitelist" : "/Users/IEO5505/Desktop/example_mito/meta/whitelist.txt"
+    "whitelist" : "/Users/IEO5505/Desktop/example_mito/meta/whitelist.txt",
+
+    "gbc_sample_map" : "/Users/IEO5505/Desktop/example_mito/meta/sample_map.csv",
+    "sc_gbc_anchor_sequence" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
+    "bulk_correction_treshold" : 3,
+    "umi_treshold" : 5,
+    "p_treshold" : 0.5,
+    "max_ratio_treshold" : 0.7,
+    "normalized_abundance_treshold" : 0.7,
+    "sample_params" : "NULL"
 
 }
