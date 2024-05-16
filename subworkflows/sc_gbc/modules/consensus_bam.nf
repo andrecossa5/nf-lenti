@@ -34,7 +34,7 @@ process CONSENSUS_BAM {
   #     -o ${cell}_consensus_filtered.bam \
   #     -r ${params.ref}/new_genome_masked.fa \
   #     -M ${params.fgbio_min_reads} 
-  #     -e 0.1 \                        # NB: need to be tuned from params.
+  #     -e 0.1 \
   #     -N 20 \
   #     -E 0.025   
 
