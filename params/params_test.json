@@ -13,7 +13,7 @@
 
     "fgbio_UMI_consensus_mode" : "Adjacency",
     "fgbio_UMI_consensus_edits" : 1,
-    "params.fgbio_min_reads" : 3,
+    "fgbio_min_reads" : 3,
 
     "gbc_sample_map" : "/Users/IEO5505/Desktop/example_mito/meta/sample_map.csv",
     "sc_gbc_anchor_sequence" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
