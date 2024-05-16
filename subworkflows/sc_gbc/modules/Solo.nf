@@ -28,7 +28,7 @@ process SOLO {
     --outTmpDir tmp \
     --outSAMtype BAM SortedByCoordinate \
     --limitBAMsortRAM 50000000000 \
-    --outSAMattributes NH HI nM AS CR UR \
+    --outSAMattributes NH HI nM AS CR UR CB UB \
     --soloType CB_UMI_Simple \
     --soloBarcodeReadLength 28 \
     --soloCBstart 1 \

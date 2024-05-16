@@ -1,11 +1,15 @@
 // mi_to_preprocessing
 nextflow.enable.dsl = 2
+
+// Include here
 include { bulk_gbc } from "./subworkflows/bulk_gbc/main"
 include { tenx } from "./subworkflows/tenx/main"
 include { sc_gbc } from "./subworkflows/sc_gbc/main"
 include { maester } from "./subworkflows/maester/main"
 
+
 //
+
 
 // (Bulk DNA) targeted DNA sequencing of GBC
 ch_bulk_gbc = Channel
@@ -69,7 +73,8 @@ workflow TENX_GBC {
 
     tenx(ch_tenx)
     sc_gbc(ch_sc_gbc, tenx.out.filtered)
-    sc_gbc.out.summary.view()
+    sc_gbc.out.ch_test
+    // sc_gbc.out.summary.view()
 
 }
 

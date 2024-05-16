@@ -54,16 +54,16 @@ workflow tenx {
         MERGE_R2(ch_input)
         SOLO(MERGE_R1.out.R1.combine(MERGE_R2.out.R2, by:0))
         // Publish
-        publish_input = SOLO.out.raw
-            .combine(SOLO.out.filtered, by:0)
-            .combine(SOLO.out.stats, by:0)
-            .combine(SOLO.out.summary, by:0)
-            .combine(SOLO.out.bam, by:0)
-        publish_tenx(publish_input)
+        // publish_input = SOLO.out.raw
+        //     .combine(SOLO.out.filtered, by:0)
+        //     .combine(SOLO.out.stats, by:0)
+        //     .combine(SOLO.out.summary, by:0)
+        //     .combine(SOLO.out.bam, by:0)
+        // publish_tenx(publish_input)
 
     emit:
         filtered = SOLO.out.filtered
-        bam = SOLO.out.bam
+        // bam = SOLO.out.bam
 
 }
 

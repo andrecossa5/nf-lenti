@@ -1,0 +1,13 @@
+{
+
+    "bulk_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/bulk_gbc/",
+
+    "sc_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_gbc/",
+    "sc_tenx_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_tenx/",
+    "sc_maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_maester/",
+    "sc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/sc/",
+
+    "ref" : "/Users/IEO5505/Desktop/example_mito/meta/ref",
+    "whitelist" : "/Users/IEO5505/Desktop/example_mito/meta/whitelist.txt"
+
+}
