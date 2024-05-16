@@ -28,7 +28,6 @@ process publish_tenx {
     path filtered
     path stats
     path summary
-    path bam
 
     script:
     """
@@ -41,8 +40,9 @@ process publish_tenx {
 
 
 //----------------------------------------------------------------------------//
-// Solo subworkflow
+// tenx subworkflow
 //----------------------------------------------------------------------------//
+
 
 workflow tenx {
 
@@ -50,21 +50,21 @@ workflow tenx {
         ch_input
 
     main:
+    
         MERGE_R1(ch_input)
         MERGE_R2(ch_input)
         SOLO(MERGE_R1.out.R1.combine(MERGE_R2.out.R2, by:0))
-        // Publish
-        // publish_input = SOLO.out.raw
-        //     .combine(SOLO.out.filtered, by:0)
-        //     .combine(SOLO.out.stats, by:0)
-        //     .combine(SOLO.out.summary, by:0)
-        //     .combine(SOLO.out.bam, by:0)
-        // publish_tenx(publish_input)
+        publish_input = SOLO.out.raw
+            .combine(SOLO.out.filtered, by:0)
+            .combine(SOLO.out.stats, by:0)
+            .combine(SOLO.out.summary, by:0)
+            .combine(SOLO.out.bam, by:0)
+        publish_tenx(publish_input)
 
     emit:
         filtered = SOLO.out.filtered
-        // bam = SOLO.out.bam
 
 }
+
 
 //----------------------------------------------------------------------------//

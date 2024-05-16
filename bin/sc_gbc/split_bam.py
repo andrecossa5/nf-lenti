@@ -1,29 +1,55 @@
+#!/usr/bin/python
+
 import os
+import sys
 import pandas as pd
-import argparse
 import pysam
 
 
 ##
 
 
-def cbc_split_bam(bam_file, output_folder):
-    '''
-    It creates "n" folders for all the different CBCs in the fastq (that are also presents in the barcodes list).
-    In each folders write down the part of the fastq (read1 and read2 in separeted files) associated only to the folder CBC
-    '''
+# Args
+path_bam = sys.argv[1]
+path_cells = sys.argv[2]
+# path_cells = '/Users/IEO5505/Desktop/example_mito/scratch_data/barcodes.tsv.gz'
+# path_bam = '/Users/IEO5505/Desktop/example_mito/scratch_data/Aligned.sortedByCoord.out.bam'
+# os.chdir('/Users/IEO5505/Desktop/example_mito/scratch_data/')
+
+
+##
+
+
+def main():
+    """
+    Sript to split a .bam file into a cell_bams folder with <CB> subfolders each /<CB>.bam,
+    with <CB> being the STAR-Solo error-corrected cellular barcode for an alignment record.
+    """
+
+    # Prep cell writers and folders
+    output_folder = 'cell_bams'
     os.makedirs(output_folder, exist_ok=True)
-    cbc_tag = "CR:Z:"
     cbc_writers = {}
     
-    with pysam.AlignmentFile(bam_file, "rb") as bam_input:
+    # Read good quality, STAR-Solo corrected CBs
+    cells = pd.read_csv(path_cells, header=None, index_col=0)
+
+    # Parse .bam and write it
+    with pysam.AlignmentFile(path_bam, "rb") as bam_input:
         for alignment in bam_input:
-            cbc = alignment.get_tag(cbc_tag)
-            bam_cbc_path = os.path.join(output_folder,f'{cbc}/')
-            os.makedirs(bam_cbc_path, exist_ok=True)
-            if cbc not in cbc_writers:
-                cbc_writers[cbc] = pysam.AlignmentFile(os.path.join(bam_cbc_path, f"{cbc}.bam"),'wb',header=bam_input.header )
-            cbc_writers[cbc].write(alignment)
+            cbc = alignment.get_tag('CB')
+            # If CB in STAR-solo CBs
+            if cbc in cells.index:
+                bam_cbc_path = os.path.join(output_folder, f'{cbc}/')
+                os.makedirs(bam_cbc_path, exist_ok=True)
+                if cbc not in cbc_writers:
+                    cbc_writers[cbc] = pysam.AlignmentFile(
+                        os.path.join(bam_cbc_path, f"{cbc}.bam"), 
+                        'wb', header=bam_input.header
+                    )
+                cbc_writers[cbc].write(alignment)
+
+    # Close all streams
     for writers in cbc_writers.values():
         writers.close()
 
@@ -31,40 +57,8 @@ def cbc_split_bam(bam_file, output_folder):
 ##
 
 
-#ARGpars
-# Create the parser
-my_parser = argparse.ArgumentParser(
-    prog='split_fastq',
-    description=
-    """
-    It splits fastq in the different cbc fastq files 
-    """
-)
+# Run 
+if __name__ == '__main__':
+    main()
 
-my_parser.add_argument(
-    '--output_folder', 
-    type=str,
-    default=None,
-    help='Where to save the files'
-)
-
-my_parser.add_argument(
-    '--bam_input', 
-    type=str,
-    default=None,
-    help='Read1'
-)
-
-
-# Parse arguments
-args = my_parser.parse_args()
-bam_input = args.bam_input
-output_folder = args.output_folder
-
-##
-
-
-
-#
-cbc_split_bam(bam_input, output_folder)
 

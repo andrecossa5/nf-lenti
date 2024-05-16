@@ -12,7 +12,7 @@ include { CONSENSUS_TSV } from "./modules/consensus_tsv.nf"
 include { COLLAPSE_TSV } from "./modules/collapse_tsv.nf"
 include { CELL_ASSIGNMENT } from "./modules/cell_assignment.nf"
 include { generate_run_summary_sc } from "./modules/run_summary.nf"
-include { publish_sc } from "./modules/publish.nf"
+include { publish_sc_gbc } from "./modules/publish.nf"
 
  
 //
@@ -33,7 +33,7 @@ workflow sc_gbc {
  
         // Create consensus reads from each cell UMI read group
         FILTER_LENTIBAM(SOLO.out.bam)
-        SPLIT_BAM(FILTER_LENTIBAM.out.bam.combine(ch_filtered, by:0))
+        SPLIT_BAM(FILTER_LENTIBAM.out.lentibam.combine(ch_filtered, by:0))
         ch_cell_bams = SPLIT_BAM.out.cell_bams
             .map { it ->
                 def sample = it[0]
@@ -48,8 +48,8 @@ workflow sc_gbc {
         CONSENSUS_BAM(ch_cell_bams)
 
         // Cell assignment
-        CONSENSUS_TSV(CONSENSUS_BAM.out.filtered_consensus_bam)
-        ch_collapse = CONSENSUS_TSV.out.filtered_consensus_tsv
+        CONSENSUS_TSV(CONSENSUS_BAM.out.consensus_bam)
+        ch_collapse = CONSENSUS_TSV.out.consensus_tsv
             .map { it -> tuple(it[0], it[2]) }
             .groupTuple(by: 0)
         COLLAPSE_TSV(ch_collapse)
@@ -64,12 +64,13 @@ workflow sc_gbc {
         generate_run_summary_sc(summary_input)
 
         // Publishing
-        publish_input = CELL_ASSIGNMENT.out.CBC_GBC_combos
+        publish_ch = CELL_ASSIGNMENT.out.CBC_GBC_combos
             .combine(CELL_ASSIGNMENT.out.combo_plot, by:0)
             .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
             .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)
             .combine(CELL_ASSIGNMENT.out.summary, by:0)
             .combine(generate_run_summary_sc.out.summary, by:0)
+        publish_sc_gbc(publish_ch)
 
     emit:
         summary = generate_run_summary_sc.out.summary

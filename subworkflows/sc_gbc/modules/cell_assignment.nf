@@ -25,7 +25,6 @@ process CELL_ASSIGNMENT {
   --path_bulk ${params.bulk_gbc_outdir} \
   --path_sc ${elements} \
   --sample_map ${params.gbc_sample_map} \
-  --ncores ${task.cpus} \
   --bulk_correction_treshold ${params.bulk_correction_treshold} \
   --umi_treshold ${params.umi_treshold} \
   --p_treshold ${params.p_treshold} \

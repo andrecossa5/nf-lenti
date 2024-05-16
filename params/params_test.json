@@ -11,6 +11,7 @@
     "ref" : "/Users/IEO5505/Desktop/example_mito/meta/ref",
     "whitelist" : "/Users/IEO5505/Desktop/example_mito/meta/whitelist.txt",
 
+    "min_reads" : 3,
     "gbc_sample_map" : "/Users/IEO5505/Desktop/example_mito/meta/sample_map.csv",
     "sc_gbc_anchor_sequence" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
     "bulk_correction_treshold" : 3,
