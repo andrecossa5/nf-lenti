@@ -20,6 +20,7 @@ def cbc_split_fastq(input_fastq1_path, input_fastq2_path, output_folder, barcode
     cbc_writers = {}
     
     with dnaio.open(input_fastq1_path, input_fastq2_path) as reader:
+        i=0
         for record1, record2 in reader:
             # Extract CBC from the read1 ID (assuming the CBC is at the end of the read ID)
             cbc = record1.sequence[:16]
@@ -41,6 +42,8 @@ def cbc_split_fastq(input_fastq1_path, input_fastq2_path, output_folder, barcode
                 #cbc_writers[cbc]["read1"].write(record1)
                 #cbc_writers[cbc]["read2"].write(record2)
                 cbc_writers[cbc].write(record1, record2)
+                i+=1
+                if i==1000000: break
     
     # Close all output files
     for writers in cbc_writers.values():
