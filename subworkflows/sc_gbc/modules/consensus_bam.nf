@@ -48,3 +48,6 @@ process CONSENSUS_BAM {
   """
 
 }
+
+
+fgbio FilterConsensusReads -i consensus.bam -o consensus_filtered.bam -r $ref -M 3 -e 0.1 -N 20 -E 0.025 
