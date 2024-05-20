@@ -17,6 +17,7 @@ process CONSENSUS_BAM {
   script:
   """
   # Group reads by UMI
+  fgbio="java -Xmx 4000m -jar + /maegatk/maegatk /bin/fgbio.jar" 
   fgbio GroupReadsByUmi \
       -i ${cell_folder}/${cell}/${cell}.bam \
       -o grouped.bam \
