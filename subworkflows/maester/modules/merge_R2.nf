@@ -16,7 +16,7 @@ process MERGE_R2 {
 
   script:
   """
-  zcat ${in_folder}/*R2*.fastq.gz | pigz --fast -p ${task.cpus} > R2_raw.fastq.gz
+  zcat ${in_folder}/*R2*.fastq.gz | gzip --fast -p ${task.cpus} > R2_raw.fastq.gz
   """
 
   stub:
