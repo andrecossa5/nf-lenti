@@ -16,7 +16,7 @@ process CONSENSUS_BAM {
 
   script:
   """
-  #fgbio="java -Xmx4000m -jar /maegatk/maegatk/bin/fgbio.jar"
+
 
   java -Xmx4000m -jar /maegatk/maegatk/bin/fgbio.jar GroupReadsByUmi \
       -i ${cell_folder}/${cell}.bam \ 
@@ -37,23 +37,7 @@ process CONSENSUS_BAM {
   --E 0.025 \
   --e 0.1 \
   --mask_th 0.2
-  #$fgbio FilterConsensusReads -i TGTAACGCATTCTCTA/consensus.bam  -o TGTAACGCATTCTCTA/TGTAACGCATTCTCTA_consensus_filtered.bam -r $ref -M 3 -e 0.1 -N 20 -E 0.025
 
-
-
-  #attenzione a params ref
-  # fgbio FilterConsensusReads \
-  #     -i consensus.bam \
-  #     -o ${cell}_consensus_filtered.bam \
-  #     -r ${params.ref}/new_genome_masked.fa \
-  #     -M ${params.fgbio_min_reads} 
-  #     -e 0.1 \
-  #     -N 20 \
-  #     -E 0.025   
-
-  # Index consensus_bam
-  #samtools index ${cell}_consensus.bam
-  """
 
   stub:
   """
@@ -62,5 +46,3 @@ process CONSENSUS_BAM {
 
 }
 
-
-//fgbio FilterConsensusReads -i consensus.bam -o consensus_filtered.bam -r $ref -M 3 -e 0.1 -N 20 -E 0.025 
