@@ -16,9 +16,9 @@ process CONSENSUS_BAM {
 
   script:
   """
-  fgbio="java -Xmx4000m -jar /maegatk/maegatk/bin/fgbio.jar"
+  #fgbio="java -Xmx4000m -jar /maegatk/maegatk/bin/fgbio.jar"
 
-  $fgbio GroupReadsByUmi \
+  java -Xmx4000m -jar /maegatk/maegatk/bin/fgbio.jar GroupReadsByUmi \
       -i ${cell_folder}/${cell}.bam \ 
       -o ${cell_folder}/grouped.bam \
       -s ${params.fgbio_UMI_consensus_mode} \
@@ -26,7 +26,7 @@ process CONSENSUS_BAM {
       -t UB \
       -T MI    
   
-  $fgbio CallMolecularConsensusReads -t UB -i ${cell_folder}/grouped.bam -o ${cell_folder}/consensus.bam -M ${params.fgbio_min_reads} 
+  java -Xmx4000m -jar /maegatk/maegatk/bin/fgbio.jar CallMolecularConsensusReads -t UB -i ${cell_folder}/grouped.bam -o ${cell_folder}/consensus.bam -M ${params.fgbio_min_reads} 
   
   # Filter high-quality consensus reads
   python ${baseDir}/bin/sc_gbc/filter_consensus.py \
