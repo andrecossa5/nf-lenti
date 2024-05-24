@@ -37,7 +37,7 @@ process CONSENSUS_BAM {
   --E 0.025 \
   --e 0.1 \
   --mask_th 0.2
-
+  """
 
   stub:
   """
