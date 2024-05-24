@@ -4,15 +4,15 @@ nextflow.enable.dsl = 2
 // Include here
 include { MERGE_R1 } from "../maester/modules/merge_R1.nf"
 include { MERGE_R2 } from "../maester/modules/merge_R2.nf"
-include { SOLO } from "../modules/Solo.nf"
+include { SOLO } from "./modules/Solo.nf"
 include { FILTER_LENTIBAM } from "./modules/filter_lentibam.nf"
-include { SPLIT_BAM } from "../modules/split_bam.nf"
-include { CONSENSUS_BAM } from "../modules/consensus_bam.nf"
-include { CONSENSUS_TSV } from "../modules/consensus_tsv.nf"
-include { COLLAPSE_TSV } from "../modules/collapse_tsv.nf"
-include { CELL_ASSIGNMENT } from "../modules/cell_assignment.nf"
-include { generate_run_summary_sc } from "../modules/run_summary.nf"
-include { publish_sc_gbc } from "../modules/publish.nf"
+include { SPLIT_BAM } from "./modules/split_bam.nf"
+include { CONSENSUS_BAM } from "./modules/consensus_bam.nf"
+include { CONSENSUS_TSV } from "./modules/consensus_tsv.nf"
+include { COLLAPSE_TSV } from "./modules/collapse_tsv.nf"
+include { CELL_ASSIGNMENT } from "./modules/cell_assignment.nf"
+include { generate_run_summary_sc } from "./modules/run_summary.nf"
+include { publish_sc_gbc } from "./modules/publish.nf"
 
  
 //
