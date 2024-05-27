@@ -12,7 +12,7 @@ process CONSENSUS_BAM {
   tuple val(sample_name), val(cell), path(cell_folder)
 
   output:
-  tuple val(sample_name), val(cell), path("consensus_filtered.bam"), emit: consensus_filtered_bam
+  tuple val(sample_name), val(cell), path("${cell_folder}/consensus_filtered.bam"), emit: consensus_filtered_bam
 
   script:
   """
