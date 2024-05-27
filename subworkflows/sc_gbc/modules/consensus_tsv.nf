@@ -12,7 +12,7 @@ process CONSENSUS_TSV {
   tuple val(sample_name), val(cell), path(consensus_filtered_bam)
 
   output:
-  tuple val(sample_name), val(cell), path("${consensus_filtered_bam}/consensus_filtered.tsv"), emit: consensus_filtered_tsv
+  tuple val(sample_name), val(cell), path("consensus_filtered.tsv"), emit: consensus_filtered_tsv
 
   script:
   """
