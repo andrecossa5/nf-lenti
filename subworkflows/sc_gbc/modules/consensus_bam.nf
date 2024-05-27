@@ -12,7 +12,7 @@ process CONSENSUS_BAM {
   tuple val(sample_name), val(cell), path(cell_folder)
 
   output:
-  tuple val(sample_name), val(cell), path("${cell}_consensus.bam"), emit: consensus_bam
+  tuple val(sample_name), val(cell), path("${cell_folder}/filtered.bam"), emit: consensus_filtered_bam
 
   script:
   """
@@ -25,7 +25,7 @@ process CONSENSUS_BAM {
   # Filter high-quality consensus reads
   python ${baseDir}/bin/sc_gbc/filter_consensus.py \
   --input ${cell_folder}/consensus.bam \
-  --output filtered.bam \
+  --output ${cell_folder}/consensus_filtered.bam \
   --base_quality 30 \
   --mean_quality_th 30 \
   --E 0.025 \
