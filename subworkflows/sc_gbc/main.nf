@@ -48,7 +48,7 @@ workflow sc_gbc {
         CONSENSUS_BAM(ch_cell_bams)
 
         // Cell assignment
-        CONSENSUS_TSV(CONSENSUS_BAM.out.consensus_bam)
+        CONSENSUS_TSV(CONSENSUS_BAM.out.consensus_filtered_bam)
         ch_collapse = CONSENSUS_TSV.out.consensus_tsv
             .map { it -> tuple(it[0], it[2]) }
             .groupTuple(by: 0)

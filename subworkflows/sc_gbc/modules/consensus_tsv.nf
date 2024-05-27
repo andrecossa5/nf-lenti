@@ -9,7 +9,7 @@ process CONSENSUS_TSV {
   tag "${sample_name}: ${cell}"
 
   input:
-  tuple val(sample_name), val(cell), path(consensus_bam)
+  tuple val(sample_name), val(cell), path(consensus_filtered_bam)
 
   output:
   tuple val(sample_name), val(cell), path("${cell_folder}/consensus_filtered.bam"), emit: consensus_filtered_tsv
