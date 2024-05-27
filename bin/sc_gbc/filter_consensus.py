@@ -121,3 +121,5 @@ def main():
 if __name__ == "__main__":
     main()
 
+
+#PEr ogni UMI che passa nel filter bam srivere la size del UMI fare un dizionario? 

@@ -13,7 +13,7 @@ process COLLAPSE_TSV {
         tuple val(sample), path(files)
  
     output:
-        tuple val(sample), path("GBC_read_elements.tsv.gz"), emit: elements
+        tuple val(sample), path("cells.tsv.gz"), emit: elements
  
     script:
     """
