@@ -16,7 +16,7 @@ process CONSENSUS_TSV {
 
   script:
   """
-  python ${baseDir}/bin/sc_gbc/consensus_tsv.py ${consensus_bam} ${cell}
+  python ${baseDir}/bin/sc_gbc/consensus_tsv.py ${consensus_filtered_bam} ${cell}
   """
 
   stub:
