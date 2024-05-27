@@ -26,7 +26,7 @@ def main():
 
     # Here we go
     with pysam.AlignmentFile(path_bam, 'rb', check_sq=False) as bam:
-        with open(f'consensus_filtered.tsv', 'w') as tsv:
+        with open(f'${cell}_consensus_filtered.tsv', 'w') as tsv:
             tsv.write("read_ID\tCBC\tUMI\tfeature\n")
             for i, alignment in enumerate(bam): 
                 feature = alignment.seq[33:33+18]
