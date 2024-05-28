@@ -275,17 +275,19 @@ def cell_assignment_workflow(
     f.write(f'\n')
 
     # Relationship with bulk (GBC sequences) checks
-    pseudobulk_sc = M.sum(axis=0) / M.sum(axis=0).sum()
-    common = list(set(pseudobulk_sc.index) & set(bulk_df.index))
-    if len(common)>0:
-        pseudobulk_sc = pseudobulk_sc.loc[common]
-        bulk = bulk_df.loc[common]['read_count'] / bulk_df.loc[common]['read_count'].sum()
-        corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
-        f.write(f'# Individual "good" GBC sequences checks\n')
-        f.write(f'- n "good" GBC sequences, bulk ({bulk_df.shape[0]}) vs sc ({df_combos["GBC"].unique().size})\n')
-        f.write(f'- Fraction of bulk GBCs found in sc: {bulk_df.index.isin(df_combos["GBC"].unique()).sum()/bulk_df.shape[0]:.2f}\n')
-        f.write(f'- Common GBCs abundance (normalized nUMIs from pseudobulk scRNA-seq vs normalized read counts from bulk DNA-seq) correlation: {corr:.2f}\n')
-        f.write(f'\n')
+    if path_sample_map is not None and path_bulk is not None:
+        
+        pseudobulk_sc = M.sum(axis=0) / M.sum(axis=0).sum()
+        common = list(set(pseudobulk_sc.index) & set(bulk_df.index))
+        if len(common)>0:
+            pseudobulk_sc = pseudobulk_sc.loc[common]
+            bulk = bulk_df.loc[common]['read_count'] / bulk_df.loc[common]['read_count'].sum()
+            corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
+            f.write(f'# Individual "good" GBC sequences checks\n')
+            f.write(f'- n "good" GBC sequences, bulk ({bulk_df.shape[0]}) vs sc ({df_combos["GBC"].unique().size})\n')
+            f.write(f'- Fraction of bulk GBCs found in sc: {bulk_df.index.isin(df_combos["GBC"].unique()).sum()/bulk_df.shape[0]:.2f}\n')
+            f.write(f'- Common GBCs abundance (normalized nUMIs from pseudobulk scRNA-seq vs normalized read counts from bulk DNA-seq) correlation: {corr:.2f}\n')
+            f.write(f'\n')
 
     # GBC sets checks
     sets = get_clones(M)
