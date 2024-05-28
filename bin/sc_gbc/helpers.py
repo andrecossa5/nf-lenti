@@ -113,7 +113,7 @@ def get_combos(counts, gbc_col='GBC_reference-free'):
 ##
 
 
-def filter_and_pivot(df_combos, umi_treshold=5, p_treshold=.01, max_ratio_treshold=.8, normalized_abundance_treshold=.8):
+def filter_and_pivot(df_combos, umi_treshold, p_treshold, max_ratio_treshold, normalized_abundance_treshold):
     """
     Filter a CBC-GBC-UMI table and return it in large format.
     """
