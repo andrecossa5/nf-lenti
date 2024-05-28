@@ -216,6 +216,10 @@ def cell_assignment_workflow(
 
     # Read and count
     sc_df = read_data(path_sc, sample=sample)
+    print('######################################################')
+    print('path_sample_map=', path_sample_map)
+    print('path_bulk=',path_bulk)
+    print('######################################################')
 
     # Optional: correction with bulk reference
     if path_sample_map is not None and path_bulk is not None:
