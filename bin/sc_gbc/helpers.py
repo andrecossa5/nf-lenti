@@ -189,8 +189,8 @@ def get_clones(M):
 
 
 def cell_assignment_workflow(
-    path_sc, sample=None, path_bulk=None, path_sample_map=None, sample_params=None, bulk_correction_treshold=3,
-    umi_treshold=5, p_treshold=.5, max_ratio_treshold=.8, normalized_abundance_treshold=.8
+    path_sc, bulk_correction_treshold,
+    umi_treshold, p_treshold, max_ratio_treshold, normalized_abundance_treshold,sample=None, path_bulk=None, path_sample_map=None, sample_params=None
     ):
     """
     Complete clone calling and cell assignment workflow.
