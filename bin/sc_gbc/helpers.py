@@ -136,10 +136,10 @@ def filter_and_pivot(df_combos, umi_treshold=5, p_treshold=.01, max_ratio_tresho
 
     # Supported and unsupported CBC-GBC combinations
     print('-----------------------------------')
-    print('df_combos[umi]_mean=',df_combos['umi'].mean, 'th=',umi_treshold)
-    print('df_combos[max_ratio]_mean=',df_combos['max_ratio'].mean, 'th=',max_ratio_treshold)
-    print('df_combos[normalized_abundance]_mean=',df_combos['normalized_abundance'].mean, 'th=',normalized_abundance_treshold)
-    print('df_combos[p]_mean=',df_combos['p'].mean, 'th=',p_treshold)
+    print('df_combos[umi]_mean=',df_combos['umi'].mean(), 'th=',umi_treshold)
+    print('df_combos[max_ratio]_mean=',df_combos['max_ratio'].mean(), 'th=',max_ratio_treshold)
+    print('df_combos[normalized_abundance]_mean=',df_combos['normalized_abundance'].mean(), 'th=',normalized_abundance_treshold)
+    print('df_combos[p]_mean=',df_combos['p'].mean(), 'th=',p_treshold)
     print('-----------------------------------')
     test = (df_combos['umi'] >= umi_treshold) & \
         (df_combos['p'] <= p_treshold) & \
