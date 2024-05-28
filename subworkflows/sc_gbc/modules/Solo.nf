@@ -45,6 +45,8 @@ process SOLO {
   gzip raw/*.mtx
   gzip filtered/*.tsv
   gzip filtered/*.mtx
+
+  # --path_bulk ${params.bulk_gbc_outdir} \
   """
 
   stub:
