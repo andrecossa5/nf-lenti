@@ -93,9 +93,10 @@ def get_combos(counts, gbc_col='GBC_reference-free'):
     """
     Compute CBC-GBC stats from filtered UMIs.
     """
-    filtered = counts.loc[lambda x: x['status']=='Retain']
+    #filtered = counts.loc[lambda x: x['status']=='Retain']
     df_combos = (
-        filtered
+        #filtered
+        counts
         .rename(columns={gbc_col:'GBC'})
         .groupby(['CBC', 'GBC'])['UMI'].nunique()
         .to_frame('umi').reset_index()
