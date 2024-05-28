@@ -218,7 +218,7 @@ def cell_assignment_workflow(
     sc_df = read_data(path_sc, sample=sample)
 
     # Optional: correction with bulk reference
-    if sample_map is not None and path_bulk is not None:
+    if path_sample_map is not None and path_bulk is not None:
 
         if os.path.exists(path_bulk):
             bulk = pd.read_csv(os.path.join(path_bulk, 'summary', 'bulk_GBC_reference.csv'), index_col=0)
