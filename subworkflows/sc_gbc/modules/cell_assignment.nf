@@ -23,7 +23,6 @@ process CELL_ASSIGNMENT {
   python ${baseDir}/bin/sc_gbc/cell_assignment.py \
   --sample ${sample_name} \
   --path_sc ${elements} \
-
   --bulk_correction_treshold ${params.bulk_correction_treshold} \
   --umi_treshold ${params.umi_treshold} \
   --p_treshold ${params.p_treshold} \

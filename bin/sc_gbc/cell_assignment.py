@@ -162,7 +162,8 @@ def main():
             p_treshold=p_treshold,
             max_ratio_treshold=max_ratio_treshold,
             normalized_abundance_treshold=normalized_abundance_treshold,
-            sample_params=params
+            sample_params=params,
+            bulk_correction_treshold=bulk_correction_treshold
         )
 
     except:
