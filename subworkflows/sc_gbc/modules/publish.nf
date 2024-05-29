@@ -26,7 +26,7 @@ process publish_sc_gbc {
     path clones_summary
     path run_summary
     path cell_assignment_summary
-    PATH filter_summary
+    path filter_summary
 
     script:
     """
