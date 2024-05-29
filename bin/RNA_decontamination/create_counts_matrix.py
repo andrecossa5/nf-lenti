@@ -148,7 +148,7 @@ else:
 # Viz correction effect
 fig, axs = plt.subplots(1,1,figsize=(5,5))
 
-viz_UMIs(COUNTS['raw'], axs)
+#viz_UMIs(COUNTS['raw'], axs)
 axs.set(title='Raw')
 axs.text(.53, .95, f'Total reads: {COUNTS["raw"]["count"].sum():.2e}', transform=axs.transAxes)
 axs.text(.53, .91, f'Total GBCs: {COUNTS["raw"]["GBC"].unique().size:.2e}', transform=axs.transAxes)

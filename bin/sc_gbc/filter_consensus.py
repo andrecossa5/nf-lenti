@@ -1,7 +1,6 @@
 import pysam
 import numpy as np
-
-
+import pandas as pd
 import argparse
 
 # Create the parser
@@ -78,21 +77,21 @@ def filter_consensus(bam_file, output_bam, quality_th, mean_qual_th,max_Er,base_
 
     bam_in = pysam.AlignmentFile(bam_file, "rb", check_sq=False)
     bam_out = pysam.AlignmentFile(output_bam, "wb", template=bam_in)
-    #j=0
+    df = pd.DataFrame(columns=['read', 'ce', 'quality', 'supported'])
+    j=0
     for read in bam_in.fetch(until_eof=True):
+        
         n_consensus_read = read.get_tag('cM:')
         mean_consensus_error = read.get_tag('cE:')
         base_consensus_error = np.array(read.get_tag('ce:'))/n_consensus_read
         high_consensus_err_index = np.where(base_consensus_error>base_er)[0]
-        #filter mean error
-        if mean_consensus_error>max_Er:
-            continue
+        
+
         sequence = list(read.query_sequence)
         qualities = np.array(read.query_qualities)
         mean_qualities = qualities.sum()/qualities.shape[0]
-        # filter mean quality
-        if mean_qualities<mean_qual_th: 
-            continue
+
+        
         
         #MASKs for the bad bases
         low_quality_indices = np.where(qualities < quality_th)[0]
@@ -103,12 +102,33 @@ def filter_consensus(bam_file, output_bam, quality_th, mean_qual_th,max_Er,base_
             sequence[i] = 'N'
         bad_reads_density=sequence.count('N')/len(sequence)
         #filter if the mask is too high
+        supported = 'not supported'
+
+        if bad_reads_density<mask_th and mean_consensus_error<max_Er and mean_qualities>mean_qual_th:
+            supported = 'supported'
+
+
+        #save metadata for filtering analysis    
+        df.loc[j] = [sequence, base_consensus_error, qualities , supported]
+
+
         if bad_reads_density>mask_th:
             continue
+
+        #filter mean error
+        if mean_consensus_error>max_Er:
+            continue
+
+        # filter mean quality
+        if mean_qualities<mean_qual_th: 
+            continue
+
         read.query_sequence = ''.join(sequence)
         bam_out.write(read)
-        #j+=1
+        j+=1
         #if j==10: break
+        
+    df.to_csv('Seq_qual_err.csv',sep='\t')
     bam_in.close()
     bam_out.close()
 
