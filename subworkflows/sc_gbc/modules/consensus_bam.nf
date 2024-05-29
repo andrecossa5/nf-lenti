@@ -13,6 +13,7 @@ process CONSENSUS_BAM {
 
   output:
   tuple val(sample_name), val(cell), path("${cell_folder}/consensus_filtered.bam"), emit: consensus_filtered_bam
+  tuple val(sample_name), path("seq_qual_err.csv"), emit: filter_summary
 
   script:
   """

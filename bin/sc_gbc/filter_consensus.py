@@ -127,8 +127,8 @@ def filter_consensus(bam_file, output_bam, quality_th, mean_qual_th,max_Er,base_
         bam_out.write(read)
         j+=1
         #if j==10: break
-        
-    df.to_csv('Seq_qual_err.csv',sep='\t')
+
+    df.to_csv('seq_qual_err.csv',sep='\t')
     bam_in.close()
     bam_out.close()
 

@@ -16,7 +16,8 @@ process publish_sc_gbc {
           path(cells_summary), 
           path(clones_summary), 
           path(cell_assignment_summary),
-          path(run_summary)
+          path(run_summary),
+          path(filter_summary)
 
     output:
     path CBC_GBC
@@ -25,6 +26,7 @@ process publish_sc_gbc {
     path clones_summary
     path run_summary
     path cell_assignment_summary
+    PATH filter_summary
 
     script:
     """

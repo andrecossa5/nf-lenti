@@ -70,6 +70,7 @@ workflow sc_gbc {
             .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)
             .combine(CELL_ASSIGNMENT.out.summary, by:0)
             .combine(generate_run_summary_sc.out.summary, by:0)
+            .combine(CONSENSUS_BAM.out.filter_summary, by:0)
         publish_sc_gbc(publish_ch)
 
     emit:
