@@ -73,6 +73,10 @@ max_Er = args.E
 base_er = args.e
 mask_th = args.mask_th
 
+bam_file = '/Users/ieo6943/Downloads/cell_folder/consensus.bam'
+output_bam = '/Users/ieo6943/Downloads/cell_folder/filter_local.bam'
+
+
 def filter_consensus(bam_file, output_bam, quality_th, mean_qual_th,max_Er,base_er,mask_th):
 
     bam_in = pysam.AlignmentFile(bam_file, "rb", check_sq=False)
@@ -93,7 +97,7 @@ def filter_consensus(bam_file, output_bam, quality_th, mean_qual_th,max_Er,base_
 
         
         
-        #MASKs for the bad bases
+        #MASKs for the bad bases #mettere np.where per la maschera
         low_quality_indices = np.where(qualities < quality_th)[0]
         # Replace low quality bases with 'N'
         for i in low_quality_indices:

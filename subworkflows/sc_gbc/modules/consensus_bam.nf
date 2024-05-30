@@ -6,7 +6,7 @@ nextflow.enable.dsl = 2
 
 process CONSENSUS_BAM {
 
-  tag "${sample_name}: ${cell}"
+  tag "${sample_name}: ${cell}
 
   input:
   tuple val(sample_name), val(cell), path(cell_folder)
