@@ -27,11 +27,21 @@ process CONSENSUS_BAM {
   python ${baseDir}/bin/sc_gbc/filter_consensus.py \
   --input ${cell_folder}/consensus.bam \
   --output ${cell_folder}/consensus_filtered.bam \
-  --base_quality 30 \
-  --mean_quality_th 30 \
-  --E 0.025 \
-  --e 0.1 \
-  --mask_th 0.2
+  --min_quality 30 \
+  --read_max_consensus_error 0.025 \
+  --base_consensus_error 0.1 \
+  --read_max_N 0.2
+  --consensus_filter_mode 'GBC'
+  --GBC_max_N 
+
+
+  # Params
+min_quality = args.min_quality
+read_max_consensus_error = args.read_max_consensus_error
+base_consensus_error = args.base_consensus_error
+read_max_N = args.read_max_N
+consensus_filter_mode = args.consensus_filter_mode
+GBC_max_N =args.GBC_max_N
   """
 
   stub:
