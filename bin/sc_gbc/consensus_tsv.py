@@ -32,7 +32,7 @@ def main():
                 feature = alignment.seq[33:33+18]
                 umi = alignment.get_tag("MI")
                 n_consensus_read = alignment.get_tag("cD")
-                tsv.write(f"read_{i}\t{cell}\t{umi}\t{feature}\t{n_consensus_read}")
+                tsv.write(f"read_{i}\t{cell}\t{umi}\t{feature}\t{n_consensus_read}\n")
 
 
 ##
