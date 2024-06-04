@@ -25,7 +25,7 @@ process CONSENSUS_BAM {
   
 
   samtools fastq ${cell_folder}/consensus_unmapped.bam \
-    | bwa mem -t 16 -p -K 150000000 -Y ${ref} - \
+    | bwa mem -t 16 -p -K 150000000 -Y ${params.ref}  - \
     | java -Xmx4000m -jar /maegatk/maegatk/bin/fgbio.jar -Xmx4g --compression 1 --async-io ZipperBams \
         --unmapped ${cell_folder}/consensus_unmapped.bam \
         --ref ${params.ref} \
