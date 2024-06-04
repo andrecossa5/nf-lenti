@@ -27,7 +27,7 @@ process CONSENSUS_BAM {
     | bwa mem -t 16 -p -K 150000000 -Y ${params.ref}/ref/new_genome_masked.fa  - \
     | fgbio --compression 1 --async-io ZipperBams --unmapped ${cell_folder}/consensus_unmapped.bam --ref ${params.ref}/ref/new_genome_masked.fa  --tags-to-reverse Consensus --tags-to-revcomp Consensus --output ${cell_folder}/consensus_mapped.bam 
 
-  fgbio --compression 0 FilterConsensusReads \
+  fgbio -Xmx8g --compression 0 FilterConsensusReads \
     --input ${cell_folder}/consensus_mapped.bam \
     --output /dev/stdout \
     --ref ${params.ref}/ref/new_genome_masked.fa  \
