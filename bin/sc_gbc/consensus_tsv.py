@@ -11,10 +11,10 @@ import pysam
 path_bam = sys.argv[1]
 cell = sys.argv[2]
 # cell = 'AAA'
-path_bam = '/Users/ieo6943/Documents/Guido/scratch/consensus_tsv/32f26ae71a4107d0aa93cfe4aa1b41/consensus_filtered_mapped.bam'
+# path_bam = '/Users/ieo6943/Documents/Guido/scratch/consensus_tsv/32f26ae71a4107d0aa93cfe4aa1b41/consensus_filtered_mapped.bam'
 # os.chdir('/Users/IEO5505/Desktop/example_mito/scratch_data/cell_bams/GACTATGAGAGTACCG/')
-output = '/Users/ieo6943/Documents/Guido/scratch/consensus_tsv/32f26ae71a4107d0aa93cfe4aa1b41/prova.tsv'
-cell = 'TTTGTTGGTTATTCTC'
+
+
 ##
 
 
@@ -26,7 +26,7 @@ def main():
 
     # Here we go
     with pysam.AlignmentFile(path_bam, 'rb', check_sq=False) as bam:
-        with open(output, 'w') as tsv:
+        with open(f'{cell}_consensus_filtered.tsv', 'w') as tsv:
             tsv.write("read_ID\tCBC\tUMI\tGBC\tn_consensus_read\n")
             for i, alignment in enumerate(bam): 
                 feature = alignment.seq[33:33+18]
