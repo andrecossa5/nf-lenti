@@ -36,14 +36,6 @@ def main():
                 tsv.write(f"read_{i}\t{cell}\t{umi}\t{feature}\t{n_consensus_read}\n")
 
 
-pd.read_csv(f'{cell}.tsv.gz', sep='\t')
-
-
-
-##
-
-a=pd.DataFrame('/Users/ieo6943/Documents/Guido/scratch/consensus_tsv/32f26ae71a4107d0aa93cfe4aa1b41/TTTGTTGGTTATTCTC_consensus_filtered.tsv')
-
 # Run 
 if __name__ == '__main__':
     main()
