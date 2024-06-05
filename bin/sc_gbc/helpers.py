@@ -269,7 +269,10 @@ def cell_assignment_workflow(
 
     # General checks
     f.write(f'# General checks \n')
-    f.write(f'- Unique, "good" GBCs, post correction (with bulk reference whitelist): {df_combos["GBC"].unique().size}\n')
+    if path_sample_map is not None and path_bulk is not None:
+        f.write(f'- Unique, "good" GBCs, post correction (with bulk reference whitelist): {df_combos["GBC"].unique().size}\n')
+    else:
+        f.write(f'- Unique, "good" GBCs: {df_combos["GBC"].unique().size}\n')
     f.write(f'- n unsupported CBC-GBC combos (N.B. only good GBCs): {(df_combos["status"]=="unsupported").sum()}\n')
     f.write(f'- n supported CBC-GBC combos (N.B. only good GBCs): {(df_combos["status"]=="supported").sum()}\n')
     f.write(f'- Observed MOI (from supported CBC-GBC combos only): {(M>0).sum(axis=1).median():.2f} median, (+-{(M>0).sum(axis=1).std():.2f})\n')
