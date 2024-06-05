@@ -29,7 +29,6 @@ process CELL_ASSIGNMENT {
   --max_ratio_treshold ${params.max_ratio_treshold} \
   --normalized_abundance_treshold ${params.normalized_abundance_treshold} \
   --sample_params ${params.sample_params}\
-  
   --path_bulk ${params.bulk_gbc_outdir} \
   --sample_map ${params.gbc_sample_map} \
   """
