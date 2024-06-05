@@ -2,7 +2,6 @@
 
 import sys
 import pysam
-import pandas as pd
 
 ##
 
