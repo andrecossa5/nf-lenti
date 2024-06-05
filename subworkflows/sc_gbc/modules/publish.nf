@@ -16,7 +16,7 @@ process publish_sc_gbc {
           path(cells_summary), 
           path(clones_summary), 
           path(cell_assignment_summary),
-          path(run_summary),
+          path(run_summary)
           //path(filter_summary)
 
     output:
