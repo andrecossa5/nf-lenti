@@ -29,9 +29,9 @@ process CONSENSUS_BAM {
     --input ${cell_folder}/consensus_mapped.bam \
     --output /dev/stdout \
     --ref ${params.ref}/cassette_up.fa  \
-    --min-reads 3 \
-    --min-base-quality 45 \
-    --max-base-error-rate 0.2 \
+    --min-reads ${params.fgbio_min_reads} \
+    --min-base-quality ${params.fgbio_base_quality} \
+    --max-base-error-rate ${params.fgbio_base_error_rate} \
   | samtools sort --threads 1 -o ${cell_folder}/consensus_filtered_mapped.bam --write-index
 
   """
