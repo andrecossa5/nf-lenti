@@ -15,6 +15,8 @@ process SPLIT_BAM {
     //tuple val(sample_name), path('cell_bams/*'), emit: cell_bams
     tuple val(sample_name), path('output/*'), emit: cell_bams
 
+    beforeScript 'source ~/.bashrc && mamba activate NextFlow_G'
+
     script:
     """
     #python ${baseDir}/bin/sc_gbc/split_bam.py ${bam} ${filtered}/barcodes.tsv.gz
