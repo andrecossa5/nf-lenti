@@ -20,7 +20,7 @@ process SPLIT_BAM {
     #python ${baseDir}/bin/sc_gbc/split_bam.py ${bam} ${filtered}/barcodes.tsv.gz
     mkdir output 
     cd output
-    samtools split -M 1000 -u unrecognized.bam -d CB -f '%!CB.bam' ../${bam}
+    samtools split -u unrecognized.bam -d CB -f '%!CB.bam' ../${bam}
     """
 
     stub:
