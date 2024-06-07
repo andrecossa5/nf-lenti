@@ -190,7 +190,8 @@ def get_clones(M):
 
 def cell_assignment_workflow(
     path_sc, bulk_correction_treshold,
-    umi_treshold, p_treshold, max_ratio_treshold, normalized_abundance_treshold,sample=None, path_bulk=None, path_sample_map=None, sample_params=None
+    umi_treshold, p_treshold, max_ratio_treshold, normalized_abundance_treshold,sample=None, 
+    path_bulk=None, path_sample_map=None, sample_params=None
     ):
     """
     Complete clone calling and cell assignment workflow.
@@ -226,7 +227,7 @@ def cell_assignment_workflow(
 
     # Optional: correction with bulk reference
     bulk_correction = True if os.path.exists(path_sample_map) and os.path.exists(path_bulk) else False
-    
+
     if bulk_correction:
         bulk = pd.read_csv(os.path.join(path_bulk, 'summary', 'bulk_GBC_reference.csv'), index_col=0)
         sample_map = pd.read_csv(path_sample_map, index_col=0)
@@ -236,14 +237,14 @@ def cell_assignment_workflow(
             bulk_df = bulk.query('sample==@ref')
             assert bulk.shape[0]>0
             print(f'Found bulk GBC sequences for the {sample} sample, from ref {ref}.')
+            # Create correction map and map sc GBCs to corrected bulk ones
+            bulk_map = map_GBCs(sc_df, bulk=bulk_df, bulk_correction_treshold=bulk_correction_treshold)
+            sc_df['GBC'] = sc_df['GBC'].map(bulk_map)
+
         else:
             raise KeyError(
                 f'{sample} is not present in sample_map.csv index. Check errors.'
             )
-
-        # Create correction map
-        bulk_map = map_GBCs(sc_df, bulk=bulk_df, bulk_correction_treshold=bulk_correction_treshold)
-        sc_df['GBC'] = sc_df['GBC'].map(bulk_map)
     
     ##
 
