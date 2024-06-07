@@ -20,6 +20,7 @@ process SPLIT_BAM {
     script:
     """
     #python ${baseDir}/bin/sc_gbc/split_bam.py ${bam} ${filtered}/barcodes.tsv.gz
+    python ${baseDir}/bin/sc_gbc/filter_lentibam ${bam} filtered_${bam} ${filtered}/barcodes.tsv.gz
     mkdir output 
     cd output
     python ${baseDir}/bin/sc_gbc/filter_lentibam ${bam} filtered_${bam} ${filtered}/barcodes.tsv.gz
