@@ -9,20 +9,17 @@ process SPLIT_BAM {
     tag "${sample_name}"
 
     input:
-    tuple val(sample_name), path(bam), path(index), path(filtered_lentibam)
+    tuple val(sample_name), path(bam), path(index)
 
     output:
     //tuple val(sample_name), path('cell_bams/*'), emit: cell_bams
     tuple val(sample_name), path('output/*'), emit: cell_bams
 
-    beforeScript 'source ~/.bashrc && mamba activate NextFlow_G'
-
     script:
     """
-    #python ${baseDir}/bin/sc_gbc/split_bam.py ${bam} ${filtered}/barcodes.tsv.gz
     mkdir output 
     cd output
-    samtools split -u unrecognized.bam -d CB -f '%!.bam' ../${filtered_lentibam}
+    samtools split -M -1 -u unrecognized.bam -d CB -f '%!.bam' ../${bam}
     """
 
     stub:
