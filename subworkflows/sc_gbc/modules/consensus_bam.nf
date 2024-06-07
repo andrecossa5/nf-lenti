@@ -36,7 +36,7 @@ process CONSENSUS_BAM {
 #
 
 
-  fgbio GroupReadsByUmi -i ${cell}.bam -o ${cell}_grouped.bam -s ${params.fgbio_UMI_consensus_mode}  -e ${params.fgbio_UMI_consensus_edits} -t UB -T MI
+  fgbio GroupReadsByUmi -i output/${cell}.bam -o ${cell}_grouped.bam -s ${params.fgbio_UMI_consensus_mode}  -e ${params.fgbio_UMI_consensus_edits} -t UB -T MI
 
   fgbio CallMolecularConsensusReads -t UB -i ${cell}_grouped.bam  -o ${cell_folder}_consensus_unmapped.bam   -M ${params.fgbio_min_reads}
 

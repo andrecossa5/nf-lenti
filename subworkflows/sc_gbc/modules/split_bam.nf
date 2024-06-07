@@ -20,10 +20,9 @@ process SPLIT_BAM {
     script:
     """
     #python ${baseDir}/bin/sc_gbc/split_bam.py ${bam} ${filtered}/barcodes.tsv.gz
-    python ${baseDir}/bin/sc_gbc/filter_lentibam.py ${bam} filtered_${bam} ${filtered}/barcodes.tsv.gz
     mkdir output 
     cd output
-    samtools split -u unrecognized.bam -d CB -f '%!.bam' ../filtered_${bam}
+    samtools split -u unrecognized.bam -d CB -f '%!.bam' ../${filtered_lentibam}
     """
 
     stub:
