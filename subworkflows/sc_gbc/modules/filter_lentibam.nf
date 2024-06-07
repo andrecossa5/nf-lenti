@@ -25,8 +25,8 @@ process FILTER_LENTIBAM {
 
     stub:
     """
-    touch lentibam.bam
-    touch lentibam.bam.bai
+    touch filtered_lentibam.bam
+    touch filtered_lentibam.bam.bai
     """
 
 } 
