@@ -20,7 +20,7 @@ allowed_cbs_file = sys.argv[1]
 
 
 def main():
-    allowed_cbs = pd.read_csv(allowed_cbs_file, sep='\t')[0].values.tolist()
+    allowed_cbs = pd.read_csv(allowed_cbs_file, sep='\t').iloc[:,0].values.tolist()
     with pysam.AlignmentFile('lentibam.bam', "rb") as bam_in:
         with pysam.AlignmentFile('filtered_lentibam.bam', "wb", header=bam_in.header) as bam_out:
             for read in bam_in:
