@@ -24,9 +24,9 @@ process SPLIT_BAM {
 
     stub:
     """
-    mkdir cell_bams
-    cd cell_bams
-    mkdir AAAA BBBB
+    mkdir 
+    cd output
+    touch AAAA.bam BBBB.bam
     """
 
 }
