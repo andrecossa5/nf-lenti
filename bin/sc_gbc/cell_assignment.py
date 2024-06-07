@@ -1,11 +1,13 @@
 #!/usr/bin/python
 
-# Cell assignment script
-
-########################################################################
-
-# Parsing CLI args 
+"""
+Cell assignment script.
+"""
  
+
+##
+
+
 # Libraries
 import os
 import sys
@@ -122,17 +124,12 @@ sample_params = args.sample_params
 
 
 # Import code
-# sys.path.append('/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/sc_gbc')
-# os.chdir('/Users/IEO5505/Desktop/example_mito/scratch_results')
-
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from helpers import *
 
 
 ##
 
-
-########################################################################
 
 def main():
 
@@ -178,8 +175,6 @@ def main():
     ##
 
 
-########################################################################
-    
 # Run
 if __name__ == '__main__':
     main()
