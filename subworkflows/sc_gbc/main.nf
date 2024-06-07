@@ -32,8 +32,8 @@ workflow sc_gbc {
         SOLO(MERGE_R1.out.R1.combine(MERGE_R2.out.R2, by:0))
  
         // Create consensus reads from each cell UMI read group
-        FILTER_LENTIBAM(SOLO.out.bam)
-        SPLIT_BAM(FILTER_LENTIBAM.out.lentibam.combine(ch_filtered, by:0))
+        FILTER_LENTIBAM(SOLO.out.bam.combine(ch_filtered, by:0))
+        SPLIT_BAM(FILTER_LENTIBAM.out.filtered_lentibam.combine(ch_filtered, by:0))
         ch_cell_bams = SPLIT_BAM.out.cell_bams
             .map { it ->
                 def sample = it[0]

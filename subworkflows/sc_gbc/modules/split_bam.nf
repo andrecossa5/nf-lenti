@@ -9,7 +9,7 @@ process SPLIT_BAM {
     tag "${sample_name}"
 
     input:
-    tuple val(sample_name), path(bam), path(index), path(filtered)
+    tuple val(sample_name), path(bam), path(index), path(filtered_lentibam)
 
     output:
     //tuple val(sample_name), path('cell_bams/*'), emit: cell_bams
@@ -23,7 +23,6 @@ process SPLIT_BAM {
     python ${baseDir}/bin/sc_gbc/filter_lentibam.py ${bam} filtered_${bam} ${filtered}/barcodes.tsv.gz
     mkdir output 
     cd output
-    python ${baseDir}/bin/sc_gbc/filter_lentibam ${bam} filtered_${bam} ${filtered}/barcodes.tsv.gz
     samtools split -u unrecognized.bam -d CB -f '%!.bam' ../filtered_${bam}
     """
 
