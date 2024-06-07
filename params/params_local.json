@@ -1,37 +1,29 @@
 {
 
-    "bulk_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/bulk_gbc/",
-    "bulk_gbc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/bulk_gbc/",
-    "bulk_gbc_graph_clustering_hamming_treshold" : 3,
-    "bulk_gbc_min_n_reads" : 1000,
-    "bulk_gbc_anchor_sequence" : "GGGTTTAAACGGGCCCTCTAG",
-    "bulk_gbc_spikeins_table" : "/Users/IEO5505/Desktop/example_perturb/meta/spikeins_table.csv",
+    "bulk_gbc_indir" : "None",
+    "bulk_gbc_outdir" :  "None",
 
     "sc_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_gbc/",
     "sc_tenx_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_tenx/",
     "sc_maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_maester/",
-    "sc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/sc/",
+    "sc_outdir" : "/Users/IEO5505/Desktop/example_mito/results/sc",
 
     "ref" : "/Users/IEO5505/Desktop/example_mito/meta/ref",
     "whitelist" : "/Users/IEO5505/Desktop/example_mito/meta/whitelist.txt",
 
-    "gbc_sample_map" : "/Users/IEO5505/Desktop/example_mito/meta/sample_map.csv",
-    "sc_gbc_anchor_sequence" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
-    "sc_gbc_anchor_treshold" : 3,
-    "bulk_correction_treshold" : 3,
-    "sc_correction_treshold" : 3,
-    "umi_filtering_method" : "fixed",
-    "coverage_treshold" : 20,
-    "correction_type" : "reference-free",
-    "umi_treshold" : 5,
-    "p_treshold" : 0.5,
-    "max_ratio_treshold" : 0.8,
-    "normalized_abundance_treshold" : 0.7,
-    "sample_params" : "/Users/IEO5505/Desktop/example_mito/meta/sample_params.csv",
+    "fgbio_UMI_consensus_mode" : "Identity",
+    "fgbio_UMI_consensus_edits" : 0,
+    "fgbio_min_reads" : 10,
+    "fgbio_base_quality" : 30,
+    "fgbio_base_error_rate" : 0.2,
 
-    "maester_code_dir" : "/maegatk/maegatk",
-    "maester_min_reads" : 3,
-    "min_base_qual" : 30,
-    "min_alignment_quality" : 3
+    "gbc_sample_map" : "None",
+    "sc_gbc_anchor_sequence" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
+    "bulk_correction_treshold" : 3,
+    "umi_treshold" : 5,
+    "p_treshold" : 1,
+    "max_ratio_treshold" : 0.75,
+    "normalized_abundance_treshold" : 0.75,
+    "sample_params" : "NULL"
 
 }

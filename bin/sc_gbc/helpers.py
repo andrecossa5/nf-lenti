@@ -225,16 +225,10 @@ def cell_assignment_workflow(
     sc_df = read_data(path_sc, sample=sample)
 
     # Optional: correction with bulk reference
-    if path_sample_map is not None and path_bulk is not None:
-        print('############################')
-        print('there is pathbulk and sample')
-        print('############################')
+    if os.path.exists(path_sample_map) and os.path.exists(path_bulk):
 
-        if os.path.exists(path_bulk):
-            bulk = pd.read_csv(os.path.join(path_bulk, 'summary', 'bulk_GBC_reference.csv'), index_col=0)
-            sample_map = pd.read_csv(path_sample_map, index_col=0)
-        else:
-            raise ValueError('Specify a valid bulk and sample_map path!')
+        bulk = pd.read_csv(os.path.join(path_bulk, 'summary', 'bulk_GBC_reference.csv'), index_col=0)
+        sample_map = pd.read_csv(path_sample_map, index_col=0)
         
         if sample in sample_map.index:
             ref = sample_map.loc[sample, 'reference']
