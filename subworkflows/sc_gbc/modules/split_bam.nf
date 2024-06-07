@@ -19,7 +19,7 @@ process SPLIT_BAM {
     """
     mkdir output 
     cd output
-    samtools split -M -1 -u unrecognized.bam -d CB -f '%!.bam' ../${bam}
+    samtools split -M -1 -@ ${task.ncpus} -u unrecognized.bam -d CB -f '%!.bam' ../${bam}
     """
 
     stub:
