@@ -26,7 +26,7 @@ process CONSENSUS_BAM {
       --ref ${params.ref}/cassette_up.fa  \
       --tags-to-reverse Consensus \
       --tags-to-revcomp Consensus \
-      --output ${cell_folder}_consensus_mapped.bam 
+      --output ${cell}_consensus_mapped.bam 
 
   fgbio -Xmx8g --compression 0 FilterConsensusReads \
     --input ${cell}_consensus_mapped.bam \
