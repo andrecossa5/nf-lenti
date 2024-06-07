@@ -225,8 +225,9 @@ def cell_assignment_workflow(
     sc_df = read_data(path_sc, sample=sample)
 
     # Optional: correction with bulk reference
-    if os.path.exists(path_sample_map) and os.path.exists(path_bulk):
-
+    bulk_correction = True if os.path.exists(path_sample_map) and os.path.exists(path_bulk) else False
+    
+    if bulk_correction:
         bulk = pd.read_csv(os.path.join(path_bulk, 'summary', 'bulk_GBC_reference.csv'), index_col=0)
         sample_map = pd.read_csv(path_sample_map, index_col=0)
         
@@ -263,7 +264,7 @@ def cell_assignment_workflow(
 
     # General checks
     f.write(f'# General checks \n')
-    if path_sample_map is not None and path_bulk is not None:
+    if bulk_correction:
         f.write(f'- Unique, "good" GBCs, post correction (with bulk reference whitelist): {df_combos["GBC"].unique().size}\n')
     else:
         f.write(f'- Unique, "good" GBCs: {df_combos["GBC"].unique().size}\n')
@@ -273,8 +274,7 @@ def cell_assignment_workflow(
     f.write(f'\n')
 
     # Relationship with bulk (GBC sequences) checks
-    if path_sample_map is not None and path_bulk is not None:
-
+    if bulk_correction:
         pseudobulk_sc = M.sum(axis=0) / M.sum(axis=0).sum()
         common = list(set(pseudobulk_sc.index) & set(bulk_df.index))
         if len(common)>0:
