@@ -22,7 +22,8 @@ process SPLIT_BAM {
     #python ${baseDir}/bin/sc_gbc/split_bam.py ${bam} ${filtered}/barcodes.tsv.gz
     mkdir output 
     cd output
-    samtools split -u unrecognized.bam -d CB -f '%!CB.bam' ../${bam}
+    python ${baseDir}/bin/sc_gbc/filter_lentibam ${bam} filtered_${bam} ${filtered}/barcodes.tsv.gz
+    samtools split -u unrecognized.bam -d CB -f '%!.bam' ../filtered_${bam}
     """
 
     stub:
