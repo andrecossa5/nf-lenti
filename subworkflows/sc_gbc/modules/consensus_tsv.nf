@@ -17,12 +17,11 @@ process CONSENSUS_TSV {
   script:
   """
   python ${baseDir}/bin/sc_gbc/consensus_tsv.py ${consensus_filtered_bam} ${cell}
-  echo 'consensus'
   """
 
   stub:
   """
-  touch "${cell}_consensus.tsv"
+  touch "${cell}_consensus_filtered.tsv"
   """
 
 }

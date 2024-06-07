@@ -12,17 +12,18 @@ process SPLIT_BAM {
     tuple val(sample_name), path(bam), path(index)
 
     output:
-    tuple val(sample_name), path('./*.bam'), emit: cell_bams
+    tuple val(sample_name), path('*.bam'), emit: cell_bams
 
     script:
     """
-    samtools split -M -1 -@ ${task.ncpus} -d CB -f '%!.bam' ../${bam}
+    samtools split -M -1 -@ ${task.ncpus} -d CB -f '%!.bam' ${bam}
     rm *lentibam.*
     """
 
     stub:
     """
     touch AAAA.bam BBBB.bam
+    rm *lentibam.*
     """
 
 }

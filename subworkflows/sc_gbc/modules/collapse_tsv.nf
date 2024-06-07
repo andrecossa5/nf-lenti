@@ -28,7 +28,7 @@ process COLLAPSE_TSV {
 
     stub:
     """
-    touch GBC_read_elements.tsv.gz
+    touch cells.tsv.gz
     """
  
 }
