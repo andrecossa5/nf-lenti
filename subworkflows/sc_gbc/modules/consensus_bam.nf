@@ -21,14 +21,14 @@ process CONSENSUS_BAM {
   	--input ${bam} \
   	--strategy ${params.fgbio_UMI_consensus_mode} \
   	--edits ${params.fgbio_UMI_consensus_edits} \
-  	--output ${cell}_grouped.bam  \
+  	--output ${cell}_grouped.bam \
   	-t UB \
   	-T MI
 
-  fgbio -Xmx4g --compression 1 CallMolecularConsensusReads \  
-    --input ${cell}_grouped.bam \ 
-    --output ${cell}_consensus_unmapped.bam \  
-    --min-reads ${params.fgbio_min_reads} \  
+  fgbio -Xmx4g --compression 1 CallMolecularConsensusReads \
+    --input ${cell}_grouped.bam \
+    --output ${cell}_consensus_unmapped.bam \
+    --min-reads ${params.fgbio_min_reads} \
     --min-input-base-quality ${params.fgbio_base_quality} 
 
   samtools fastq ${cell}_consensus_unmapped.bam \
