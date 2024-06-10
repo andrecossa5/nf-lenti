@@ -17,6 +17,8 @@ process CONSENSUS_BAM {
   script:
   """
 
+#!/bin/bash -ue
+
 fgbio -Xmx8g --compression 1 --async-io GroupReadsByUmi \
   --input ${bam} \
   --strategy ${params.fgbio_UMI_consensus_mode} \
@@ -37,6 +39,7 @@ fgbio -Xmx8g --compression 1 --async-io GroupReadsByUmi \
     --tags-to-reverse Consensus \
     --tags-to-revcomp Consensus \
     --output /dev/stdout \
+| samtools sort -n -u - \
 | fgbio -Xmx8g --compression 0 FilterConsensusReads \
   --input /dev/stdin \
   --output /dev/stdout \
@@ -45,7 +48,6 @@ fgbio -Xmx8g --compression 1 --async-io GroupReadsByUmi \
   --min-base-quality ${params.fgbio_base_quality} \
   --max-base-error-rate ${params.fgbio_base_error_rate} \
 | samtools sort -@ 1 -o ${cell}_consensus_filtered_mapped.bam --write-index
-
 
   """
 
