@@ -62,7 +62,9 @@ workflow tenx {
         publish_tenx(publish_input)
 
     emit:
+    
         filtered = SOLO.out.filtered
+        bam = SOLO.out.bam
 
 }
 
