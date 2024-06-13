@@ -17,13 +17,13 @@ process SPLIT_BAM {
     script:
     """
     samtools split -M -1 -@ ${task.ncpus} -d CB -f '%!.bam' ${bam}
-    rm *lentibam.*
+    rm -f *lentibam.* *mitobam.*
     """
 
     stub:
     """
     touch AAAA.bam BBBB.bam
-    rm *lentibam.*
+    rm -f *lentibam.* *mitobam.*
     """
 
 }

@@ -43,7 +43,7 @@ workflow sc_gbc {
                     def cell = path_splitted[-1].toString().split('\\.')[0]
                     return [sample, cell, cell_path]
                 }
-            }
+            } 
             .flatMap { it } 
         CONSENSUS_BAM(ch_cell_bams)
 

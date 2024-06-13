@@ -9,19 +9,19 @@ process FIX_TAGS {
   tag "${sample_name}"
 
   input:
-  tuple val(sample_name), path(mitobam_no_UB_CB)
+  tuple val(sample_name), path(bam)
 
   output:
-  tuple val(sample_name), path("mitobam_fixed.bam"), emit: mitobam
+  tuple val(sample_name), path("mitobam_fixed_tags.bam"), emit: bam
 
   script:
   """
-  python ${baseDir}/bin/maester/fix_tags.py ${mitobam_no_UB_CB}
+  python ${baseDir}/bin/maester/fix_tags.py ${bam}
   """
 
   stub:
   """
-  touch mitobam_fixed.bam
+  touch mitobam_fixed_tags.bam
   """
 
 }
