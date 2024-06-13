@@ -22,3 +22,6 @@ def main():
     # Close
     input_bam.close()
     output_bam.close()
+
+if __name__ == '__main__':
+    main()
