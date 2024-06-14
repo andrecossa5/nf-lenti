@@ -63,9 +63,9 @@ workflow maester {
         MERGE_R2(ch_input)
         ASSEMBLE_FQ(MERGE_R1.out.R1.combine(MERGE_R2.out.R2, by:0))
         STAR(ASSEMBLE_FQ.out.fq)
-        FILTER_10X_BAM(not_enriched_bam)
         FILTER_MAESTER_BAM(STAR.out.bam)
         FIX_TAGS(FILTER_MAESTER_BAM.out.bam)
+        FILTER_10X_BAM(not_enriched_bam)
         MERGE_BAM(FILTER_10X_BAM.out.bam.combine(FIX_TAGS.out.bam, by:0))
 
         // Filter reads from good cells only, split into multiple bams and make consensus reads
@@ -80,9 +80,9 @@ workflow maester {
                     def cell = path_splitted[-1].toString().split('\\.')[0]
                     return [sample, cell, cell_path]
                 }
-            } 
+            }  
             .flatMap { it } 
-        CONSENSUS_BAM(ch_cell_bams)
+        CONSENSUS_BAM(ch_cell_bams, params.min_reads_maester)
 
         // Create and aggregate cells allelic tables
         // ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam)

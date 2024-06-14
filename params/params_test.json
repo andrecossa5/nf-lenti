@@ -13,7 +13,8 @@
 
     "fgbio_UMI_consensus_mode" : "Adjacency",
     "fgbio_UMI_consensus_edits" : 1,
-    "fgbio_min_reads" : 10,
+    "fgbio_min_reads_gbc" : 10,
+    "fgbio_min_reads_maester" : 3,
     "fgbio_base_quality" : 30,
     "fgbio_base_error_rate" : 0.2,
 

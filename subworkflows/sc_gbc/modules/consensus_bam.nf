@@ -10,6 +10,7 @@ process CONSENSUS_BAM {
 
   input:
   tuple val(sample_name), val(cell), path(bam)
+  val(min_reads)
 
   output:
   tuple val(sample_name), val(cell), path("${cell}_consensus_filtered_mapped.bam"), emit: consensus_filtered_bam
@@ -28,7 +29,7 @@ process CONSENSUS_BAM {
   fgbio -Xmx4g --compression 1 CallMolecularConsensusReads \
     --input grouped.bam \
     --output cons_unmapped.bam \
-    --min-reads ${params.fgbio_min_reads} \
+    --min-reads ${min_reads} \
     --min-input-base-quality ${params.fgbio_base_quality}
 
   samtools fastq cons_unmapped.bam \
@@ -44,7 +45,7 @@ process CONSENSUS_BAM {
     --input cons_mapped.bam \
     --output /dev/stdout \
     --ref ${params.ref}/cassette_up.fa \
-    --min-reads ${params.fgbio_min_reads} \
+    --min-reads ${min_reads} \
     --min-base-quality ${params.fgbio_base_quality} \
     --max-base-error-rate ${params.fgbio_base_error_rate} \
     | samtools sort -@ 1 -o "${cell}_consensus_filtered_mapped.bam" --write-index

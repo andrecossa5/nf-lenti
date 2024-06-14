@@ -45,7 +45,7 @@ workflow sc_gbc {
                 }
             } 
             .flatMap { it } 
-        CONSENSUS_BAM(ch_cell_bams)
+        CONSENSUS_BAM(ch_cell_bams, params.min_reads_gbc)
 
         // Cell assignment
         CONSENSUS_TSV(CONSENSUS_BAM.out.consensus_filtered_bam)
