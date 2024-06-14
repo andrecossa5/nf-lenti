@@ -7,6 +7,7 @@ include { MERGE_R2 } from "../maester/modules/merge_R2.nf"
 include { SOLO } from "./modules/Solo.nf"
 include { FILTER_LENTIBAM } from "./modules/filter_lentibam.nf"
 include { SPLIT_BAM } from "./modules/split_bam.nf"
+include { EXTRACT_FASTA } from "./modules/extract_fasta.nf"
 include { CONSENSUS_BAM } from "./modules/consensus_bam.nf"
 include { CONSENSUS_TSV } from "./modules/consensus_tsv.nf"
 include { COLLAPSE_TSV } from "./modules/collapse_tsv.nf"
@@ -45,7 +46,8 @@ workflow sc_gbc {
                 }
             } 
             .flatMap { it } 
-        CONSENSUS_BAM(ch_cell_bams, params.min_reads_gbc)
+        EXTRACT_FASTA(params.string_lentiviral)
+        CONSENSUS_BAM(ch_cell_bams, params.min_reads_maester, EXTRACT_FASTA.out.fasta)
 
         // Cell assignment
         CONSENSUS_TSV(CONSENSUS_BAM.out.consensus_filtered_bam)
@@ -64,7 +66,7 @@ workflow sc_gbc {
         generate_run_summary_sc(summary_input)
 
         // Publishing
-        publish_ch = CELL_ASSIGNMENT.out.CBC_GBC_combos
+        publish_ch = CELL_ASSIGNMENT.out.CBC_GBC_combos 
             .combine(CELL_ASSIGNMENT.out.combo_plot, by:0)
             .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
             .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)

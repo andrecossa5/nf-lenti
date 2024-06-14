@@ -12,6 +12,7 @@ include { FIX_TAGS } from "./modules/fix_tags.nf"
 include { MERGE_BAM } from "./modules/merge_bams.nf"
 include { FILTER_MITOBAM } from "./modules/filter_mitobam.nf"
 include { SPLIT_BAM } from "../sc_gbc/modules/split_bam.nf"
+include { EXTRACT_FASTA } from "../sc_gbc/modules/extract_fasta.nf"
 include { CONSENSUS_BAM } from "../sc_gbc/modules/consensus_bam.nf"
 // include { ALLELIC_TABLES } from "./modules/allelic_tables.nf"
 // include { GATHER_TABLES } from "./modules/gather_tables.nf"
@@ -81,14 +82,15 @@ workflow maester {
                     return [sample, cell, cell_path]
                 }
             }  
-            .flatMap { it } 
-        CONSENSUS_BAM(ch_cell_bams, params.min_reads_maester)
+            .flatMap { it }  
+        EXTRACT_FASTA(params.string_MT)
+        CONSENSUS_BAM(ch_cell_bams, params.min_reads_maester, EXTRACT_FASTA.out.fasta)
 
         // Create and aggregate cells allelic tables
-        // ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam)
+        // ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam, EXTRACT_FASTA.out.fasta)
         // GATHER_TABLES(ALLELIC_TABLES.out.tables)
 
-        // TO_H5AD(MAEGATK.out.output)
+        // TO_H5AD(GATHER_TABLES.out.output)
         // 
         // // Publish
         // publish_input = MERGE_BAM.out.bam

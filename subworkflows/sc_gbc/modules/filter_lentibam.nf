@@ -17,7 +17,7 @@ process FILTER_LENTIBAM {
     script:
     """
     samtools index -@ ${task.cpus} ${bam}
-    samtools view ${bam} -b -@ ${task.cpus} lentiCassette > lentibam.bam
+    samtools view ${bam} -b -@ ${task.cpus} ${params.string_lentiviral} > lentibam.bam
     samtools index -@ ${task.cpus} lentibam.bam
     python ${baseDir}/bin/sc_gbc/filter_lentibam.py ${filtered}/barcodes.tsv.gz
     samtools index -@ ${task.cpus} filtered_lentibam.bam

@@ -9,6 +9,8 @@
     "sc_outdir" : "/hpcnfs/scratch/PGP/cossa_campani/preprocessing/pp/results",
 
     "ref" : "/hpcnfs/data/PGP/reference_genomes/custom/GBC_masked_index",
+    "string_lentiviral" : "lentiCassette",
+    "string_MT" : "chrM",
     "whitelist" : "/hpcnfs/data/PGP/reference_genomes/custom/10x_whitelists/v3.txt",
 
     "fgbio_UMI_consensus_mode" : "Adjacency",
