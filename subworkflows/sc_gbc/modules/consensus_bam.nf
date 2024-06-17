@@ -18,7 +18,9 @@ process CONSENSUS_BAM {
 
   script:
   """
-  
+  samtools faidx /hpcnfs/data/PGP/reference_genomes/custom/GBC_masked_index/cassette_up.fa
+  samtools dict /hpcnfs/data/PGP/reference_genomes/custom/GBC_masked_index/cassette_up.fa > /hpcnfs/data/PGP/reference_genomes/custom/GBC_masked_index/cassette_up.dict
+
   fgbio -Xmx8g --compression 1 --async-io GroupReadsByUmi \
 	  --input ${bam} \
     --strategy ${params.fgbio_UMI_consensus_mode} \

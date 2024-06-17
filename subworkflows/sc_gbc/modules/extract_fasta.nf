@@ -17,6 +17,9 @@ process EXTRACT_FASTA {
     echo ">${pattern}" > name.txt
     sed -n '/^>${pattern}/,/^>/ { /^>/! p }' ${params.ref}/*.fa > fasta.fa
     cat name.txt fasta.fa > ${pattern}.fa
+    samtools faidx ${pattern}.fa
+    samtools dict ${pattern}.fa > ${pattern}.dict
+
     """
 
     stub:
