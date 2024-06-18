@@ -84,7 +84,7 @@ workflow maester {
             }  
             .flatMap { it }  
         EXTRACT_FASTA(params.string_MT)
-        CONSENSUS_BAM(ch_cell_bams, params.min_reads_maester, EXTRACT_FASTA.out.fasta)
+        CONSENSUS_BAM(ch_cell_bams, params.fgbio_min_reads_maester, EXTRACT_FASTA.out.fasta)
 
         // Create and aggregate cells allelic tables
         // ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam, EXTRACT_FASTA.out.fasta)
