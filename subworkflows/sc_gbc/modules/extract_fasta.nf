@@ -19,7 +19,8 @@ process EXTRACT_FASTA {
     cat name.txt fasta.fa > ${pattern}.fa
     samtools faidx ${pattern}.fa
     samtools dict ${pattern}.fa > ${pattern}.dict
-
+    bwa index  ${pattern}.fa
+    #creare cartella bwa qualcosa mv i tre file e fai uscire la cartella essere 
     """
 
     stub:
