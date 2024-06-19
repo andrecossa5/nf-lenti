@@ -83,9 +83,16 @@ workflow maester {
                 }
             }  
             .flatMap { it }  
+        // Extract FASTA sequences
         EXTRACT_FASTA(params.string_MT)
-        CONSENSUS_BAM(ch_cell_bams, params.fgbio_min_reads_maester, EXTRACT_FASTA.out.fasta)
-
+        
+        // Combine channels into a single channel
+        ch_combined_input = ch_cell_bams.map { sample, cell, cell_path -> 
+            tuple(sample, cell, cell_path, params.fgbio_min_reads_maester, EXTRACT_FASTA.out.fasta[0], EXTRACT_FASTA.out.fasta[1], EXTRACT_FASTA.out.fasta[2], EXTRACT_FASTA.out.fasta[3], EXTRACT_FASTA.out.fasta[4], EXTRACT_FASTA.out.fasta[5], EXTRACT_FASTA.out.fasta[6])
+        }
+        
+        // Consensus BAM
+        CONSENSUS_BAM(ch_combined_input)
         // Create and aggregate cells allelic tables
         // ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam, EXTRACT_FASTA.out.fasta)
         // GATHER_TABLES(ALLELIC_TABLES.out.tables)

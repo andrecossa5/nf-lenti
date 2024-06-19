@@ -19,7 +19,7 @@ process EXTRACT_FASTA {
           path("${pattern}.fa.pac"),  
           path("${pattern}.fa.sa"), 
           emit: fasta
-          
+
     script:
     """
     echo ">${pattern}" > name.txt
@@ -33,7 +33,15 @@ process EXTRACT_FASTA {
 
     stub:
     """
-    touch "${pattern}.fa"
+    touch "${pattern}.fa" ,
+    touch "${pattern}.dict",  
+    touch "${pattern}.fa.amb",  
+    touch "${pattern}.fa.ann",  
+    touch "${pattern}.fa.bwt",  
+    touch "${pattern}.fa.fai",  
+    touch "${pattern}.fa.pac",  
+    touch "${pattern}.fa.sa" 
+    
     """
 
 } 
