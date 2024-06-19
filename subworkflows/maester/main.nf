@@ -15,7 +15,7 @@ include { SPLIT_BAM } from "../sc_gbc/modules/split_bam.nf"
 include { EXTRACT_FASTA } from "../sc_gbc/modules/extract_fasta.nf"
 include { CONSENSUS_BAM } from "../sc_gbc/modules/consensus_bam.nf"
 include { ALLELIC_TABLES } from "./modules/allelic_tables.nf"
-// include { GATHER_TABLES } from "./modules/gather_tables.nf"
+include { GATHER_TABLES } from "./modules/gather_tables.nf"
 // include { TO_H5AD } from "./modules/to_h5ad.nf"
 
 // 
@@ -88,7 +88,7 @@ workflow maester {
 
         // Create and aggregate cells allelic tables
         ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam)
-        // GATHER_TABLES(ALLELIC_TABLES.out.tables)
+        GATHER_TABLES(ALLELIC_TABLES.out.allelic_tables)
 
         // TO_H5AD(GATHER_TABLES.out.output)
         // 
@@ -99,7 +99,7 @@ workflow maester {
         // publish_maester(publish_input)
 
     emit:
-        afm = ALLELIC_TABLES.out.allelic_tables
+        afm = GATHER_TABLES.out.elements_coverage
 
 }
 
