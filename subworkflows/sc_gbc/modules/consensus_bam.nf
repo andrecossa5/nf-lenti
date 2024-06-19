@@ -14,13 +14,13 @@ process CONSENSUS_BAM {
         path(bam),
         val(min_reads),
         path(ref), 
-        path(ref.dict),  
-        path(ref.fa.amb),  
-        path(ref.fa.ann),  
-        path(ref.fa.bwt),  
-        path(ref.fa.fai),  
-        path(ref.fa.pac),  
-        path(ref.fa.sa)
+        path(ref_dict),  
+        path(ref_fa_amb),  
+        path(ref_fa_ann),  
+        path(ref_fa_bwt),  
+        path(ref_fa_fai),  
+        path(ref_fa_pac),  
+        path(ref_fa_sa)
 
   output:
   tuple val(sample_name), val(cell), path("${cell}_consensus_filtered_mapped.bam"), emit: consensus_filtered_bam
