@@ -15,7 +15,7 @@ include { SPLIT_BAM } from "../sc_gbc/modules/split_bam.nf"
 include { EXTRACT_FASTA } from "../sc_gbc/modules/extract_fasta.nf"
 include { CONSENSUS_BAM } from "../sc_gbc/modules/consensus_bam.nf"
 include { ALLELIC_TABLES } from "./modules/allelic_tables.nf"
-include { GATHER_TABLES } from "./modules/gather_tables.nf"
+include { GATHER_TABLES } from "./modules/gather_allelic_tables.nf"
 // include { TO_H5AD } from "./modules/to_h5ad.nf"
 
 // 
