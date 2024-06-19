@@ -18,8 +18,6 @@ process GATHER_TABLES {
 
     script:
     """
-    files=(${files[@]})
-
     for ext in "T" "G" "A" "C" "coverage"; do
         touch "${ext}_cells.txt"
     done
