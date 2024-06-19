@@ -23,8 +23,7 @@ process GATHER_TABLES {
     for ext in T G A C coverage; do
     touch "\${ext}_cells.txt"
     done
-
-    files=(${files[@]})
+    files=(${files})
 
     """
 
