@@ -32,7 +32,12 @@ process ALLELIC_TABLES {
 
   stub:
   """
-  touch 
+  touch ${cell}.A.txt"
+  touch ${cell}.C.txt"
+  touch ${cell}.T.txt"
+  touch ${cell}.G.txt"
+  touch ${cell}.coverage.txt"
+
   """
 
 }

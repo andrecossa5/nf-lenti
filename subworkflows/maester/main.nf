@@ -88,7 +88,11 @@ workflow maester {
 
         // Create and aggregate cells allelic tables
         ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam)
-        GATHER_TABLES(ALLELIC_TABLES.out.allelic_tables)
+        ch_collapse = ALLELIC_TABLES.out.allelic_tables
+            .map { it -> tuple(it[0], it[2], it[3], it[4], it[5], it[6]) }
+            .groupTuple(by: 0)
+
+        GATHER_TABLES(ch_collapse)
 
         // TO_H5AD(GATHER_TABLES.out.output)
         // 
