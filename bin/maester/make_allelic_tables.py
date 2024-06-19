@@ -27,15 +27,34 @@ my_parser = argparse.ArgumentParser(
     """
 )
 
-# Input
-# my_parser.add_argument(
-#     '--sample', 
-#     type=str,
-#     default=None,
-#     help='Sample name. Default: None.'
-# )
+#Input
+my_parser.add_argument(
+    '--input_bam', 
+    type=str,
+    default=None,
+    help='path of the consensus bam'
+)
 
+my_parser.add_argument(
+    '--cell', 
+    type=str,
+    default=None,
+    help='Name of the cell'
+)
 
+my_parser.add_argument(
+    '--min_base_qual', 
+    type=int,
+    default=None,
+    help='min base quality of the cell'
+)
+
+my_parser.add_argument(
+    '--min_alignment_quality', 
+    type=int,
+    default=None,
+    help='min mapping quality of the consesus read to the reference'
+)
 
 
 ##
