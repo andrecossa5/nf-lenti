@@ -11,9 +11,9 @@ process CONSENSUS_BAM {
   input:
   tuple val(sample_name), 
         val(cell), 
-        path(bam),
-        val(min_reads),
-        path(ref), 
+        path(bam)
+  val(min_reads)
+  tuple path(ref), 
         path(ref_dict),  
         path(ref_fa_amb),  
         path(ref_fa_ann),  
