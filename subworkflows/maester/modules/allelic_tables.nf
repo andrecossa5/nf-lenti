@@ -10,7 +10,6 @@ process ALLELIC_TABLES {
 
   input:
   tuple val(sample_name), val(cell), path(bam)
-  path(fasta_MT)
 
   output:
   tuple val(sample_name), 
@@ -26,9 +25,9 @@ process ALLELIC_TABLES {
   python ${baseDir}/bin/maester/make_allelic_tables.py \
   --input_bam ${bam} \
   --cell ${cell} \
-  --fasta_MT ${fasta_MT} \
   --min_base_qual ${params.fgbio_base_quality} \
   --min_alignment_quality ${params.min_alignment_quality}
+
   """
 
   stub:

@@ -87,7 +87,7 @@ workflow maester {
         CONSENSUS_BAM(ch_cell_bams, params.fgbio_min_reads_maester, EXTRACT_FASTA.out.fasta)
 
         // Create and aggregate cells allelic tables
-        // ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam, EXTRACT_FASTA.out.fasta)
+        ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam)
         // GATHER_TABLES(ALLELIC_TABLES.out.tables)
 
         // TO_H5AD(GATHER_TABLES.out.output)
@@ -99,7 +99,7 @@ workflow maester {
         // publish_maester(publish_input)
 
     emit:
-        afm = CONSENSUS_BAM.out.consensus_filtered_bam
+        afm = ALLELIC_TABLES.out.allelic_tables
 
 }
 

@@ -20,6 +20,9 @@
     "fgbio_base_quality" : 30,
     "fgbio_base_error_rate" : 0.2,
 
+    
+    "min_alignment_quality" : 30,
+
     "gbc_sample_map" : "/hpcnfs/scratch/PGP/cossa_campani/preprocessing/sample_map.csv",
     "sc_gbc_anchor_sequence" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
     "bulk_correction_treshold" : 3,

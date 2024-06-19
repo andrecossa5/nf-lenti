@@ -43,27 +43,26 @@ my_parser = argparse.ArgumentParser(
 
 # Parse arguments
 args = my_parser.parse_args()
-input_bam = args.input_bam
+bamfile = args.input_bam
 cell = args.cell
-fasta_MT = args.fasta_MT
-min_base_qual = args.min_base_qual
-min_alignment_quality = args.min_alignment_quality
+base_qual = args.min_base_qual
+alignment_quality = args.min_alignment_quality
 
 
 ##
-
-cell = 'TCCATCGAGAATAACC'
-bamfile = '/Users/ieo6943/Desktop/bam_file_maester/TCCATCGAGAATAACC_consensus_filtered_mapped.bam'
-outpre = f'/Users/ieo6943/Documents/Guido/scratch/Lareu/{cell}'
-
-outputdepth = f'/Users/ieo6943/Documents/Guido/scratch/Lareu/{cell}.depth.txt'
-
-#mito_genome = '/Users/ieo6943/Documents/Guido/scratch/ref/new_genome_masked.fa'
+outpre = cell
+outputdepth = f'{cell}.depth.txt'
+sample = cell
 maxBP = 16569
 base_qual = 30
-sample = cell
-#fasta_file = sys.argv[7]
-alignment_quality = float(30)
+#cell = 'TCCATCGAGAATAACC'
+#bamfile = '/Users/ieo6943/Desktop/bam_file_maester/TCCATCGAGAATAACC_consensus_filtered_mapped.bam'
+#outpre = f'/Users/ieo6943/Documents/Guido/scratch/Lareu/{cell}'
+
+#outputdepth = f'/Users/ieo6943/Documents/Guido/scratch/Lareu/{cell}.depth.txt'
+
+#mito_genome = '/Users/ieo6943/Documents/Guido/scratch/ref/new_genome_masked.fa'
+#alignment_quality = float(30)
 
 
 ##
