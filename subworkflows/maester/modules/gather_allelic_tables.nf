@@ -18,7 +18,7 @@ process GATHER_TABLES {
 
     script:
     """
-    for ext in "T" "G" "A" "C" "coverage"; do
+    for ext in T G A C coverage; do
         touch "${ext}_cells.txt"
     done
     """
