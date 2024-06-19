@@ -3,7 +3,6 @@
 nextflow.enable.dsl = 2
 
 process GATHER_ALLELIC_TABLES {
-
     tag "${sample}"
 
     input:
