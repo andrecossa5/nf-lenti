@@ -38,6 +38,11 @@ process GATHER_TABLES {
         fi
     done
 
+    for ext in T G A C coverage; do
+    sed 's/,/\t/g' \${ext}_cells.txt > \${ext}_allelic_tables_cell.tsv
+    gzip --fast \${ext}_allelic_tables_cell.tsv
+    done
+
     """
 
     stub:
