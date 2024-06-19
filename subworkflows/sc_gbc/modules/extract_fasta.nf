@@ -10,7 +10,7 @@ process EXTRACT_FASTA {
     val(pattern)
     
     output:
-    path("${pattern}.fa"), emit: fasta
+    tuple path("${pattern}.fa"), path("${pattern}.dict"),  path("${pattern}.fa.amb"),  path("${pattern}.fa.ann"),  path("${pattern}.fa.bwt"),  path("${pattern}.fa.fai"),  path("${pattern}.fa.pac"),  path("${pattern}.fa.sa"), emit: fasta
 
     script:
     """

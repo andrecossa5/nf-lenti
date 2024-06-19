@@ -11,7 +11,7 @@ process CONSENSUS_BAM {
   input:
   tuple val(sample_name), val(cell), path(bam)
   val(min_reads)
-  path(ref)
+  tuple path(ref), path(ref.dict),  path(ref.fa.amb),  path(ref.fa.ann),  path(ref.fa.bwt),  path(ref.fa.fai),  path(ref.fa.pac),  path(ref.fa.sa)
 
   output:
   tuple val(sample_name), val(cell), path("${cell}_consensus_filtered_mapped.bam"), emit: consensus_filtered_bam
