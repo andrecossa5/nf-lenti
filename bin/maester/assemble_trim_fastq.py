@@ -9,7 +9,7 @@ R1 = sys.argv[1]
 R2 = sys.argv[2]
 cpus = sys.argv[3]
 
-def main():
+def main(R1, R2, cpus):
 
     cpus = math.floor(float(cpus))
     with dnaio.open(R1, R2, mode='r', open_threads=cpus) as reader, \
@@ -24,6 +24,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(R1, R2, cpus)
 
     
