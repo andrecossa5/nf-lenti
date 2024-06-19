@@ -18,8 +18,9 @@ process GATHER_TABLES {
 
     script:
     """
+    #!/bin/bash
     for ext in T G A C coverage; do
-        touch "${ext}_cells.txt"
+    touch "\${ext}_cells.txt"
     done
     """
 
