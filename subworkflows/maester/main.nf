@@ -103,7 +103,7 @@ workflow maester {
         // publish_maester(publish_input)
 
     emit:
-        afm = GATHER_TABLES.out.elements_coverage
+        afm = GATHER_TABLES.out.elements_T
 
 }
 
