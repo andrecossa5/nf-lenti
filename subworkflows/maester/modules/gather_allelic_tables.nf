@@ -10,11 +10,19 @@ process GATHER_TABLES {
     tuple val(sample), path(files)
 
     output:
-    tuple val(sample), path("T_allelic_tables_cell.tsv.gz"), emit: elements_T
-    tuple val(sample), path("G_allelic_tables_cell.tsv.gz"), emit: elements_G
-    tuple val(sample), path("A_allelic_tables_cell.tsv.gz"), emit: elements_A
-    tuple val(sample), path("C_allelic_tables_cell.tsv.gz"), emit: elements_C
-    tuple val(sample), path("coverage_allelic_tables_cell.tsv.gz"), emit: elements_coverage
+    \\tuple val(sample), path("T_allelic_tables_cell.tsv.gz"), emit: elements_T
+    \\tuple val(sample), path("G_allelic_tables_cell.tsv.gz"), emit: elements_G
+    \\tuple val(sample), path("A_allelic_tables_cell.tsv.gz"), emit: elements_A
+    \\tuple val(sample), path("C_allelic_tables_cell.tsv.gz"), emit: elements_C
+    \\tuple val(sample), path("coverage_allelic_tables_cell.tsv.gz"), emit: elements_coverage
+
+    tuple val(sample), 
+          path("T_allelic_tables_cell.tsv.gz"), 
+          path("G_allelic_tables_cell.tsv.gz"),
+          path("A_allelic_tables_cell.tsv.gz"), 
+          path("C_allelic_tables_cell.tsv.gz"),
+          path("coverage_allelic_tables_cell.tsv.gz"), 
+          emit: tables
 
     script:
     """

@@ -94,7 +94,7 @@ workflow maester {
 
         GATHER_TABLES(ch_collapse)
 
-        // TO_H5AD(GATHER_TABLES.out.output)
+        TO_H5AD(GATHER_TABLES.out.tables,EXTRACT_FASTA.out.ref_txt)
         // 
         // // Publish
         // publish_input = MERGE_BAM.out.bam
@@ -103,7 +103,7 @@ workflow maester {
         // publish_maester(publish_input)
 
     emit:
-        afm = GATHER_TABLES.out.elements_T
+        afm = GATHER_TABLES.out.tables
 
 }
 

@@ -19,6 +19,7 @@ process EXTRACT_FASTA {
           path("${pattern}.fa.pac"),  
           path("${pattern}.fa.sa"), 
           emit: fasta
+    path("${pattern}_refAllele.txt"), emit: ref_txt
 
     script:
     """
@@ -28,7 +29,8 @@ process EXTRACT_FASTA {
     samtools faidx ${pattern}.fa
     samtools dict ${pattern}.fa > ${pattern}.dict
     bwa index  ${pattern}.fa
-    #creare cartella bwa qualcosa mv i tre file e fai uscire la cartella essere 
+
+    samtools faidx ${pattern}.fa $(head -n 1 ${pattern}.fa.fai | cut -f1) | awk 'NR>1' > ${pattern}_refAllele.txt
     """
 
     stub:
@@ -41,6 +43,7 @@ process EXTRACT_FASTA {
     touch "${pattern}.fa.fai",  
     touch "${pattern}.fa.pac",  
     touch "${pattern}.fa.sa" 
+    touch "${pattern}_refAllele.txt"
     
     """
 

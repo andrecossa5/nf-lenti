@@ -7,7 +7,8 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
 from anndata import AnnData
-
+import pysam
+from Bio import SeqIO
 
 ##
 
@@ -16,53 +17,72 @@ def check_files(path_folder):
     """
     Check if all files are present.
     """
-    patterns = ['_refAllele', 'C.txt', 'G.txt', 'A.txt', 'T.txt', 'depthTable', 'coverage']
+    #patterns = ['_refAllele', 'C.txt', 'G.txt', 'A.txt', 'T.txt', 'depthTable', 'coverage']
+    patterns = ['C.txt', 'G.txt', 'A.txt', 'T.txt', 'coverage_cells.txt','chrM_refAllele.txt' ]
     checklist = []
     for x in os.listdir(path_folder):
         checklist.append(any([ bool(re.search(p, x)) for p in patterns ]))
     assert all(checklist)
 
-
 ##
 
 
-def sparse_from_long(df, cells_map, covariate, nrow, ncol):
+def sparse_from_long(cov, cells_map, covariate, nrow, ncol):
     """
     Make a long df a sparse matrix. 
     """
-    df['cell_id'] = df['cell'].map(lambda x: cells_map[x])
-    df = df.loc[:, ['cell_id', 'pos', covariate]]
-    df['pos'] = df['pos']-1 # index is 0-based. Positions are 1.
-    rows, cols, vals = list(zip(*df.values.tolist()))
+    cov['cell_id'] = cov['cell'].map(lambda x: cells_map[x])
+    cov = cov.loc[:, ['cell_id', 'pos', covariate]]
+    cov['pos'] = cov['pos']-1 # index is 0-based. Positions are 1.
+    rows, cols, vals = list(zip(*cov.values.tolist()))
     matrix = csr_matrix((vals, (rows, cols)), shape=(nrow, ncol))
 
     return matrix
 
+sparse_from_long(cov, cells_map, 'cov', nrow, ncol)
 
 ##
 
 
 # Path
 path_folder = sys.argv[1]
+ref = sys[2]
+
+path_folder = '/Users/ieo6943/Documents/Guido/scratch/acf2756f5270e123f7e2a5047c0986'
+fasta_file = '/Users/ieo6943/Documents/Guido/scratch/acf2756f5270e123f7e2a5047c0986/chrM.fa'
+
+records = SeqIO.parse(fasta_file, "fasta")
+record = next(records, None)  # Legge il primo record (potresti adattare a più records se necessario)
+
+if record is None:
+    raise ValueError(f"Nessun record trovato nel file {fasta_file}")
+
+ref = str(record.seq)  # Sequenza di riferimento come stringa
+
+# Creazione del DataFrame con Pandas
+positions = list(range(1, len(ref) + 1))  # Lista delle posizioni dei nucleotidi
+nucleotides = list(ref)  # Lista dei nucleotidi
+
+data = {
+    'pos': positions,
+    'wt_allele': nucleotides
+}
+
+ref_alleles = pd.DataFrame(data)
 
 # Check all files
 check_files(path_folder)
 
 # Load coverage and reference alleles
 cov = pd.read_csv(
-    os.path.join(path_folder, 'maegatk.coverage.txt.gz'),
+    os.path.join(path_folder, 'coverage_cells.txt'),
     header=None, 
     names=['pos', 'cell', 'cov']
 )
 
 cells = cov['cell'].unique()
 cells_map = { c:i for i,c in enumerate(cells) }
-ref_alleles = pd.read_csv(
-    os.path.join(path_folder, 'chrM_refAllele.txt'),
-    sep='\t', 
-    header=None, 
-    names=['pos', 'wt_allele']
-)
+
 
 # Get dimensions, for all matrices
 nrow = cells.size
