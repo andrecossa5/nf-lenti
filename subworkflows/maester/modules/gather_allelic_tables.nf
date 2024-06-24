@@ -21,31 +21,32 @@ process GATHER_TABLES {
     script:
     """
     #!/bin/bash
-
+    
     for ext in T G A C coverage; do
-    touch "${ext}_cells.txt"
+        touch "${ext}_cells.txt"
     done
     files=(${files})
-    for f in "${files}"; do
-        if [[ "$f" =~ \.T\.txt$ ]]; then
+    for f in "${files[@]}"; do  # Ensure you use [@] to correctly iterate over array
+        if [[ "$f" =~ \\.T\\.txt$ ]]; then  # Correct regex escaping for Bash inside Nextflow
             cat "$f" >> T_cells.txt
-        elif [[ "$f" =~ \.G\.txt$ ]]; then
+        elif [[ "$f" =~ \\.G\\.txt$ ]]; then
             cat "$f" >> G_cells.txt
-        elif [[ "$f" =~ \.A\.txt$ ]]; then
+        elif [[ "$f" =~ \\.A\\.txt$ ]]; then
             cat "$f" >> A_cells.txt
-        elif [[ "$f" =~ \.C\.txt$ ]]; then
+        elif [[ "$f" =~ \\.C\\.txt$ ]]; then
             cat "$f" >> C_cells.txt
-        elif [[ "$f" =~ \.coverage\.txt$ ]]; then
+        elif [[ "$f" =~ \\.coverage\\.txt$ ]]; then
             cat "$f" >> coverage_cells.txt
         fi
     done
-
+    
     for ext in T G A C coverage; do
-    sed 's/,/\t/g' \${ext}_cells.txt > \${ext}_allelic_tables_cell.tsv
-    gzip --fast \${ext}_allelic_tables_cell.tsv
+        sed 's/,/\t/g' \${ext}_cells.txt > \${ext}_allelic_tables_cell.tsv
+        gzip --fast \${ext}_allelic_tables_cell.tsv
     done
-
     """
+
+
 
     stub:
     """
