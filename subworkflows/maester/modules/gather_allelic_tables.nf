@@ -27,17 +27,7 @@ process GATHER_TABLES {
     done
     files=(\${files})
     for f in "\${files[@]}"; do  # Ensure you use [@] to correctly iterate over array
-        if [[ "\$f" =~ \\.T\\.txt$ ]]; then  # Correct regex escaping for Bash inside Nextflow
-            cat "\$f" >> T_cells.txt
-        elif [[ "\$f" =~ \\.G\\.txt$ ]]; then
-            cat "\$f" >> G_cells.txt
-        elif [[ "\$f" =~ \\.A\\.txt$ ]]; then
-            cat "\$f" >> A_cells.txt
-        elif [[ "\$f" =~ \\.C\\.txt$ ]]; then
-            cat "\$f" >> C_cells.txt
-        elif [[ "\$f" =~ \\.coverage\\.txt$ ]]; then
-            cat "\$f" >> coverage_cells.txt
-        fi
+        echo "prova"
     done
     
     for ext in T G A C coverage; do
