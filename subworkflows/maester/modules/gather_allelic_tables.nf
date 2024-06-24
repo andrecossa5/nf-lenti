@@ -26,7 +26,7 @@ process GATHER_TABLES {
     touch "${ext}_cells.txt"
     done
     files=(${files})
-    for f in "${files[@]}"; do
+    for f in "${files}"; do
         if [[ "$f" =~ \.T\.txt$ ]]; then
             cat "$f" >> T_cells.txt
         elif [[ "$f" =~ \.G\.txt$ ]]; then
