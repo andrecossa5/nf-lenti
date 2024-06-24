@@ -1,5 +1,5 @@
 #!/bin/bash
-files=("$@")
+files=($@)
 for f in "${files[@]}"; do  
     if [[ $f =~ .T.txt ]]; then  
         cat "$f" >> T_cells.txt
