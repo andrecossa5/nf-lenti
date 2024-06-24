@@ -53,7 +53,7 @@ process publish_maester {
 workflow maester {
      
     take:
-        ch_inputrm
+        ch_input
         filtered
         not_enriched_bam  
 

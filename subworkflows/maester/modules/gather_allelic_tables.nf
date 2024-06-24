@@ -26,7 +26,7 @@ process GATHER_TABLES {
         touch "\${ext}_cells.txt"
     done
     files=(\${files})
-    for f in "\${files[@]}"; do  # Ensure you use [@] to correctly iterate over array
+    for f in "\${files[@]}"; do  
         echo "prova"
     done
     
