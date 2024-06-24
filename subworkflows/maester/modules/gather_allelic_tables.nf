@@ -27,7 +27,7 @@ process GATHER_TABLES {
     done
     files=(\${files})
     for f in "\${files[@]}"; do  
-        if [[ "\$f" =~ \\.T\\.txt$ ]]; then  
+        if [[ "\$f" =~ '\\.T\\.txt$' ]]; then  
         cat "\$f" >> T_cells.txt
         fi
     done
