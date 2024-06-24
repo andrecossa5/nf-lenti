@@ -25,8 +25,8 @@ process GATHER_TABLES {
     for ext in T G A C coverage; do
         touch "\${ext}_cells.txt"
     done
-    
-    bash process_files.sh \${files}
+
+    bash ${baseDir}/bin/maester/process_files.sh \${files}
     
     for ext in T G A C coverage; do
         sed 's/,/\t/g' \${ext}_cells.txt > \${ext}_allelic_tables_cell.tsv
