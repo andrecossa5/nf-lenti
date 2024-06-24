@@ -7,7 +7,7 @@ process GATHER_TABLES {
     tag "${sample}"
 
     input:
-    tuple val(sample), path(files)
+    tuple val(sample), path(A), path(C), path(T), path(G)
 
     output:
     tuple val(sample), 
