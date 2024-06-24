@@ -53,7 +53,7 @@ process publish_maester {
 workflow maester {
      
     take:
-        ch_input
+        ch_inputrm
         filtered
         not_enriched_bam  
 
@@ -94,7 +94,7 @@ workflow maester {
 
         GATHER_TABLES(ch_collapse)
 
-        TO_H5AD(GATHER_TABLES.out.tables,EXTRACT_FASTA.out.ref_txt)
+        //TO_H5AD(GATHER_TABLES.out.tables,EXTRACT_FASTA.out.ref_txt)
         // 
         // // Publish
         // publish_input = MERGE_BAM.out.bam

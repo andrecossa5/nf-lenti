@@ -39,8 +39,6 @@ def sparse_from_long(cov, cells_map, covariate, nrow, ncol):
 
     return matrix
 
-sparse_from_long(cov, cells_map, 'cov', nrow, ncol)
-
 ##
 
 
