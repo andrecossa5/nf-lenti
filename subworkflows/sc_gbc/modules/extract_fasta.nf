@@ -30,7 +30,7 @@ process EXTRACT_FASTA {
     samtools dict ${pattern}.fa > ${pattern}.dict
     bwa index  ${pattern}.fa
 
-    samtools faidx ${pattern}.fa $(head -n 1 ${pattern}.fa.fai | cut -f1) | awk 'NR>1' > ${pattern}_refAllele.txt
+    samtools faidx ${pattern}.fa \$(head -n 1 ${pattern}.fa.fai | cut -f1) | awk 'NR>1' > ${pattern}_refAllele.txt
     """
 
     stub:
