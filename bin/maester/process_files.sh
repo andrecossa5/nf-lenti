@@ -5,8 +5,9 @@ for f in "${files[@]}"; do
         cat "$f" >> T_cells.txt
     elif [[ "$f" =~ .G\\.txt$ ]]; then  
         cat "$f" >> G_cells.txt
-    # Add other conditions similarly
+    elif [[ "$f" =~ .A\\.txt$ ]]; then  
+        cat "$f" >> A_cells.txt
     fi
 done
 
-# Rest of your processing here...
+
