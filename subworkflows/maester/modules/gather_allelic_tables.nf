@@ -27,7 +27,9 @@ process GATHER_TABLES {
     done
     files=(\${files})
     for f in "\${files[@]}"; do  
-        echo "prova"
+        if [[ "\$f" =~ \\.T\\.txt$ ]]; then  
+        cat "\$f" >> T_cells.txt
+        fi
     done
     
     for ext in T G A C coverage; do
