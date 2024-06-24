@@ -21,7 +21,7 @@ process GATHER_TABLES {
     script:
     """
     #!/bin/bash
-    files_in=( $(ls) )
+    files_in=( \$(ls) )
     for ext in T G A C coverage; do
         touch "\${ext}_cells.txt"
     done
