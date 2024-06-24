@@ -23,10 +23,10 @@ process GATHER_TABLES {
     #!/bin/bash
     
     for ext in T G A C coverage; do
-        touch "${ext}_cells.txt"
+        touch "\${ext}_cells.txt"
     done
-    files=(${files})
-    for f in "${files[@]}"; do  # Ensure you use [@] to correctly iterate over array
+    files=(\${files})
+    for f in "\${files[@]}"; do  # Ensure you use [@] to correctly iterate over array
         if [[ "$f" =~ \\.T\\.txt$ ]]; then  # Correct regex escaping for Bash inside Nextflow
             cat "$f" >> T_cells.txt
         elif [[ "$f" =~ \\.G\\.txt$ ]]; then
