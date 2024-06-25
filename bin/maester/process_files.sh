@@ -1,5 +1,12 @@
 #!/bin/bash
 files=($@)
+echo "it's started"
+echo "it's started"
+echo "it's started"
+echo "it's started"
+echo "it's started"
+echo "it's started"
+echo "it's started"
 for f in ${files[@]}; do  
     if [[ $f =~ .T.txt ]]; then 
         echo $f  
