@@ -27,14 +27,14 @@ def check_files(path_folder):
 ##
 
 
-def sparse_from_long(cov, cells_map, covariate, nrow, ncol):
+def sparse_from_long(df, cells_map, covariate, nrow, ncol):
     """
     Make a long df a sparse matrix. 
     """
-    cov['cell_id'] = cov['cell'].map(lambda x: cells_map[x])
-    cov = cov.loc[:, ['cell_id', 'pos', covariate]]
-    cov['pos'] = cov['pos']-1 # index is 0-based. Positions are 1.
-    rows, cols, vals = list(zip(*cov.values.tolist()))
+    df['cell_id'] = df['cell'].map(lambda x: cells_map[x])
+    df = df.loc[:, ['cell_id', 'pos', covariate]]
+    df['pos'] = df['pos']-1 # index is 0-based. Positions are 1.
+    rows, cols, vals = list(zip(*df.values.tolist()))
     matrix = csr_matrix((vals, (rows, cols)), shape=(nrow, ncol))
 
     return matrix
@@ -46,7 +46,7 @@ def sparse_from_long(cov, cells_map, covariate, nrow, ncol):
 path_folder = sys.argv[1]
 ref = sys[2]
 
-path_folder = '/Users/ieo6943/Documents/Guido/scratch/acf2756f5270e123f7e2a5047c0986'
+path_folder = '/Users/ieo6943/Documents/Guido/scratch/to_h5ad/to_Download'
 fasta_file = '/Users/ieo6943/Documents/Guido/scratch/acf2756f5270e123f7e2a5047c0986/chrM.fa'
 
 records = SeqIO.parse(fasta_file, "fasta")
@@ -66,7 +66,7 @@ data = {
     'wt_allele': nucleotides
 }
 
-ref_alleles = pd.DataFrame(data)
+ref_alleles = pd.DataFrame(data, index=data['pos'])
 
 # Check all files
 check_files(path_folder)
@@ -75,7 +75,9 @@ check_files(path_folder)
 cov = pd.read_csv(
     os.path.join(path_folder, 'coverage_cells.txt'),
     header=None, 
-    names=['pos', 'cell', 'cov']
+    names=['pos', 'cell', 'cov']#,
+    #index_col=0
+
 )
 
 cells = cov['cell'].unique()
@@ -94,10 +96,13 @@ d['cov'] = sparse_from_long(cov, cells_map, 'cov', nrow, ncol)
 
 # Base counts and qualities
 covariates = ['counts_fw', 'qual_fw', 'counts_rev', 'qual_rev']
+os.listdir(path_folder)
 base_files = { 
-    x.split('.')[1] : x for x in os.listdir(path_folder) \
+    x.split('.')[0] : x for x in os.listdir(path_folder) \
     if any(bool(re.search(p, x)) for p in ['A.txt', 'C.txt', 'T.txt', 'G.txt']) 
 }
+ #non sono sicurissimo di aver capito quello che andava fatto qua e ho cambiato da x.split('.')[1] x.split('.')[1] altrimenti sovrasrivevo la stessa chiave ogni volta
+
 # Here we go
 for k in base_files:
     df_base = pd.read_csv(
@@ -107,11 +112,12 @@ for k in base_files:
     )
     for covariate in covariates:
         d[f'{k}_{covariate}'] = sparse_from_long(df_base, cells_map, covariate, nrow, ncol)
-
+d.keys()
 # Build the AnnData
 cells_meta = pd.Series(cells_map).to_frame().reset_index().iloc[:,[0]].set_index('index')
 pos_meta = ref_alleles.set_index('pos')
 afm = AnnData(X=d['cov'], obs=cells_meta, var=pos_meta)
+
 
 # Fill afm
 for k in d:
