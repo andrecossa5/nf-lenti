@@ -59,7 +59,7 @@ def main():
 
     # Load coverage and reference alleles
     cov = pd.read_csv(
-        os.path.join('tables', 'coverage.txt'),
+        os.path.join('tables', 'coverage.txt.gz'),
         header=None, 
         names=['pos', 'cell', 'cov']
     )
