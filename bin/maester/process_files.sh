@@ -1,5 +1,5 @@
 #!/bin/bash
-files=($1)
+files=($@)
 echo "it's started"
 echo "it's started"
 echo "it's started"
