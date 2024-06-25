@@ -1,32 +1,32 @@
-// CONSENSUS_BAM module
+// CONSENSUS_LENTI module
 
 nextflow.enable.dsl = 2
 
 //
 
-process CONSENSUS_BAM {
+process CONSENSUS_LENTI {
 
   tag "${sample_name}: ${cell}"
 
   input:
   tuple val(sample_name), 
-        val(cell), 
-        path(bam)
-  val(min_reads)
+      val(cell), 
+      path(bam)
   tuple path(ref), 
-        path(ref_dict),  
-        path(ref_fa_amb),  
-        path(ref_fa_ann),  
-        path(ref_fa_bwt),  
-        path(ref_fa_fai),  
-        path(ref_fa_pac),  
-        path(ref_fa_sa)
+      path(ref_dict),  
+      path(ref_fa_amb),  
+      path(ref_fa_ann),  
+      path(ref_fa_bwt),  
+      path(ref_fa_fai),  
+      path(ref_fa_pac),  
+      path(ref_fa_sa)
 
   output:
-  tuple val(sample_name), val(cell), path("${cell}_consensus_filtered_mapped.bam"), emit: consensus_filtered_bam
+  tuple val(sample_name), val(cell), path("${cell}_consensus_filtered.tsv"), emit: consensus_filtered_tsv
 
   script:
   """
+  # fgbio consensus pipeline
   fgbio -Xmx8g --compression 1 --async-io GroupReadsByUmi \
 	  --input ${bam} \
     --strategy ${params.fgbio_UMI_consensus_mode} \
@@ -38,7 +38,7 @@ process CONSENSUS_BAM {
   fgbio -Xmx4g --compression 1 CallMolecularConsensusReads \
     --input grouped.bam \
     --output cons_unmapped.bam \
-    --min-reads ${min_reads} \
+    --min-reads ${params.fgbio_min_reads_gbc} \
     --min-input-base-quality ${params.fgbio_base_quality}
 
   samtools fastq cons_unmapped.bam \
@@ -54,16 +54,22 @@ process CONSENSUS_BAM {
     --input cons_mapped.bam \
     --output /dev/stdout \
     --ref ${ref} \
-    --min-reads ${min_reads} \
+    --min-reads ${params.fgbio_min_reads_gbc} \
     --min-base-quality ${params.fgbio_base_quality} \
     --max-base-error-rate ${params.fgbio_base_error_rate} \
-    | samtools sort -@ 1 -o "${cell}_consensus_filtered_mapped.bam" --write-index
+    | samtools sort -@ 1 -o consensus_filtered_mapped.bam --write-index
+  
+  
+  ##
 
+
+  # Create tables
+  python ${baseDir}/bin/sc_gbc/consensus_tsv.py consensus_filtered_mapped.bam ${cell}
   """
 
   stub:
   """
-  touch ${cell}_consensus_filtered_mapped.bam
+  touch ${cell}_consensus_filtered.tsv
   """
 
 }

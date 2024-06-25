@@ -13,8 +13,7 @@ include { MERGE_BAM } from "./modules/merge_bams.nf"
 include { FILTER_MITOBAM } from "./modules/filter_mitobam.nf"
 include { SPLIT_BAM } from "../sc_gbc/modules/split_bam.nf"
 include { EXTRACT_FASTA } from "../sc_gbc/modules/extract_fasta.nf"
-include { CONSENSUS_BAM } from "../sc_gbc/modules/consensus_bam.nf"
-include { ALLELIC_TABLES } from "./modules/allelic_tables.nf"
+include { CONSENSUS_MITO } from "./modules/consensus_mito.nf"
 include { GATHER_TABLES } from "./modules/gather_allelic_tables.nf"
 include { TO_H5AD } from "./modules/to_h5ad.nf"
 
@@ -27,13 +26,11 @@ process publish_maester {
     input:
     tuple val(sample_name),  
         path(bam),
-        path(index),
         path(afm)
 
     output:
-    path bam
-    path index
-    path afm
+    path(bam)
+    path(afm)
 
     script:
     """
@@ -67,12 +64,12 @@ workflow maester {
         FILTER_10X_BAM(not_enriched_bam)
         MERGE_BAM(FILTER_10X_BAM.out.bam.combine(FIX_TAGS.out.bam, by:0))
 
-        // Filter reads from good cells only, split into multiple bams and make consensus reads
+        // Filter reads from good cells only, split into multiple bams 
         FILTER_MITOBAM(MERGE_BAM.out.bam.combine(filtered, by:0))
         SPLIT_BAM(FILTER_MITOBAM.out.filtered_mitobam)
         ch_cell_bams = SPLIT_BAM.out.cell_bams
             .map { it ->
-                def sample = it[0]
+                def sample = it[0] 
                 def paths = it[1]      
                 return paths.collect { cell_path ->
                     def path_splitted = cell_path.toString().split('/')
@@ -82,11 +79,10 @@ workflow maester {
             }  
             .flatMap { it }  
         EXTRACT_FASTA(params.string_MT)
-        CONSENSUS_BAM(ch_cell_bams, params.fgbio_min_reads_maester, EXTRACT_FASTA.out.fasta)
 
-        // Create and aggregate cells allelic tables
-        ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam)
-        GATHER_TABLES(ALLELIC_TABLES.out.allelic_tables.groupTuple(by: 0))
+        // Make consensus reads, create and aggregate cells allelic tables
+        CONSENSUS_MITO(ch_cell_bams, EXTRACT_FASTA.out.fasta)
+        GATHER_TABLES(CONSENSUS_MITO.out.allelic_tables.groupTuple(by: 0))
         TO_H5AD(GATHER_TABLES.out.tables, EXTRACT_FASTA.out.fasta.map{it -> it[0]})
         
         // Publish

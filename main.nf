@@ -44,7 +44,6 @@ ch_maester = Channel
 workflow TENX {
 
     tenx(ch_tenx)
-    tenx.out.filtered.view()
 
 }
 
@@ -54,16 +53,14 @@ workflow TENX_MITO {
 
     tenx(ch_tenx)
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
-    maester.out.afm.view()
 
-}
+} 
 
 //
 
 workflow BULK_GBC {
  
     bulk_gbc(ch_bulk_gbc)
-    bulk_gbc.out.flags.view()
 
 }
 
@@ -73,7 +70,6 @@ workflow TENX_GBC {
 
     tenx(ch_tenx)
     sc_gbc(ch_sc_gbc, tenx.out.filtered)
-    sc_gbc.out.summary.view()
 
 }
 
@@ -84,7 +80,6 @@ workflow TENX_GBC_MITO {
     tenx(ch_tenx)
     sc_gbc(ch_sc_gbc, tenx.out.filtered)
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
-    maester.out.afm.view()
 
 }
 
