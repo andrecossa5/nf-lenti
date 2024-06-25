@@ -7,6 +7,7 @@ echo "it's started"
 echo "it's started"
 echo "it's started"
 echo "it's started"
+echo ${files}
 for f in ${files[@]}; do  
     echo $f
     if [[ $f =~ .T.txt ]]; then 
