@@ -8,6 +8,7 @@ echo "it's started"
 echo "it's started"
 echo "it's started"
 for f in ${files[@]}; do  
+    echo $f
     if [[ $f =~ .T.txt ]]; then 
         echo $f  
         cat "$f" >> T_cells.txt
