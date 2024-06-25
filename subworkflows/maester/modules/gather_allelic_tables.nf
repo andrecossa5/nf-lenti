@@ -7,18 +7,10 @@ process GATHER_TABLES {
     tag "${sample}"
 
     input:
-    tuple val(sample), path(A), path(C), path(T), path(G), path(coverage)
-
-    // .map { it -> tuple(it[0], it[2], it[3], it[4], it[5], it[6]) }
-    // .groupTuple(by: 0)
+    tuple val(sample), val(cells), path(A), path(C), path(T), path(G), path(coverage)
 
     output:
-    tuple val(sample), 
-        path("T.txt.gz"), 
-        path("G.txt.gz"),
-        path("A.txt.gz"), 
-        path("C.txt.gz"),
-        path("coverage.txt.gz"), emit: tables
+    tuple val(sample), path(tables), emit: tables
 
     script:
     """ 
@@ -27,15 +19,13 @@ process GATHER_TABLES {
     cat *.T.txt | gzip --fast > T.txt.gz
     cat *.G.txt | gzip --fast > G.txt.gz
     cat *.coverage.txt | gzip --fast > coverage.txt.gz
+    mkdir tables 
+    mv *.gz tables
     """
 
     stub:
     """
-    touch T.txt.gz 
-    touch G.txt.gz
-    touch A.txt.gz 
-    touch C.txt.gz
-    touch coverage.txt.gz
+    mkdir tables
     """
 
 }

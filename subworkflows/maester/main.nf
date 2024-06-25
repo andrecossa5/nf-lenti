@@ -16,7 +16,7 @@ include { EXTRACT_FASTA } from "../sc_gbc/modules/extract_fasta.nf"
 include { CONSENSUS_BAM } from "../sc_gbc/modules/consensus_bam.nf"
 include { ALLELIC_TABLES } from "./modules/allelic_tables.nf"
 include { GATHER_TABLES } from "./modules/gather_allelic_tables.nf"
-// include { TO_H5AD } from "./modules/to_h5ad.nf"
+include { TO_H5AD } from "./modules/to_h5ad.nf"
 
 // 
 
@@ -88,19 +88,15 @@ workflow maester {
 
         // Create and aggregate cells allelic tables
         ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam)
-        // GATHER_TABLES(ALLELIC_TABLES.out.allelic_tables.groupTuple(by: 0))
-
-        // .map { it -> tuple(it[0], it[2], it[3], it[4], it[5], it[6]) }
-        // .groupTuple(by: 0)
-
-        // TO_H5AD(GATHER_TABLES.out.tables, EXTRACT_FASTA.out.ref_txt)
+        GATHER_TABLES(ALLELIC_TABLES.out.allelic_tables.groupTuple(by: 0))
+        TO_H5AD(GATHER_TABLES.out.tables, EXTRACT_FASTA.out.fasta.map{it -> it[0]})
         
         // Publish
         // publish_input = MERGE_BAM.out.bam.combine(MAEGATK.out.output, by:0).combine(TO_H5AD.out.afm, by:0)
         // publish_maester(publish_input)
 
     emit:
-        afm = ALLELIC_TABLES.out.allelic_tables.groupTuple(by: 0)
+        afm = TO_H5AD.out.afm
 
 }
 

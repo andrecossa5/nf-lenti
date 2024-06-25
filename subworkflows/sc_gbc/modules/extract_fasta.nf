@@ -11,15 +11,13 @@ process EXTRACT_FASTA {
     
     output:
     tuple path("${pattern}.fa"), 
-          path("${pattern}.dict"),  
-          path("${pattern}.fa.amb"),  
-          path("${pattern}.fa.ann"),  
-          path("${pattern}.fa.bwt"),  
-          path("${pattern}.fa.fai"),  
-          path("${pattern}.fa.pac"),  
-          path("${pattern}.fa.sa"), 
-          emit: fasta
-    path("${pattern}_refAllele.txt"), emit: ref_txt
+        path("${pattern}.dict"),  
+        path("${pattern}.fa.amb"),  
+        path("${pattern}.fa.ann"),  
+        path("${pattern}.fa.bwt"),  
+        path("${pattern}.fa.fai"),  
+        path("${pattern}.fa.pac"),  
+        path("${pattern}.fa.sa"), emit: fasta
 
     script:
     """
@@ -28,23 +26,19 @@ process EXTRACT_FASTA {
     cat name.txt fasta.fa > ${pattern}.fa
     samtools faidx ${pattern}.fa
     samtools dict ${pattern}.fa > ${pattern}.dict
-    bwa index  ${pattern}.fa
-
-    samtools faidx ${pattern}.fa \$(head -n 1 ${pattern}.fa.fai | cut -f1) | awk 'NR>1' > ${pattern}_refAllele.txt
+    bwa index ${pattern}.fa
     """
 
     stub:
     """
-    touch "${pattern}.fa" ,
-    touch "${pattern}.dict",  
-    touch "${pattern}.fa.amb",  
-    touch "${pattern}.fa.ann",  
-    touch "${pattern}.fa.bwt",  
-    touch "${pattern}.fa.fai",  
-    touch "${pattern}.fa.pac",  
-    touch "${pattern}.fa.sa" 
-    touch "${pattern}_refAllele.txt"
-    
+    touch ${pattern}.fa
+    touch ${pattern}.dict
+    touch ${pattern}.fa.amb  
+    touch ${pattern}.fa.ann  
+    touch ${pattern}.fa.bwt  
+    touch ${pattern}.fa.fai  
+    touch ${pattern}.fa.pac
+    touch ${pattern}.fa.sa
     """
 
 } 

@@ -22,22 +22,25 @@ process ALLELIC_TABLES {
 
   script:
   """
-  python ${baseDir}/bin/maester/make_allelic_tables.py \
-  --input_bam ${bam} \
-  --cell ${cell} \
-  --min_base_qual ${params.fgbio_base_quality} \
-  --min_alignment_quality ${params.min_alignment_quality}
-
+  # python ${baseDir}/bin/maester/make_allelic_tables.py \
+  # --input_bam ${bam} \
+  # --cell ${cell} \
+  # --min_base_qual ${params.fgbio_base_quality} \
+  # --min_alignment_quality ${params.min_alignment_quality}
+  touch ${cell}.A.txt
+  touch ${cell}.C.txt
+  touch ${cell}.T.txt
+  touch ${cell}.G.txt
+  touch ${cell}.coverage.txt
   """
 
   stub:
   """
-  touch ${cell}.A.txt"
-  touch ${cell}.C.txt"
-  touch ${cell}.T.txt"
-  touch ${cell}.G.txt"
-  touch ${cell}.coverage.txt"
-
+  touch ${cell}.A.txt
+  touch ${cell}.C.txt
+  touch ${cell}.T.txt
+  touch ${cell}.G.txt
+  touch ${cell}.coverage.txt
   """
 
 }
