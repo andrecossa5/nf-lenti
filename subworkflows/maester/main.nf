@@ -88,22 +88,19 @@ workflow maester {
 
         // Create and aggregate cells allelic tables
         ALLELIC_TABLES(CONSENSUS_BAM.out.consensus_filtered_bam)
-        ch_collapse = ALLELIC_TABLES.out.allelic_tables
-            .map { it -> tuple(it[0], it[2], it[3], it[4], it[5], it[6]) }
-            .groupTuple(by: 0)
+        // GATHER_TABLES(ALLELIC_TABLES.out.allelic_tables.groupTuple(by: 0))
 
-        GATHER_TABLES(ch_collapse)
+        // .map { it -> tuple(it[0], it[2], it[3], it[4], it[5], it[6]) }
+        // .groupTuple(by: 0)
 
-        //TO_H5AD(GATHER_TABLES.out.tables,EXTRACT_FASTA.out.ref_txt)
-        // 
-        // // Publish
-        // publish_input = MERGE_BAM.out.bam
-        //     .combine(MAEGATK.out.output, by:0)
-        //     .combine(TO_H5AD.out.afm, by:0)
+        // TO_H5AD(GATHER_TABLES.out.tables, EXTRACT_FASTA.out.ref_txt)
+        
+        // Publish
+        // publish_input = MERGE_BAM.out.bam.combine(MAEGATK.out.output, by:0).combine(TO_H5AD.out.afm, by:0)
         // publish_maester(publish_input)
 
     emit:
-        afm = GATHER_TABLES.out.tables
+        afm = ALLELIC_TABLES.out.allelic_tables.groupTuple(by: 0)
 
 }
 
