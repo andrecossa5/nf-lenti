@@ -1,6 +1,6 @@
 #!/bin/bash
 files=($@)
-for f in "${files[@]}"; do  
+for f in ${files[@]}; do  
     if [[ $f =~ .T.txt ]]; then 
         echo $f  
         cat "$f" >> T_cells.txt
