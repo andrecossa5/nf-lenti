@@ -25,7 +25,7 @@ process publish_maester {
     publishDir "${params.sc_outdir}/${sample_name}/", mode: 'copy'
 
     input:
-    tuple val(sample_name), 
+    tuple val(sample_name),  
         path(bam),
         path(index),
         path(afm)
