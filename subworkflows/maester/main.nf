@@ -26,15 +26,13 @@ process publish_maester {
 
     input:
     tuple val(sample_name), 
-          path(bam),
-          path(index),
-          path(maegatk_out),
-          path(afm)
+        path(bam),
+        path(index),
+        path(afm)
 
     output:
     path bam
     path index
-    path maegatk_out
     path afm
 
     script:
@@ -92,8 +90,8 @@ workflow maester {
         TO_H5AD(GATHER_TABLES.out.tables, EXTRACT_FASTA.out.fasta.map{it -> it[0]})
         
         // Publish
-        // publish_input = MERGE_BAM.out.bam.combine(MAEGATK.out.output, by:0).combine(TO_H5AD.out.afm, by:0)
-        // publish_maester(publish_input)
+        publish_input = MERGE_BAM.out.bam.combine(TO_H5AD.out.afm, by:0)
+        publish_maester(publish_input)
 
     emit:
         afm = TO_H5AD.out.afm
