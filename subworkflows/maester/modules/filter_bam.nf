@@ -1,10 +1,10 @@
-// FILTER module
+// FILTER BAM modules
 
 nextflow.enable.dsl = 2
 
 //
 
-process FILTER_I {
+process FILTER_10X_BAM {
 
   tag "${sample_name}"
 
@@ -12,13 +12,12 @@ process FILTER_I {
   tuple val(sample_name), path(bam)
 
   output:
-  tuple val(sample_name), path("mitobam_I.bam"), emit: mitobam
+  tuple val(sample_name), path("mitobam_I.bam"), emit: bam
 
   script:
   """
-  samtools sort -l 1 -@ ${task.cpus} ${bam} > sorted.bam
-  samtools index -@ ${task.cpus} sorted.bam
-  samtools view sorted.bam -b -@ ${task.cpus} chrM > mitobam_I.bam
+  samtools index -@ ${task.cpus} ${bam}
+  samtools view ${bam} -b -@ ${task.cpus} ${params.string_MT} > mitobam_I.bam
   """
 
   stub:
@@ -30,7 +29,7 @@ process FILTER_I {
 
 //
 
-process FILTER_II {
+process FILTER_MAESTER_BAM {
 
   tag "${sample_name}"
 
@@ -38,13 +37,13 @@ process FILTER_II {
   tuple val(sample_name), path(bam)
 
   output:
-  tuple val(sample_name), path("mitobam_II.bam"), emit: mitobam
+  tuple val(sample_name), path("mitobam_II.bam"), emit: bam
 
   script:
   """
-  samtools sort -l 1 -@ ${task.cpus} ${bam} > sorted.bam
+  samtools sort -l 1 -@ ${task.cpus} -o sorted.bam ${bam}
   samtools index -@ ${task.cpus} sorted.bam
-  samtools view sorted.bam -b -@ ${task.cpus} chrM > mitobam_II.bam
+  samtools view sorted.bam -b -@ ${task.cpus} ${params.string_MT} > mitobam_II.bam
   """
 
   stub:
