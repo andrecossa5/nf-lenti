@@ -16,7 +16,7 @@ process SPLIT_BAM {
 
     script:
     """
-    samtools split -M -1 -@ ${task.ncpus} -d CB -f '%!.bam' ${bam}
+    samtools split -M -1 -@ ${task.cpus} -d CB -f '%!.bam' ${bam}
     rm -f *lentibam.* *mitobam.*
     """
 
