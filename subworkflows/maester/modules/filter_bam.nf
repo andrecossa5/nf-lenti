@@ -41,8 +41,7 @@ process FILTER_MAESTER_BAM {
 
   script:
   """
-  samtools sort -l 1 -m 2G -@ ${task.cpus} -o sorted.bam ${bam}
-  samtools index -@ ${task.cpus} sorted.bam
+  samtools index -@ ${task.cpus} ${bam}
   samtools view sorted.bam -b -@ ${task.cpus} ${params.string_MT} > mitobam_II.bam
   """
 
