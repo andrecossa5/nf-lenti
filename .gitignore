@@ -132,6 +132,7 @@ dmypy.json
 ./work
 ./trace*
 ./.nextflow*
+./toy
 
 # DS_Store
 .DS_*
