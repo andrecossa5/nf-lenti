@@ -22,7 +22,7 @@ process SPLIT_BAM {
 
     stub:
     """
-    touch AAAA.bam BBBB.bam CCC.bam
+    python ${baseDir}/bin/sc_gbc/random_mock.py \
     rm -f *lentibam.* *mitobam.*
     """
 

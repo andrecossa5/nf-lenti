@@ -13,6 +13,7 @@
     "string_MT" : "chrM",
     "whitelist" : "/Users/IEO5505/Desktop/example_mito/meta/whitelist.txt",
 
+    "CBs_chunk_size" : 3000, 
     "fgbio_UMI_consensus_mode" : "Adjacency",
     "fgbio_UMI_consensus_edits" : 1,
     "fgbio_min_reads_gbc" : 10,

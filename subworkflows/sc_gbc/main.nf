@@ -5,6 +5,7 @@ nextflow.enable.dsl = 2
 include { MERGE_R1 } from "../maester/modules/merge_R1.nf"
 include { MERGE_R2 } from "../maester/modules/merge_R2.nf"
 include { SOLO } from "./modules/Solo.nf"
+include { SPLIT_BARCODES } from "./modules/split_barcodes.nf"
 include { FILTER_LENTIBAM } from "./modules/filter_lentibam.nf"
 include { SPLIT_BAM } from "./modules/split_bam.nf"
 include { EXTRACT_FASTA } from "./modules/extract_fasta.nf"
@@ -32,7 +33,11 @@ workflow sc_gbc {
         SOLO(MERGE_R1.out.R1.combine(MERGE_R2.out.R2, by:0))
  
         // Merge mitobams and split into cell-specific bams
-        FILTER_LENTIBAM(SOLO.out.bam.combine(ch_filtered, by:0))
+        SPLIT_BARCODES(ch_filtered)
+        ch_barcodes = SPLIT_BARCODES.out.barcodes.flatMap { 
+            sample_name, file_paths -> file_paths.collect { file_path -> [sample_name, file_path] }
+        }
+        FILTER_LENTIBAM(SOLO.out.bam.combine(ch_barcodes, by:0))
         SPLIT_BAM(FILTER_LENTIBAM.out.filtered_lentibam)
         ch_cell_bams = SPLIT_BAM.out.cell_bams
             .map { it ->

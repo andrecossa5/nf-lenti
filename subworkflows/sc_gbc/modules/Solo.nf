@@ -46,7 +46,6 @@ process SOLO {
   gzip filtered/*.tsv
   gzip filtered/*.mtx
 
-
   """
 
   stub:

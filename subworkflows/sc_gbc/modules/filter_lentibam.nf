@@ -9,14 +9,14 @@ process FILTER_LENTIBAM {
     tag "${sample_name}"
     
     input:
-    tuple val(sample_name), path(bam), path(filtered)
+    tuple val(sample_name), path(bam), path(barcodes)
 
     output:
     tuple val(sample_name), path("filtered_lentibam.bam"), path("filtered_lentibam.bam.csi"), emit: filtered_lentibam
 
     script:
     """
-    python ${baseDir}/bin/sc_gbc/filter_lentibam.py lentibam.bam filtered_lentibam.bam ${filtered}/barcodes.tsv.gz 
+    python ${baseDir}/bin/sc_gbc/filter_lentibam.py ${bam} filtered_lentibam.bam ${barcodes}
     """
 
     stub:
