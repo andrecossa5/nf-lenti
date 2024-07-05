@@ -36,8 +36,7 @@ def main():
                     ' -FILTER includeTagValues' \
                     ' --QUIET true' \
                     ' --COMPRESSION_LEVEL 1' \
-                    ' --MAX_RECORDS_IN_RAM 10000000' \
-                    ' --CREATE_INDEX true'
+                    ' --MAX_RECORDS_IN_RAM 10000000'
       os.system(picard_call)
 
 
