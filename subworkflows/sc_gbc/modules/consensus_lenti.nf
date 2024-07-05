@@ -26,9 +26,17 @@ process CONSENSUS_LENTI {
 
   script:
   """
+  # Samtools sort and extract reads from lentiviral cassette
+  samtools sort -@ 1 ${bam} --write-index -o sorted.bam 
+  samtools view -b sorted.bam ${params.string_lentiviral} > filtered.bam
+
+
+  ##
+
+  
   # fgbio consensus pipeline
   fgbio -Xmx8g --compression 1 --async-io GroupReadsByUmi \
-	  --input ${bam} \
+	  --input filtered.bam \
     --strategy ${params.fgbio_UMI_consensus_mode} \
     --edits ${params.fgbio_UMI_consensus_edits} \
 	  --output grouped.bam \

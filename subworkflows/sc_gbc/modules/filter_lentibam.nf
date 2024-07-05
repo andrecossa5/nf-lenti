@@ -9,24 +9,19 @@ process FILTER_LENTIBAM {
     tag "${sample_name}"
     
     input:
-    tuple val(sample_name), path(bam), path(filtered)
-    
+    tuple val(sample_name), path(bam), path(barcodes)
+
     output:
-    tuple val(sample_name), path("filtered_lentibam.bam"), path("filtered_lentibam.bam.bai"), emit: filtered_lentibam
+    tuple val(sample_name), path("filtered_lentibam.bam"), emit: filtered_lentibam
 
     script:
     """
-    samtools index -@ ${task.cpus} ${bam}
-    samtools view ${bam} -b -@ ${task.cpus} ${params.string_lentiviral} > lentibam.bam
-    samtools index -@ ${task.cpus} lentibam.bam
-    python ${baseDir}/bin/sc_gbc/filter_lentibam.py ${filtered}/barcodes.tsv.gz
-    samtools index -@ ${task.cpus} filtered_lentibam.bam
+    python ${baseDir}/bin/sc_gbc/filter_lentibam.py ${bam} filtered_lentibam.bam ${barcodes}
     """
 
     stub:
     """
     touch filtered_lentibam.bam
-    touch filtered_lentibam.bam.bai
     """
 
 } 
