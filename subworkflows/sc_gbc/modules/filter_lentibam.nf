@@ -12,7 +12,7 @@ process FILTER_LENTIBAM {
     tuple val(sample_name), path(bam), path(barcodes)
 
     output:
-    tuple val(sample_name), path("filtered_lentibam.bam"), path("filtered_lentibam.bam.csi"), emit: filtered_lentibam
+    tuple val(sample_name), path("filtered_lentibam.bam"), emit: filtered_lentibam
 
     script:
     """
@@ -22,7 +22,6 @@ process FILTER_LENTIBAM {
     stub:
     """
     touch filtered_lentibam.bam
-    touch filtered_lentibam.bam.csi 
     """
 
 } 

@@ -9,7 +9,7 @@ process SPLIT_BAM {
     tag "${sample_name}"
 
     input:
-    tuple val(sample_name), path(bam), path(index)
+    tuple val(sample_name), path(bam)
 
     output:
     tuple val(sample_name), path('*.bam'), emit: cell_bams
