@@ -37,47 +37,49 @@ workflow sc_gbc {
         ch_barcodes = SPLIT_BARCODES.out.barcodes.flatMap { 
             sample_name, file_paths -> file_paths.collect { file_path -> [sample_name, file_path] }
         }
-        FILTER_LENTIBAM(SOLO.out.bam.combine(ch_barcodes, by:0))
-        SPLIT_BAM(FILTER_LENTIBAM.out.filtered_lentibam)
-        ch_cell_bams = SPLIT_BAM.out.cell_bams
-            .map { it ->
-                def sample = it[0] 
-                def paths = it[1]      
-                return paths.collect { cell_path ->
-                    def path_splitted = cell_path.toString().split('/')
-                    def cell = path_splitted[-1].toString().split('\\.')[0]
-                    return [sample, cell, cell_path]
-                }
-            } 
-            .flatMap { it } 
-        EXTRACT_FASTA(params.string_lentiviral)
+        // FILTER_LENTIBAM(SOLO.out.bam.combine(ch_barcodes, by:0))
+        // SPLIT_BAM(FILTER_LENTIBAM.out.filtered_lentibam)
+        // ch_cell_bams = SPLIT_BAM.out.cell_bams
+        //     .map { it ->
+        //         def sample = it[0] 
+        //         def paths = it[1]      
+        //         return paths.collect { cell_path ->
+        //             def path_splitted = cell_path.toString().split('/')
+        //             def cell = path_splitted[-1].toString().split('\\.')[0]
+        //             return [sample, cell, cell_path]
+        //         }
+        //     } 
+        //     .flatMap { it } 
+        // EXTRACT_FASTA(params.string_lentiviral)
  
         // Create consensus reads and cell assignment
-        CONSENSUS_LENTI(ch_cell_bams, EXTRACT_FASTA.out.fasta)
-        ch_collapse = CONSENSUS_LENTI.out.consensus_filtered_tsv 
-            .map { it -> tuple(it[0], it[2]) }
-            .groupTuple(by: 0)
-        COLLAPSE_TSV(ch_collapse)
-        CELL_ASSIGNMENT(COLLAPSE_TSV.out.elements)
+        // CONSENSUS_LENTI(ch_cell_bams, EXTRACT_FASTA.out.fasta)
+        // ch_collapse = CONSENSUS_LENTI.out.consensus_filtered_tsv 
+        //     .map { it -> tuple(it[0], it[2]) }
+        //     .groupTuple(by: 0)
+        // COLLAPSE_TSV(ch_collapse)
+        // CELL_ASSIGNMENT(COLLAPSE_TSV.out.elements)
 
         // Summary
-        summary_input = MERGE_R1.out.R1
-            .combine(COLLAPSE_TSV.out.elements, by:0)
-            .combine(ch_filtered, by:0)
-            .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
-            .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)
-        generate_run_summary_sc(summary_input)
+        // summary_input = MERGE_R1.out.R1
+        //     .combine(COLLAPSE_TSV.out.elements, by:0)
+        //     .combine(ch_filtered, by:0)
+        //     .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
+        //     .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)
+        // generate_run_summary_sc(summary_input)
 
         // Publishing
-        publish_ch = CELL_ASSIGNMENT.out.CBC_GBC_combos 
-            .combine(CELL_ASSIGNMENT.out.combo_plot, by:0)
-            .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
-            .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)
-            .combine(CELL_ASSIGNMENT.out.summary, by:0)
-            .combine(generate_run_summary_sc.out.summary, by:0)
-        publish_sc_gbc(publish_ch)
+        // publish_ch = CELL_ASSIGNMENT.out.CBC_GBC_combos 
+        //     .combine(CELL_ASSIGNMENT.out.combo_plot, by:0)
+        //     .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
+        //     .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)
+        //     .combine(CELL_ASSIGNMENT.out.summary, by:0)
+        //     .combine(generate_run_summary_sc.out.summary, by:0)
+        // publish_sc_gbc(publish_ch)
 
     emit:
-        summary = generate_run_summary_sc.out.summary
+
+        summary = ch_barcodes
+        // summary = generate_run_summary_sc.out.summary
 
 }
