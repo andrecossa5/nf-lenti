@@ -46,7 +46,7 @@ workflow TENX {
     tenx(ch_tenx)
 
 }
-
+   
 //
 
 workflow TENX_MITO {
@@ -70,6 +70,7 @@ workflow TENX_GBC {
 
     tenx(ch_tenx)
     sc_gbc(ch_sc_gbc, tenx.out.filtered)
+    sc_gbc.out.summary.view()
 
 }
 

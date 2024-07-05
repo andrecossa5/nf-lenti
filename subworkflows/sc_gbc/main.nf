@@ -36,7 +36,7 @@ workflow sc_gbc {
         SPLIT_BAM(FILTER_LENTIBAM.out.filtered_lentibam)
         ch_cell_bams = SPLIT_BAM.out.cell_bams
             .map { it ->
-                def sample = it[0]
+                def sample = it[0] 
                 def paths = it[1]      
                 return paths.collect { cell_path ->
                     def path_splitted = cell_path.toString().split('/')
@@ -46,7 +46,7 @@ workflow sc_gbc {
             } 
             .flatMap { it } 
         EXTRACT_FASTA(params.string_lentiviral)
-
+ 
         // Create consensus reads and cell assignment
         CONSENSUS_LENTI(ch_cell_bams, EXTRACT_FASTA.out.fasta)
         ch_collapse = CONSENSUS_LENTI.out.consensus_filtered_tsv 

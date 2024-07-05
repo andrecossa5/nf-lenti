@@ -4,8 +4,8 @@
 Filter a bam file for records having the needed CBs.
 """
 
+import os
 import sys
-import pysam
 import pandas as pd
 
 
@@ -13,19 +13,33 @@ import pandas as pd
 
 
 # Args
-allowed_cbs_file = sys.argv[1]
+i = sys.argv[1]
+o = sys.argv[2]
+path_cbs = sys.argv[3]
+
+# i = 'toy_dataset.bam'
+# o = 'output.bam'
+# path_cbs = 'allowed_cbs.csv'
 
 
 ##
 
 
 def main():
-    allowed_cbs = pd.read_csv(allowed_cbs_file, sep='\t').iloc[:,0].values.tolist()
-    with pysam.AlignmentFile('lentibam.bam', "rb") as bam_in:
-        with pysam.AlignmentFile('filtered_lentibam.bam', "wb", header=bam_in.header) as bam_out:
-            for read in bam_in:
-                if read.get_tag("CB") in allowed_cbs:
-                    bam_out.write(read)
+      """
+      Filter all records from a set of CBs.
+      """
+
+      cbs = pd.read_csv(path_cbs, sep='\t', header=None).iloc[:,0].to_list()
+      picard_call = f'picard FilterSamReads -I {i} -O {o} -TAG CB ' + \
+                    ' '.join([ f'-TV {x}' for x in cbs ]) + \
+                    ' -FILTER includeTagValues' \
+                    ' --QUIET true' \
+                    ' --COMPRESSION_LEVEL 1' \
+                    ' --MAX_RECORDS_IN_RAM 10000000' \
+                    ' --CREATE_INDEX true'
+      os.system(picard_call)
+
 
 # Run
 if __name__ == "__main__":

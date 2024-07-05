@@ -15,14 +15,14 @@ process SPLIT_BAM {
     tuple val(sample_name), path('*.bam'), emit: cell_bams
 
     script:
-    """
+    """ 
     samtools split -M -1 -@ ${task.cpus} -d CB -f '%!.bam' ${bam}
     rm -f *lentibam.* *mitobam.*
     """
 
     stub:
     """
-    touch AAAA.bam BBBB.bam
+    touch AAAA.bam BBBB.bam CCC.bam
     rm -f *lentibam.* *mitobam.*
     """
 
