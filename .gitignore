@@ -129,10 +129,11 @@ dmypy.json
 .pyre/
 
 # Nextflow
-./work
-./trace*
-./.nextflow*
-./toy
+work/
+trace*
+.nextflow/
+.nextflow.log
+toy/
 
 # DS_Store
 .DS_*
