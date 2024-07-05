@@ -34,9 +34,9 @@ workflow sc_gbc {
  
         // Merge mitobams and split into cell-specific bams
         SPLIT_BARCODES(ch_filtered)
-        ch_barcodes = SPLIT_BARCODES.out.barcodes.flatMap { 
-            sample_name, file_paths -> file_paths.collect { file_path -> [sample_name, file_path] }
-        }
+        // ch_barcodes = SPLIT_BARCODES.out.barcodes.flatMap { 
+        //     sample_name, file_paths -> file_paths.collect { file_path -> [sample_name, file_path] }
+        // }
         // FILTER_LENTIBAM(SOLO.out.bam.combine(ch_barcodes, by:0))
         // SPLIT_BAM(FILTER_LENTIBAM.out.filtered_lentibam)
         // ch_cell_bams = SPLIT_BAM.out.cell_bams
@@ -79,7 +79,7 @@ workflow sc_gbc {
 
     emit:
 
-        summary = ch_barcodes
+        summary = SPLIT_BARCODES.out.barcodes
         // summary = generate_run_summary_sc.out.summary
 
 }
