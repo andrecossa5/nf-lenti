@@ -84,7 +84,7 @@ workflow sc_gbc {
 
     emit:
 
-        summary = SPLIT_BARCODES.out.barcodes
+        summary = ch_barcodes
         // summary = generate_run_summary_sc.out.summary
 
 }
