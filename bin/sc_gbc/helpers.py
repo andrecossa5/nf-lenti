@@ -311,7 +311,7 @@ def cell_assignment_workflow(
     cells_df = (
         filtered_M
         .apply(lambda x: filtered_M.columns[x>0][0], axis=1)
-        .to_frame('GBC_set')
+        .to_frame('GBC')
     )
 
     # Final clones checks
