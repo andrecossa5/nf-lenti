@@ -313,6 +313,7 @@ def cell_assignment_workflow(
         .apply(lambda x: filtered_M.columns[x>0][0], axis=1)
         .to_frame('GBC')
     )
+    cells_df.index = cells_df.index.map(lambda x: f'{x}_{sample}')
 
     # Final clones checks
     f.write(f'# Final clones (i.e., distinct populations of uniquely barcoded cells only) checks \n')

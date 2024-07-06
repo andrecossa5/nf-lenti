@@ -17,7 +17,7 @@ process TO_H5AD {
 
   script:
   """
-  python ${baseDir}/bin/maester/to_h5ad.py ${params.string_MT}
+  python ${baseDir}/bin/maester/to_h5ad.py ${params.string_MT} ${sample_name}
   """
   
   stub:

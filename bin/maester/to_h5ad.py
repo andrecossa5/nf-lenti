@@ -47,6 +47,7 @@ def main():
 
     # Read ref_alleles ad format as df
     pattern = sys.argv[1]
+    sample = sys.argv[2]
     fasta = pysam.FastaFile(f'{pattern}.fa')
     mt_genome = fasta.fetch(pattern)
     ref_alleles = pd.DataFrame(
@@ -96,6 +97,7 @@ def main():
     # Build the AnnData
     cells_meta = pd.Series(cells_map).to_frame().reset_index().iloc[:,[0]].set_index('index')
     afm = AnnData(X=d['cov'], obs=cells_meta, var=ref_alleles)
+    afm.obs_names = afm.obs_names.map(lambda x: f'{x}_{sample}')
 
     # Fill afm
     for k in d:
