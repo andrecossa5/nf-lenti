@@ -90,6 +90,17 @@ threshold = args.threshold
 min_n_reads = args.min_n_reads
 spikeins = args.spikeins
 
+#
+import os
+os.chdir('/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/toy')
+path_i = 'GBC_not_corrected.tsv'
+threshold = 3
+method = 'directional' 
+min_n_reads = 1000
+spikeins = 'spikein.csv'
+path_o = os.getcwd()
+#
+
 
 ##
 
@@ -151,6 +162,7 @@ def main():
     if spikeins is not None:
         spikes = pd.read_csv(spikeins, index_col=0).index
         GBC_counts = GBC_counts.loc[~GBC_counts.index.isin(spikes)]
+        df = df.loc[~(df['correct'].isin(spikes) | df['degenerated'].isin(spikes))]
 
     # Get final GBC pool
     GBC_counts = GBC_counts.to_frame('read_count')
@@ -162,7 +174,7 @@ def main():
     final_pool = GBC_counts.index[
         GBC_counts.index.isin(correct) | (GBC_counts.index.isin(non_clustered))
     ]
-    assert final_pool.size == (correct.size + non_clustered.size)
+    assert final_pool.size == (correct.size + non_clustered.size) 
 
     # Final counts
     final_counts = pd.DataFrame(0, index=final_pool, columns=['read_count'])
