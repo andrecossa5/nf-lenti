@@ -90,6 +90,17 @@ threshold = args.threshold
 min_n_reads = args.min_n_reads
 spikeins = args.spikeins
 
+#
+import os
+os.chdir('/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/toy')
+path_i = 'GBC_not_corrected.tsv'
+threshold = 3
+method = 'directional' 
+min_n_reads = 1000
+spikeins = 'spikein.csv'
+path_o = os.getcwd()
+#
+
 
 ##
 
