@@ -150,6 +150,8 @@ def main():
     # Remove spikeins
     if spikeins is not None:
         spikes = pd.read_csv(spikeins, index_col=0).index
+        print ('spikes=', spikes)
+        print ('GBC_ounts con spikes=', GBC_counts.index.isin(spikes))
         GBC_counts = GBC_counts.loc[~GBC_counts.index.isin(spikes)]
         df = df.loc[~(df['correct'].isin(spikes) | df['degenerated'].isin(spikes))]
 
