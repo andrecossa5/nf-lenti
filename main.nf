@@ -81,6 +81,7 @@ workflow TENX_GBC_MITO {
     tenx(ch_tenx)
     sc_gbc(ch_sc_gbc, tenx.out.filtered)
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
+    maester.out.afm.view()
 
 }
 

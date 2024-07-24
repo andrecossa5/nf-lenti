@@ -13,10 +13,10 @@ process GATHER_TABLES {
         path(C), 
         path(T), 
         path(G), 
-        path(median_base_umi_group_size)
-        path(n_umis_unfiltered)
-        path(n_umis_filtered)
-        path(depth)
+        path(median_base_umi_group_size),
+        path(n_umis_unfiltered),
+        path(n_umis_filtered),
+        path(depth),
         path(coverage)
 
     output:
