@@ -95,7 +95,6 @@ workflow maester {
 
     emit:
         afm = TO_H5AD.out.afm
-        // afm = CONSENSUS_MITO.out.allelic_tables.groupTuple(by: 0)
 }
 
 //----------------------------------------------------------------------------//

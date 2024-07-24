@@ -23,7 +23,7 @@ my_parser = argparse.ArgumentParser(
 
 #Input
 my_parser.add_argument(
-    '--input_bam', 
+    '--consensus_bam', 
     type=str,
     default=None,
     help='path of the consensus bam'
@@ -71,7 +71,7 @@ my_parser.add_argument(
 # Parse arguments
 args = my_parser.parse_args()
 cell = args.cell
-consensus_bam = args.input_bam
+consensus_bam = args.consensus_bam
 base_quality_thr = args.min_base_qual
 mapping_quality_thr = args.min_alignment_quality
 base_depth_thr = args.min_base_depth
