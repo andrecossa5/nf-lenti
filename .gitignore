@@ -134,6 +134,7 @@ trace*
 .nextflow/
 .nextflow.log
 toy/
+./scratch/
 
 # DS_Store
 .DS_*
