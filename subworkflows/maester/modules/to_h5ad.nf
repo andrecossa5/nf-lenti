@@ -13,7 +13,7 @@ process TO_H5AD {
   path(fasta)
 
   output:
-  tuple val(sample_name), path("AFM.h5ad"), emit: afm
+  tuple val(sample_name), path("AFM.h5ad") emit: afm
 
   script:
   """

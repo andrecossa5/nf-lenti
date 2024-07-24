@@ -18,9 +18,10 @@
     "fgbio_UMI_consensus_edits" : 1,
     "fgbio_min_reads_gbc" : 10,
     "fgbio_min_reads_mito" : 3,
+    "fgbio_base_error_rate_gbc" : 0.2,
+    "fgbio_base_error_rate_mito" : 0.25,
     "fgbio_base_quality" : 30,
-    "fgbio_base_error_rate" : 0.2,
-    "min_alignment_quality" : 30,
+    "fgbio_min_alignment_quality" : 30,
 
     "sc_gbc_anchor_sequence" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
     "bulk_correction_treshold" : 3,

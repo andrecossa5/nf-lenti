@@ -3,15 +3,9 @@
 """
 Make allelic tables.
 """
- 
 
-##
-
-
-# Libraries
-import os
-import sys
 import argparse
+import numpy as np
 import pysam
 
 
@@ -53,7 +47,21 @@ my_parser.add_argument(
     '--min_alignment_quality', 
     type=int,
     default=None,
-    help='min mapping quality of the consesus read to the reference'
+    help='min mapping quality of the consensus read to the reference.'
+)
+
+my_parser.add_argument(
+    '--min_base_depth', 
+    type=int,
+    default=3,
+    help='min base depth (i.e., n reads at that position in the UMI group).'
+)
+
+my_parser.add_argument(
+    '--min_base_consensus_error', 
+    type=float,
+    default=.25,
+    help='min base consensus error (i.e., n reads not supporting the consesus call at that position in the UMI group).'
 )
 
 
@@ -62,52 +70,47 @@ my_parser.add_argument(
 
 # Parse arguments
 args = my_parser.parse_args()
-bamfile = args.input_bam
 cell = args.cell
-base_qual = args.min_base_qual
-alignment_quality = args.min_alignment_quality
+consensus_bam = args.input_bam
+base_quality_thr = args.min_base_qual
+mapping_quality_thr = args.min_alignment_quality
+base_depth_thr = args.min_base_depth
+base_consensus_error_thr = args.min_base_consensus_error
 
-
-##
-outpre = cell
-outputdepth = f'{cell}.depth.txt'
-sample = cell
-maxBP = 16569
-base_qual = 30
-#cell = 'TCCATCGAGAATAACC'
-#bamfile = '/Users/ieo6943/Desktop/bam_file_maester/TCCATCGAGAATAACC_consensus_filtered_mapped.bam'
-#outpre = f'/Users/ieo6943/Documents/Guido/scratch/Lareu/{cell}'
-
-#outputdepth = f'/Users/ieo6943/Documents/Guido/scratch/Lareu/{cell}.depth.txt'
-
-#mito_genome = '/Users/ieo6943/Documents/Guido/scratch/ref/new_genome_masked.fa'
-#alignment_quality = float(30)
+# Default
+maxBP = 16569                       # rRCS MT-genome length
 
 
 ##
 
 
-# Export Functions
-def writeSparseMatrix(mid, vec):
-	with open(outpre + "."+mid+".txt","w") as V:
+def writeSparseMatrix(cell, mid, vec):
+	with open(f'{cell}.{mid}.txt', 'w') as V:
 		for i in range(0,int(maxBP)):
-			if(vec[i] > 0):
-				V.write(str(i+1)+","+sample+","+str(vec[i])+"\n")
-def writeSparseMatrix2(mid, vec1, vec2):
-	with open(outpre + "."+mid+".txt","w") as V:
-		for i in range(0,int(maxBP)):
-			if(vec1[i] > 0 or vec2[i] > 0):
-				V.write(str(i+1)+","+sample+","+str(vec1[i])+","+str(vec2[i])+"\n")
-def writeSparseMatrix4(mid, vec1, vec2, vec3, vec4):
-	with open(outpre + "."+mid+".txt","w") as V:
-		for i in range(0,int(maxBP)):
-			if(vec1[i] > 0 or vec3[i] > 0):
-				V.write(str(i+1)+","+sample+","+str(vec1[i])+","+str(vec2[i])+","+str(vec3[i])+","+str(vec4[i])+"\n")
+			if vec[i] > 0:
+				V.write(f'{(i+1)},{cell},{str(vec[i])}\n')
+                        
+def writeSparseMatrix2(cell, mid, vec1, vec2):
+    with open(f'{cell}.{mid}.txt', 'w') as V:
+	    for i in range(0,int(maxBP)):
+		    if vec1[i] > 0 or vec2[i] > 0:
+			    V.write(f'{str(i+1)},{cell},{str(vec1[i])},{str(vec2[i])}\n')
+                        
+def writeSparseMatrix4(cell, mid, vec1, vec2, vec3, vec4):
+    with open(f'{cell}.{mid}.txt', 'w') as V:
+        for i in range(0,int(maxBP)):
+            if(vec1[i] > 0 or vec3[i] > 0):
+                V.write(f'{str(i+1)},{cell},{str(vec1[i])},{str(vec2[i])},{str(vec3[i])},{str(vec4[i])}\n')
+
+
+##
+
 
 def main():
-    n = int(maxBP)
 
     # initialize with a pseudo count to avoid dividing by zero
+    n = int(maxBP)
+
     countsA_fw = [0.00000001] * n 
     countsC_fw = [0.00000001] * n 
     countsG_fw = [0.00000001] * n 
@@ -120,7 +123,7 @@ def main():
 
     countsA_rev = [0.00000001] * n 
     countsC_rev = [0.00000001] * n 
-    countsG_rev = [0.00000001] * n 
+    countsG_rev = [0.00000001] * n
     countsT_rev = [0.00000001] * n 
 
     qualA_rev = [0.0] * n
@@ -129,44 +132,73 @@ def main():
     qualT_rev = [0.0] * n
 
 
-    bam2 = pysam.AlignmentFile(bamfile, "rb")
-    for read in bam2:
+    # Read bam
+    bam = pysam.AlignmentFile(consensus_bam, "rb", require_index=False)
+
+    # Loop for each read and base
+    n_umis_unfiltered = 0
+    n_umis_filtered = 0
+    read_groups_size = []
+
+    for read in bam:
+        
         seq = read.seq
         reverse = read.is_reverse
-        quality = read.query_qualities
-        align_qual_read = read.mapping_quality
-        for qpos, refpos in read.get_aligned_pairs(True):
-            if qpos is not None and refpos is not None and align_qual_read > alignment_quality:
-                if(seq[qpos] == "A" and quality[qpos] > base_qual):
-                    if(reverse):
-                        qualA_fw[refpos] += quality[qpos]
-                        countsA_fw[refpos] += 1
-                    else:
-                        qualA_rev[refpos] += quality[qpos]
-                        countsA_rev[refpos] += 1
-                elif(seq[qpos] == "C" and quality[qpos] > base_qual):
-                    if(reverse):
-                        qualC_fw[refpos] += quality[qpos]
-                        countsC_fw[refpos] += 1
-                    else:
-                        qualC_rev[refpos] += quality[qpos]
-                        countsC_rev[refpos] += 1
-                elif(seq[qpos] == "G" and quality[qpos] > base_qual):
-					
-                    if(reverse):
-                        qualG_fw[refpos] += quality[qpos]
-                        countsG_fw[refpos] += 1
-                    else:
-                        qualG_rev[refpos] += quality[qpos]
-                        countsG_rev[refpos] += 1
-                elif(seq[qpos] == "T" and quality[qpos] > base_qual):
-                    if(reverse):
-                        qualT_fw[refpos] += quality[qpos]
-                        countsT_fw[refpos] += 1
-                    else:
-                        qualT_rev[refpos] += quality[qpos]
-                        countsT_rev[refpos] += 1
-    
+        base_qualities = read.query_qualities
+        mapping_quality = read.mapping_quality
+        base_dephts = read.get_tag('cd')
+        base_consensus_error = read.get_tag('ce')
+
+        if mapping_quality >= mapping_quality_thr:                  # UMI sequence test 
+
+            for qpos, refpos in read.get_aligned_pairs(True):
+                
+                n_umis_unfiltered += 1
+                q = base_qualities[qpos]
+                d = base_dephts[qpos]
+                c_err = base_consensus_error[qpos]
+                base_test = ( qpos is not None) and \
+                            ( refpos is not None ) and \
+                            ( q >= base_quality_thr ) and \
+                            ( c_err <= base_consensus_error_thr ) and \
+                            ( d >= base_depth_thr )
+
+                if base_test:                                       # Individual base test 
+                    
+                    n_umis_filtered += 1
+                    read_groups_size.append(d)
+
+                    if seq[qpos] == "A":
+                        if reverse:
+                            qualA_fw[refpos] += q
+                            countsA_fw[refpos] += 1
+                        else:
+                            qualA_rev[refpos] += q
+                            countsA_rev[refpos] += 1
+                    elif seq[qpos] == "C":
+                        if reverse:
+                            qualC_fw[refpos] += q
+                            countsC_fw[refpos] += 1
+                        else:
+                            qualC_rev[refpos] += q
+                            countsC_rev[refpos] += 1
+                    elif seq[qpos] == "G":
+                        if reverse:
+                            qualG_fw[refpos] += q
+                            countsG_fw[refpos] += 1
+                        else:
+                            qualG_rev[refpos] += q
+                            countsG_rev[refpos] += 1
+                    elif seq[qpos] == "T":
+                        if reverse:
+                            qualT_fw[refpos] += q
+                            countsT_fw[refpos] += 1
+                        else:
+                            qualT_rev[refpos] += q
+                            countsT_rev[refpos] += 1
+
+
+    # Get Qual and base counts lists
     meanQualA_fw = [round(x/y,1) for x, y in zip(qualA_fw, countsA_fw)]
     meanQualC_fw = [round(x/y,1) for x, y in zip(qualC_fw, countsC_fw)]
     meanQualG_fw = [round(x/y,1) for x, y in zip(qualG_fw, countsG_fw)]
@@ -187,32 +219,42 @@ def main():
     countsG_rev = [ int(round(elem)) for elem in countsG_rev ]
     countsT_rev = [ int(round(elem)) for elem in countsT_rev ]
 
-    # Allele Counts
-
-    writeSparseMatrix4("A", countsA_fw, meanQualA_fw, countsA_rev, meanQualA_rev)
-    writeSparseMatrix4("C", countsC_fw, meanQualC_fw, countsC_rev, meanQualC_rev)
-    writeSparseMatrix4("G", countsG_fw, meanQualG_fw, countsG_rev, meanQualG_rev)
-    writeSparseMatrix4("T", countsT_fw, meanQualT_fw, countsT_rev, meanQualT_rev)
+    # Write as sparse
+    writeSparseMatrix4(cell, "A", countsA_fw, meanQualA_fw, countsA_rev, meanQualA_rev)
+    writeSparseMatrix4(cell, "C", countsC_fw, meanQualC_fw, countsC_rev, meanQualC_rev)
+    writeSparseMatrix4(cell, "G", countsG_fw, meanQualG_fw, countsG_rev, meanQualG_rev)
+    writeSparseMatrix4(cell, "T", countsT_fw, meanQualT_fw, countsT_rev, meanQualT_rev)
 
     zipped_list = zip(list(countsA_fw),list(countsC_fw),list(countsG_fw),list(countsT_fw), list(countsA_rev),list(countsC_rev),list(countsG_rev),list(countsT_rev))
     sums = [sum(item) for item in zipped_list]
-    writeSparseMatrix("coverage", sums)
+    writeSparseMatrix(cell, 'coverage', sums)
 
-#Get depth from the coverage sparse matrix
-    with open(outpre + ".coverage.txt", 'r') as coverage:
+    # Coverage
+    with open(f'{cell}.coverage.txt', 'r') as coverage:
         depth = 0
         for row in coverage:
-            s = row.split(",")
+            s = row.split(',')
             depth += int(s[2].strip())
-    with open(outputdepth, 'w') as d:
-    	d.write(sample + "\t" + str(round(float(depth)/float(maxBP),2)) + "\n")
 
+    # Depth
+    with open(f'{cell}.depth.txt', 'w') as d:
+    	d.write(f'{cell},{round(float(depth)/float(maxBP),2)}\n')
+         
+    # Added metrics
+    median_base_umi_group_size = np.median(read_groups_size)
+    with open(f'{cell}.median_base_umi_group_size.txt', 'w') as f:
+    	f.write(f'{cell},{median_base_umi_group_size}\n')
+         
+    with open(f'{cell}.n_umis_unfiltered.txt', 'w') as f:
+    	f.write(f'{cell},{n_umis_unfiltered}\n')
+         
+    with open(f'{cell}.n_umis_filtered.txt', 'w') as f:
+    	f.write(f'{cell},{n_umis_filtered}\n')
+         
 
 ##
 
 
-# Run
+# Run 
 if __name__ == '__main__':
     main()
-
-

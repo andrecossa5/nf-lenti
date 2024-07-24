@@ -28,6 +28,10 @@ process CONSENSUS_MITO {
     path("${cell}.C.txt"),
     path("${cell}.T.txt"),
     path("${cell}.G.txt"), 
+    path("${cell}.median_base_umi_group_size.txt"), 
+    path("${cell}.n_umis_unfiltered.txt"), 
+    path("${cell}.n_umis_filtered.txt"), 
+    path("${cell}.depth.txt"), 
     path("${cell}.coverage.txt"), emit: allelic_tables
 
   script:
@@ -56,23 +60,14 @@ process CONSENSUS_MITO {
     --tags-to-revcomp Consensus \
     --output cons_mapped.bam 
 
-  fgbio -Xmx8g --compression 0 FilterConsensusReads \
-    --input cons_mapped.bam \
-    --output /dev/stdout \
-    --ref ${ref} \
-    --min-reads ${params.fgbio_min_reads_mito} \
-    --min-base-quality ${params.fgbio_base_quality} \
-    --max-base-error-rate ${params.fgbio_base_error_rate} \
-    | samtools sort -@ 1 -o consensus_filtered_mapped.bam --write-index
-
-  ##
-
   # Create allelic tables
   python ${baseDir}/bin/maester/make_allelic_tables.py \
-  --input_bam consensus_filtered_mapped.bam \
+  --consensus_bam cons_mapped.bam \
   --cell ${cell} \
   --min_base_qual ${params.fgbio_base_quality} \
-  --min_alignment_quality ${params.min_alignment_quality}
+  --min_alignment_quality ${params.min_alignment_quality} \
+  --min_base_depth ${params.fgbio_min_reads_mito} \
+  --min_base_consensus_error ${params.fgbio_base_error_rate_mito}
   """
 
   stub:
@@ -81,6 +76,10 @@ process CONSENSUS_MITO {
   touch ${cell}.C.txt
   touch ${cell}.T.txt
   touch ${cell}.G.txt
+  touch ${cell}.median_base_umi_group_size.txt
+  touch ${cell}.n_umis_unfiltered.txt
+  touch ${cell}.n_umis_filtered.txt 
+  touch ${cell}.depth.txt
   touch ${cell}.coverage.txt
   """
 

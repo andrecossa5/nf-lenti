@@ -64,7 +64,7 @@ process CONSENSUS_LENTI {
     --ref ${ref} \
     --min-reads ${params.fgbio_min_reads_gbc} \
     --min-base-quality ${params.fgbio_base_quality} \
-    --max-base-error-rate ${params.fgbio_base_error_rate} \
+    --max-base-error-rate ${params.fgbio_base_error_rate_gbc} \
     | samtools sort -@ 1 -o consensus_filtered_mapped.bam --write-index
   
   
