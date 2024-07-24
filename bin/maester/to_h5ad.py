@@ -12,20 +12,6 @@ import pysam
 ##
 
 
-def check_files(path_folder='tables'):
-    """
-    Check if all files are present.
-    """
-    patterns = ['C.txt.gz', 'G.txt.gz', 'A.txt.gz', 'T.txt.gz', 'coverage.txt.gz']
-    checklist = []
-    for x in os.listdir(path_folder):
-        checklist.append(any([ bool(re.search(p, x)) for p in patterns ]))
-    assert all(checklist)
-
-
-##
-
-
 def sparse_from_long(df, cells_map, covariate, nrow, ncol):
     """
     Make a long df a sparse matrix. 
@@ -56,7 +42,7 @@ def main():
     ).set_index('pos')
 
     # Check all tables in place
-    check_files()
+    # check_files() # OLD
 
     # Load coverage and reference alleles
     cov = pd.read_csv(
