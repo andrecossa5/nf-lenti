@@ -39,14 +39,14 @@ my_parser.add_argument(
 my_parser.add_argument(
     '--min_base_qual', 
     type=int,
-    default=None,
+    default=30,
     help='min base quality of the cell'
 )
 
 my_parser.add_argument(
     '--min_alignment_quality', 
     type=int,
-    default=None,
+    default=60,
     help='min mapping quality of the consensus read to the reference.'
 )
 
@@ -78,7 +78,7 @@ base_depth_thr = args.min_base_depth
 base_consensus_error_thr = args.min_base_consensus_error
 
 # Default
-maxBP = 16569                       # rRCS MT-genome length
+maxBP = 16569                                                       # rRCS MT-genome length
 
 
 ##
@@ -147,20 +147,21 @@ def main():
         base_qualities = read.query_qualities
         mapping_quality = read.mapping_quality
         base_dephts = read.get_tag('cd')
-        base_consensus_error = read.get_tag('ce')
+        base_n_discordant = read.get_tag('ce')
 
         if mapping_quality >= mapping_quality_thr:                  # UMI sequence test 
 
             for qpos, refpos in read.get_aligned_pairs(True):
-                
+
                 n_umis_unfiltered += 1
                 q = base_qualities[qpos]
                 d = base_dephts[qpos]
-                c_err = base_consensus_error[qpos]
-                base_test = ( qpos is not None) and \
+                n_discordant = base_n_discordant[qpos]
+                r = n_discordant / (d+0.0000001)                             # Avoid dividing by zero
+                base_test = ( qpos is not None ) and \
                             ( refpos is not None ) and \
                             ( q >= base_quality_thr ) and \
-                            ( c_err <= base_consensus_error_thr ) and \
+                            ( r <= base_consensus_error_thr ) and \
                             ( d >= base_depth_thr )
 
                 if base_test:                                       # Individual base test 
@@ -243,13 +244,13 @@ def main():
     # Added metrics
     median_base_umi_group_size = np.median(read_groups_size)
     with open(f'{cell}.median_base_umi_group_size.txt', 'w') as f:
-    	f.write(f'{cell},{median_base_umi_group_size}\n')
+        f.write(f'{cell},{median_base_umi_group_size}\n')
          
     with open(f'{cell}.n_umis_unfiltered.txt', 'w') as f:
-    	f.write(f'{cell},{n_umis_unfiltered}\n')
+        f.write(f'{cell},{n_umis_unfiltered}\n')
          
     with open(f'{cell}.n_umis_filtered.txt', 'w') as f:
-    	f.write(f'{cell},{n_umis_filtered}\n')
+        f.write(f'{cell},{n_umis_filtered}\n')
          
 
 ##
