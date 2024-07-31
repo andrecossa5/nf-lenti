@@ -30,10 +30,8 @@ process CONSENSUS_LENTI {
   samtools sort -@ 1 ${bam} --write-index -o sorted.bam 
   samtools view -b sorted.bam ${params.string_lentiviral} > filtered.bam
 
-
   ##
 
-  
   # fgbio consensus pipeline
   fgbio -Xmx8g --compression 1 --async-io GroupReadsByUmi \
 	  --input filtered.bam \
