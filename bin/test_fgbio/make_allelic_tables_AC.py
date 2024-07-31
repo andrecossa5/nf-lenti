@@ -166,6 +166,7 @@ def main():
     for read in bam:
         
         n_reads_unfiltered += 1
+        n_umis_unfiltered += len(read.seq)
 
         seq = read.seq
         reverse = read.is_reverse
@@ -174,14 +175,16 @@ def main():
         base_dephts = read.get_tag('cd')
         base_n_discordant = read.get_tag('ce')
 
-        if mapping_quality >= mapping_quality_thr:                           # Entire sequence test 
+        BQ = np.median(base_qualities)
+        seq_test = mapping_quality >= mapping_quality_thr and BQ >= base_quality_thr
+
+        if seq_test:                                                         # Entire sequence test 
             
             n_reads_filtered += 1
-            median_read_base_qualities.append(np.median(base_qualities))
+            median_read_base_qualities.append(BQ)
 
             for qpos, refpos in read.get_aligned_pairs(True):
 
-                n_umis_unfiltered += 1
                 q = base_qualities[qpos]
                 d = base_dephts[qpos]
                 n_discordant = base_n_discordant[qpos]
@@ -262,7 +265,7 @@ def main():
     writeSparseMatrix4(cell, "T", countsT_fw, meanQualT_fw, countsT_rev, meanQualT_rev)
 
     zipped_list = zip(list(countsA_fw),list(countsC_fw),list(countsG_fw),list(countsT_fw), list(countsA_rev),list(countsC_rev),list(countsG_rev),list(countsT_rev))
-    sums = [sum(item) for item in zipped_list]
+    sums = [ sum(item) for item in zipped_list ]
     writeSparseMatrix(cell, 'coverage', sums)
 
     # Coverage
