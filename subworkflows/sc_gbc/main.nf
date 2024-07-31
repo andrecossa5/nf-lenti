@@ -1,14 +1,14 @@
 // sc subworkflow
 nextflow.enable.dsl = 2
-
-// Include here
-include { MERGE_R1 } from "../maester/modules/merge_R1.nf"
-include { MERGE_R2 } from "../maester/modules/merge_R2.nf"
-include { SOLO } from "./modules/Solo.nf"
-include { SPLIT_BARCODES } from "./modules/split_barcodes.nf"
-include { FILTER_LENTIBAM } from "./modules/filter_lentibam.nf"
-include { SPLIT_BAM } from "./modules/split_bam.nf"
-include { EXTRACT_FASTA } from "./modules/extract_fasta.nf"
+// 
+// // Include here
+include { MERGE_R1 } from "../common/modules/merge_R1.nf"
+include { MERGE_R2 } from "../common/modules/merge_R2.nf"
+include { SOLO } from "../common/modules/Solo.nf"
+include { SPLIT_BARCODES } from "../common/modules/split_barcodes.nf"
+include { FILTER_BAM_CB } from "../common/modules/filter_bam_cb.nf"
+include { SPLIT_BAM } from "../common/modules/split_bam.nf"
+include { EXTRACT_FASTA } from "../common/modules/extract_fasta.nf"
 include { CONSENSUS_LENTI } from "./modules/consensus_lenti.nf"
 include { COLLAPSE_TSV } from "./modules/collapse_tsv.nf"
 include { CELL_ASSIGNMENT } from "./modules/cell_assignment.nf"
@@ -31,8 +31,8 @@ workflow sc_gbc {
         MERGE_R1(ch_sc_gbc)
         MERGE_R2(ch_sc_gbc)
         SOLO(MERGE_R1.out.R1.combine(MERGE_R2.out.R2, by:0))
- 
-        // Merge mitobams and split into cell-specific bams
+
+        // Split into cell-specific bams
         SPLIT_BARCODES(ch_filtered)
         ch_barcodes = SPLIT_BARCODES.out.barcodes.flatMap { 
             sample_name, file_paths ->
@@ -42,12 +42,12 @@ workflow sc_gbc {
                 [[sample_name, file_paths]]
             }
         }
-        FILTER_LENTIBAM(SOLO.out.bam.combine(ch_barcodes, by:0))
-        SPLIT_BAM(FILTER_LENTIBAM.out.filtered_lentibam)
+        FILTER_BAM_CB(SOLO.out.bam.combine(ch_barcodes, by:0))
+        SPLIT_BAM(FILTER_BAM_CB.out.bam)
         ch_cell_bams = SPLIT_BAM.out.cell_bams
             .map { it ->
                 def sample = it[0] 
-                def paths = it[1]      
+                def paths = it[1]     
                 return paths.collect { cell_path ->
                     def path_splitted = cell_path.toString().split('/')
                     def cell = path_splitted[-1].toString().split('\\.')[0]
@@ -56,7 +56,7 @@ workflow sc_gbc {
             } 
             .flatMap { it } 
         EXTRACT_FASTA(params.string_lentiviral)
- 
+
         // Create consensus reads and cell assignment
         CONSENSUS_LENTI(ch_cell_bams, EXTRACT_FASTA.out.fasta)
         ch_collapse = CONSENSUS_LENTI.out.consensus_filtered_tsv 

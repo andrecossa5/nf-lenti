@@ -24,4 +24,4 @@ process MERGE_R1 {
   touch R1_raw.fastq.gz
   """
 
-}%
+}

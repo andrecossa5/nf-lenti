@@ -4,7 +4,7 @@ nextflow.enable.dsl = 2
 
 //
 
-process FILTER_MITOBAM {
+process FILTER_BAM_CB {
 
     tag "${sample_name}"
     
@@ -12,7 +12,7 @@ process FILTER_MITOBAM {
     tuple val(sample_name), path(bam), path(filtered)
     
     output:
-    tuple val(sample_name), path("filtered_mitobam.bam"), emit: filtered_mitobam
+    tuple val(sample_name), path("filtered_mitobam.bam"), emit: bam
 
     script:
     """
