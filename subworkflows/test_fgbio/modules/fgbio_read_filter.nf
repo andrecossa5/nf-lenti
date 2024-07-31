@@ -40,7 +40,7 @@ process FGBIO_READ_FILTER {
   """
   # fgbio consensus pipeline
   fgbio -Xmx8g --compression 1 --async-io GroupReadsByUmi \
-	  --input filtered.bam \
+	  --input ${bam} \
     --strategy ${params.fgbio_UMI_consensus_mode} \
     --edits ${params.fgbio_UMI_consensus_edits} \
 	  --output grouped.bam \
