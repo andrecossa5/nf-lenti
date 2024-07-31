@@ -7,6 +7,10 @@
     "sc_tenx_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_tenx/",
     "sc_maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_maester/",
     "sc_outdir" : "/Users/IEO5505/Desktop/example_mito/results",
+    
+    "test_bams" : "/Users/IEO5505/Desktop/example_mito/test",
+    "test_outdir" : "/Users/IEO5505/Desktop/example_mito/results/test_fgbio",
+    "test_fgbio_version" : "AA",
 
     "ref" : "/Users/IEO5505/Desktop/example_mito/meta/ref",
     "string_lentiviral" : "lentiCassette",

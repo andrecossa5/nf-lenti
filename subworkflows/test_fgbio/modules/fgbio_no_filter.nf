@@ -1,10 +1,10 @@
-// FGBIO_CUSTOM_FILTER module
+// CONSENSUS_MITO module
 
 nextflow.enable.dsl = 2
 
 //
 
-process FGBIO_CUSTOM_FILTER {
+process FGBIO_NO_FILTER {
 
   tag "${cell}"
 
@@ -70,7 +70,7 @@ process FGBIO_CUSTOM_FILTER {
   --min_alignment_quality ${params.fgbio_min_alignment_quality} \
   --min_base_depth ${params.fgbio_min_reads_mito} \
   --min_base_consensus_error ${params.fgbio_base_error_rate_mito} \
-  --filtering custom
+  --filtering no_filter
   """
 
   stub:
