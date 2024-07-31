@@ -36,6 +36,14 @@ process GATHER_TABLES {
     cat *.G.txt | gzip --fast > G.txt.gz
     cat *.depth.txt | gzip --fast > depth.txt.gz
     cat *.coverage.txt | gzip --fast > coverage.txt.gz
+    cat *.median_filtered_base_umi_group_size.txt | gzip --fast > median_filtered_base_umi_group_size.txt.gz
+    cat *.n_umis_unfiltered.txt | gzip --fast > n_umis_unfiltered.txt.gz
+    cat *.n_umis_filtered.txt | gzip --fast > n_umis_filtered.txt.gz
+    cat *.median_filtered_base_consensus_error.txt | gzip --fast > median_filtered_base_consensus_error.txt.gz
+    cat *.median_filtered_read_quality.txt | gzip --fast > median_filtered_read_quality.txt.gz
+    cat *.n_reads_filtered.txt | gzip --fast > n_reads_filtered.txt.gz
+    cat *.n_reads_unfiltered.txt | gzip --fast > n_reads_unfiltered.txt.gz
+
     mkdir tables 
     mv *.gz tables
 
