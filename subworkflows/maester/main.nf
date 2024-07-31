@@ -2,17 +2,15 @@
 
 // Include here
 nextflow.enable.dsl = 2
-include { MERGE_R1 } from "./modules/merge_R1.nf"
-include { MERGE_R2 } from "./modules/merge_R2.nf"
-include { ASSEMBLE_FQ } from "./modules/assemble_fastq.nf"
-include { STAR } from "./modules/STAR.nf"
+include { MERGE_R1 } from "../common/modules/merge_R1.nf"
+include { MERGE_R2 } from "../common/modules/merge_R2.nf"
 include { FILTER_10X_BAM } from "./modules/filter_bam.nf"
 include { FILTER_MAESTER_BAM } from "./modules/filter_bam.nf"
-include { FIX_TAGS } from "./modules/fix_tags.nf"
 include { MERGE_BAM } from "./modules/merge_bams.nf"
-include { FILTER_MITOBAM } from "./modules/filter_mitobam.nf"
-include { SPLIT_BAM } from "../sc_gbc/modules/split_bam.nf"
-include { EXTRACT_FASTA } from "../sc_gbc/modules/extract_fasta.nf"
+include { EXTRACT_FASTA } from "../common/modules/extract_fasta.nf"
+include { SPLIT_BARCODES } from "../common/modules/split_barcodes.nf"
+include { FILTER_BAM_CB } from "../common/modules/filter_bam_cb.nf"
+include { SPLIT_BAM } from "../common/modules/extract_fasta.nf"
 include { CONSENSUS_MITO } from "./modules/consensus_mito.nf"
 include { GATHER_TABLES } from "./modules/gather_allelic_tables.nf"
 include { TO_H5AD } from "./modules/to_h5ad.nf"
