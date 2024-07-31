@@ -43,13 +43,11 @@ process GATHER_TABLES {
     cat *.median_filtered_read_quality.txt | gzip --fast > median_filtered_read_quality.txt.gz
     cat *.n_reads_filtered.txt | gzip --fast > n_reads_filtered.txt.gz
     cat *.n_reads_unfiltered.txt | gzip --fast > n_reads_unfiltered.txt.gz
-
     mkdir tables 
     mv *.gz tables
 
     # Create stats.csv
-    # ....                  DO things with other tables
-    touch stats.csv
+    python ${baseDir}/bin/test_fgbio/get_stats.py
     """
 
     stub:
