@@ -12,17 +12,16 @@ process FILTER_BAM_CB {
     tuple val(sample_name), path(bam), path(filtered)
     
     output:
-    tuple val(sample_name), path("filtered_mitobam.bam"), emit: bam
+    tuple val(sample_name), path("filtered_bam_cb.bam"), emit: bam
 
     script:
     """
-    samtools index -@ ${task.cpus} ${bam}
-    python ${baseDir}/bin/maester/filter_mitobam.py ${filtered}/barcodes.tsv.gz
+    python ${baseDir}/bin/common/filter_bam_cb.py ${bam} filtered_bam_cb.bam ${filtered}/barcodes.tsv.gz
     """
 
     stub:
     """
-    touch filtered_mitobam.bam
+    touch filtered_bam_cb.bam
     """
 
 } 

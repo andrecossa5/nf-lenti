@@ -16,7 +16,7 @@ process SPLIT_BARCODES {
 
   script:
   """
-  python ${baseDir}/bin/sc_gbc/split_barcodes.py ${filtered}/barcodes.tsv.gz ${params.CBs_chunk_size}
+  python ${baseDir}/bin/common/split_barcodes.py ${filtered}/barcodes.tsv.gz ${params.CBs_chunk_size}
   """
 
   stub:

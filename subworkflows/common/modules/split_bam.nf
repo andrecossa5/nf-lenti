@@ -23,7 +23,7 @@ process SPLIT_BAM {
     stub:
     """
     python ${baseDir}/bin/sc_gbc/random_mock.py \
-    rm -f *lentibam.* *mitobam.*
+    rm -f *filtered_bam_cb*
     """
 
 }

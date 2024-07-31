@@ -12,7 +12,7 @@ process CONSENSUS_MITO {
   tuple val(sample_name), 
       val(cell), 
       path(bam)
-  tuple path(ref), 
+      tuple path(ref), 
       path(ref_dict),  
       path(ref_fa_amb),  
       path(ref_fa_ann),  
