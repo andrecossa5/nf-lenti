@@ -68,11 +68,11 @@ process FGBIO_READ_FILTER {
     --ref ${ref} \
     --min-reads ${params.fgbio_min_reads_gbc} \
     --min-base-quality ${params.fgbio_base_quality} \
-    --max-base-error-rate ${params.fgbio_base_error_rate_gbc} \
+    --max-base-error-rate ${params.fgbio_base_error_rate_mito} \
     | samtools sort -@ 1 -o consensus_filtered_mapped.bam --write-index
 
   # Create allelic tables
-  python ${baseDir}/bin/test_fgbio/make_allelic_tables_AC.py \
+  python ${baseDir}/bin/test_fgbio/make_allelic_tables_test.py \
   --consensus_bam consensus_filtered_mapped.bam \
   --cell ${cell} \
   --min_base_qual ${params.fgbio_base_quality} \

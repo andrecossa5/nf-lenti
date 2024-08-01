@@ -63,7 +63,7 @@ process FGBIO_NO_FILTER {
     --output cons_mapped.bam 
 
   # Create allelic tables
-  python ${baseDir}/bin/test_fgbio/make_allelic_tables_AC.py \
+  python ${baseDir}/bin/test_fgbio/make_allelic_tables_test.py \
   --consensus_bam cons_mapped.bam \
   --cell ${cell} \
   --min_base_qual ${params.fgbio_base_quality} \
