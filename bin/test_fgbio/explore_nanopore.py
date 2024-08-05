@@ -27,3 +27,4 @@ df.apply(lambda x: np.sum(~x.isna()), axis=0)
 
 top_three = ((~df.isna()).sum(axis=1)>=3).loc[lambda x: x].index
 df.loc[top_three]
+

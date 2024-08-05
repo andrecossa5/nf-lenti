@@ -135,7 +135,7 @@ def filter_UMIs(path_bam, positions=None, mapping_quality_thr=60, median_base_qu
 # mut_allele = 'A'
 
 
-def get_allele_counts(UMIs, UMI_group_sizes=None, chrom=None, pos=None, wt_allele=None, mut_allele=None, consensus_thr=.75, min_reads=2):
+def get_allele_counts(UMIs, UMI_group_sizes=None, chrom=None, pos=None, wt_allele=None, mut_allele=None, consensus_thr=.75, min_reads=3):
     """
     Consensus pileup at a target genomic position.
     """
