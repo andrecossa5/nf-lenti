@@ -8,10 +8,12 @@
     "sc_maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_maester/",
     "sc_outdir" : "/Users/IEO5505/Desktop/example_mito/results",
     
-    "test_bams" : "/Users/IEO5505/Desktop/example_mito/test",
-    "test_outdir" : "/Users/IEO5505/Desktop/example_mito/results/test_fgbio",
+    "test_bams" : "/Users/IEO5505/Desktop/example_mito/test_SCM",
+    "test_outdir" : "/Users/IEO5505/Desktop/example_mito/results/test_nanopore",
     "test_fgbio_version" : "AA",
-
+    "library" : "SCM-seq",
+    "scm_seq_positions" : "/Users/IEO5505/Desktop/example_mito/meta/sAML1.bed",
+	
     "ref" : "/Users/IEO5505/Desktop/example_mito/meta/ref",
     "string_lentiviral" : "lentiCassette",
     "string_MT" : "chrM",
