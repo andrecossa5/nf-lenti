@@ -17,7 +17,8 @@ process CONSENSUS_NANOPORE {
   script:
   """
   # Create allelic tables
-  python ${baseDir}/bin/test_fgbio/pileup_nanopore.py ${cell} ${bam} ${params.scm_seq_positions}
+  python ${baseDir}/bin/test_fgbio/pileup_nanopore.py \
+  ${cell} ${bam} ${params.scm_seq_positions} ${params.scm_seq_min_reads} ${params.scm_seq_base_consensus_error_thr} ${params.scm_seq_base_quality_thr}
   """
 
   stub:

@@ -13,6 +13,9 @@
     "test_fgbio_version" : "AA",
     "library" : "SCM-seq",
     "scm_seq_positions" : "/Users/IEO5505/Desktop/example_mito/meta/sAML1.bed",
+    "scm_seq_min_reads" : 3,
+    "scm_seq_base_consensus_error_thr" : 0.25,
+    "scm_seq_base_quality_thr" : 25,
 	
     "ref" : "/Users/IEO5505/Desktop/example_mito/meta/ref",
     "string_lentiviral" : "lentiCassette",
