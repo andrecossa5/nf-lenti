@@ -226,9 +226,9 @@ def main():
     cell = sys.argv[1]
     path_bam = sys.argv[2]
     path_bed = sys.argv[3]
-    min_reads = sys.argv[4]
-    base_consensus_error_thr = sys.argv[5]
-    base_quality_thr = sys.argv[6]
+    min_reads = int(sys.argv[4])
+    base_consensus_error_thr = float(sys.argv[5])
+    base_quality_thr = int(sys.argv[6])
 
     positions = pd.read_csv(path_bed, sep='\t', header=None)
     UMIs, d, UMI_stats = filter_UMIs(path_bam, positions)
