@@ -207,15 +207,15 @@ def make_allelic_table(UMIs, positions, UMI_stats=None, consensus_thr=.75, min_r
 # Filter UMIs
 
 # Test
-# path_ = '/Users/IEO5505/Desktop/example_mito/scratch'
-# os.chdir(path_)
-# cell = 'AAA'
-# path_bam = os.path.join(path_, 'nanopore.bam')
-# path_bed = os.path.join(path_, 'sAML1.bed')
-# base_quality_thr = 25                                   # 20 --> 1%, 30, 0.1 % errors --> NOT LESS THEN 25-30
-# mapping_quality_thr = 60                                # 20 --> 1%, 30, 0.1 % errors --> NOT LESS THEN 30
-# min_reads = 3
-# base_consensus_error_thr = .25
+path_ = '/Users/IEO5505/Desktop/example_mito/scratch'
+os.chdir(path_)
+cell = 'AAA'
+path_bam = os.path.join(path_, 'nanopore.bam')
+path_bed = os.path.join(path_, 'sAML1.bed')
+base_quality_thr = 25                                   # 20 --> 1%, 30, 0.1 % errors --> NOT LESS THEN 25-30
+mapping_quality_thr = 60                                # 20 --> 1%, 30, 0.1 % errors --> NOT LESS THEN 30
+min_reads = 1
+base_consensus_error_thr = .25
 
 
 ##
