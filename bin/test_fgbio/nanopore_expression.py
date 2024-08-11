@@ -38,7 +38,7 @@ sns.regplot(data=df_, x='expression_10x', y='coverage_SCM', scatter=False)
 ax.plot(df_['expression_10x'], df_['coverage_SCM'], 'ko', markersize=10)
 format_ax(ax=ax, title=f'Corr: {df_.corr().iloc[1,0]:.2f}', xlabel='n UMIs (expression, 10x)', ylabel='n UMIs (per target base, SCM-seq)')
 fig.tight_layout()
-fig.savefig(os.path.join(path_results, 'corr_SCM_10x_all_cells.png'), dpi=1000)
+fig.savefig(os.path.join(path_results, 'corr_SCM_10x_all_cells_aggregated.png'), dpi=1000)
 
 ##
 
@@ -60,8 +60,59 @@ format_ax(ax=ax, title=f'Corr: {df_[["nUMIs_SCM", "nUMIs_10x"]].corr().iloc[1,0]
 fig.tight_layout()
 fig.savefig(os.path.join(path_results, 'corr_SCM_10x_all_cells.png'), dpi=1000)
 
+plt.show()
 
 ##
 
+# Cell type
+path_meta = '/Users/IEO5505/Desktop/AML_clonal_reconstruction/data/meta/cells_meta.csv'
+meta = pd.read_csv(path_meta, index_col=0)
+df_ = df_.merge(meta[['aggregated_ct']].reset_index().rename(columns={'index':'cell'}), on='cell')
 
 
+np.sum(coverage>0)
+(WT['CSF3R']>0).sum()
+
+L = []
+
+for gene in df_['gene'].unique():
+    df_gene = df_.query('gene==@gene')
+    # tenx = (df_gene['nUMIs_SCM']>0).sum()
+    # scm = (df_gene['nUMIs_10x']>0).sum()
+    # print(f'{gene}: tenx {tenx}, scm {scm}')
+    both = np.sum((df_gene['nUMIs_SCM']>0) & (df_gene['nUMIs_SCM']>0))
+    print(f'{gene}: {both}')
+
+
+
+df = pd.DataFrame(L, columns=['nUMIs_SCM', 'nUMIs_10x'], index=df_['gene'].unique())
+df['nUMIs_SCM'] / df['nUMIs_10x']
+
+
+
+
+
+
+
+    fig, axs = plt.subplots(1,2,figsize=(7,4.5))
+
+    ax = axs[0]
+    box(df_gene, 'aggregated_ct', 'nUMIs_10x', ax=ax)
+    mean = df_gene['nUMIs_10x'].mean()
+    std = df_gene['nUMIs_10x'].std()
+    format_ax(ax=ax, rotx=90, ylabel='10x nUMIs', title=f'{mean:.2f}(+-{std:.2f})')
+    ax.set_ylim((-2,20))
+
+    ax = axs[1]
+    box(df_gene, 'aggregated_ct', 'nUMIs_SCM', ax=ax)
+    mean = df_gene['nUMIs_SCM'].mean()
+    std = df_gene['nUMIs_SCM'].std()
+    format_ax(ax=ax, rotx=90, ylabel='SCM-seq nUMIs', title=f'{mean:.2f}(+-{std:.2f})')
+    ax.set_ylim((-4,50))
+
+    fig.suptitle(f'{gene}: n cells {df_gene.shape[0]}')
+    fig.tight_layout()
+    fig.savefig(os.path.join(path_results, f'{gene}_nUMIs_by_celltype.png'), dpi=1000)
+
+
+##
