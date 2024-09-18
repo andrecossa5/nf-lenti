@@ -67,7 +67,7 @@ process CONSENSUS_MITO {
   --min_base_qual ${params.fgbio_base_quality} \
   --min_alignment_quality ${params.fgbio_min_alignment_quality} \
   --min_base_depth ${params.fgbio_min_reads_mito} \
-  --min_base_consensus_error ${params.fgbio_base_error_rate_mito}
+  --max_base_consensus_error ${params.fgbio_base_error_rate_mito}
   """
 
   stub:

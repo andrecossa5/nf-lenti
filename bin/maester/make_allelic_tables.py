@@ -58,10 +58,10 @@ my_parser.add_argument(
 )
 
 my_parser.add_argument(
-    '--min_base_consensus_error', 
+    '--max_base_consensus_error', 
     type=float,
     default=.25,
-    help='min base consensus error (i.e., n reads not supporting the consesus call at that position in the UMI group).'
+    help='Max base consensus error (i.e., n reads not supporting the consesus call at that position in the UMI group).'
 )
 
 
@@ -75,7 +75,7 @@ consensus_bam = args.consensus_bam
 base_quality_thr = args.min_base_qual
 mapping_quality_thr = args.min_alignment_quality
 base_depth_thr = args.min_base_depth
-base_consensus_error_thr = args.min_base_consensus_error
+base_consensus_error_thr = args.max_base_consensus_error
 
 # Default
 maxBP = 16569                                                       # rRCS MT-genome length
@@ -264,10 +264,10 @@ def main():
     meanConsG_rev = [round(x/y,1) for x, y in zip(consensusG_rev, countsG_rev)]
     meanConsT_rev = [round(x/y,1) for x, y in zip(consensusT_rev, countsT_rev)]
 
-    meanGSizeA_rev = [round(x/y,1) for x, y in zip(groupsizeA_rev, countsA_fw)]
-    meanGSizeC_rev = [round(x/y,1) for x, y in zip(groupsizeC_rev, countsC_fw)]
-    meanGSizeG_rev = [round(x/y,1) for x, y in zip(groupsizeG_rev, countsG_fw)]
-    meanGSizeT_rev = [round(x/y,1) for x, y in zip(groupsizeT_rev, countsT_fw)]
+    meanGSizeA_rev = [round(x/y,1) for x, y in zip(groupsizeA_rev, countsA_rev)]
+    meanGSizeC_rev = [round(x/y,1) for x, y in zip(groupsizeC_rev, countsC_rev)]
+    meanGSizeG_rev = [round(x/y,1) for x, y in zip(groupsizeG_rev, countsG_rev)]
+    meanGSizeT_rev = [round(x/y,1) for x, y in zip(groupsizeT_rev, countsT_rev)]
 
     countsA_rev = [ int(round(elem)) for elem in countsA_rev ]
     countsC_rev = [ int(round(elem)) for elem in countsC_rev ]
