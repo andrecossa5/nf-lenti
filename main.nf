@@ -1,4 +1,4 @@
-// mi_to_preprocessing, working now
+// mi_to_preprocessing, first
 nextflow.enable.dsl = 2
 
 // Include here
@@ -33,7 +33,7 @@ ch_maester = Channel
     .map{ tuple(it.getName(), it) }
 
 // Test
-ch_bams = Channel.fromPath("${params.test_bams}/*") 
+// ch_bams = Channel.fromPath("${params.test_bams}/*") 
 
 
 //
@@ -87,15 +87,6 @@ workflow TENX_GBC_MITO {
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
     maester.out.afm.view()
 
-}
-
-//
-
-workflow TEST_FGBIO {
- 
-    test_fgbio(ch_bams)
-    test_fgbio.out.results.view()
- 
 }
 
 //

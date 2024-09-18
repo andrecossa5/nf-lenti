@@ -41,8 +41,6 @@ def main():
         columns=['pos', 'ref']
     ).set_index('pos')
 
-    # Check all tables in place
-    # check_files() # OLD
 
     # Load coverage and reference alleles
     cov = pd.read_csv(
@@ -63,8 +61,8 @@ def main():
     # Coverage
     d['cov'] = sparse_from_long(cov, cells_map, 'cov', nrow, ncol)
 
-    # Base counts and qualities
-    covariates = ['counts_fw', 'qual_fw', 'counts_rev', 'qual_rev']
+    # Base UMI counts and (mean) qualities, consensus and group_size
+    covariates = ['counts_fw', 'qual_fw', 'cons_fw', 'group_size_fw', 'counts_rev', 'qual_rev', 'cons_rev', 'group_size_rev']
     base_files = { 
         x.split('.')[0] : x for x in os.listdir('tables') \
         if any(bool(re.search(p, x)) for p in ['A.txt', 'C.txt', 'T.txt', 'G.txt']) 
