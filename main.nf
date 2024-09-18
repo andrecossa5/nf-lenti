@@ -6,6 +6,7 @@ include { bulk_gbc } from "./subworkflows/bulk_gbc/main"
 include { tenx } from "./subworkflows/tenx/main"
 include { sc_gbc } from "./subworkflows/sc_gbc/main"
 include { maester } from "./subworkflows/maester/main"
+include { test_fgbio } from "./subworkflows/test_fgbio/main"
 
 
 //
@@ -30,6 +31,9 @@ ch_tenx = Channel
 ch_maester = Channel
     .fromPath("${params.sc_maester_indir}/*", type:'dir') 
     .map{ tuple(it.getName(), it) }
+
+// Test
+ch_bams = Channel.fromPath("${params.test_bams}/*") 
 
 
 //
@@ -83,6 +87,15 @@ workflow TENX_GBC_MITO {
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
     maester.out.afm.view()
 
+}
+
+//
+
+workflow TEST_FGBIO {
+ 
+    test_fgbio(ch_bams)
+    test_fgbio.out.results.view()
+ 
 }
 
 //

@@ -2,9 +2,9 @@
 
 // Include here
 nextflow.enable.dsl = 2
-include { MERGE_R1 } from "../maester/modules/merge_R1.nf"
-include { MERGE_R2 } from "../maester/modules/merge_R2.nf"
-include { SOLO } from "../sc_gbc/modules/Solo.nf"
+include { MERGE_R1 } from "../common/modules/merge_R1.nf"
+include { MERGE_R2 } from "../common/modules/merge_R2.nf"
+include { SOLO } from "../common/modules/Solo.nf"
 
 // 
 
