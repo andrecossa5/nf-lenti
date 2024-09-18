@@ -96,12 +96,11 @@ def writeSparseMatrix2(cell, mid, vec1, vec2):
 		    if vec1[i] > 0 or vec2[i] > 0:
 			    V.write(f'{str(i+1)},{cell},{str(vec1[i])},{str(vec2[i])}\n')
                         
-def writeSparseMatrix4(cell, mid, vec1, vec2, vec3, vec4):
+def writeSparseMatrix8(cell, mid, vec1, vec2, vec3, vec4, vec5, vec6, vec7, vec8):
     with open(f'{cell}.{mid}.txt', 'w') as V:
         for i in range(0,int(maxBP)):
-            if(vec1[i] > 0 or vec3[i] > 0):
-                V.write(f'{str(i+1)},{cell},{str(vec1[i])},{str(vec2[i])},{str(vec3[i])},{str(vec4[i])}\n')
-
+            if(vec1[i] > 0 or vec5[i] > 0):
+                V.write(f'{str(i+1)},{cell},{str(vec1[i])},{str(vec2[i])},{str(vec3[i])},{str(vec4[i])},{str(vec5[i])},{str(vec6[i])},{str(vec7[i])},{str(vec8[i])}\n')
 
 ##
 
@@ -121,6 +120,16 @@ def main():
     qualG_fw = [0.0] * n
     qualT_fw = [0.0] * n
 
+    consensusA_fw = [0.0] * n 
+    consensusC_fw = [0.0] * n 
+    consensusG_fw = [0.0] * n 
+    consensusT_fw = [0.0] * n 
+
+    groupsizeA_fw = [0.0] * n 
+    groupsizeC_fw = [0.0] * n 
+    groupsizeG_fw = [0.0] * n 
+    groupsizeT_fw = [0.0] * n 
+
     countsA_rev = [0.00000001] * n 
     countsC_rev = [0.00000001] * n 
     countsG_rev = [0.00000001] * n
@@ -130,6 +139,16 @@ def main():
     qualC_rev = [0.0] * n
     qualG_rev = [0.0] * n
     qualT_rev = [0.0] * n
+
+    consensusA_rev = [0.0] * n 
+    consensusC_rev = [0.0] * n 
+    consensusG_rev = [0.0] * n 
+    consensusT_rev = [0.0] * n 
+
+    groupsizeA_rev = [0.0] * n 
+    groupsizeC_rev = [0.0] * n 
+    groupsizeG_rev = [0.0] * n 
+    groupsizeT_rev = [0.0] * n 
 
 
     # Read bam
@@ -157,7 +176,7 @@ def main():
                 q = base_qualities[qpos]
                 d = base_dephts[qpos]
                 n_discordant = base_n_discordant[qpos]
-                r = n_discordant / (d+0.0000001)                             # Avoid dividing by zero
+                r = n_discordant / (d+0.0000001)                    # Avoid dividing by zero
                 base_test = ( qpos is not None ) and \
                             ( refpos is not None ) and \
                             ( q >= base_quality_thr ) and \
@@ -173,37 +192,62 @@ def main():
                         if reverse:
                             qualA_fw[refpos] += q
                             countsA_fw[refpos] += 1
+                            consensusA_fw[refpos] += 1-r 
+                            groupsizeA_fw[refpos] = d
                         else:
                             qualA_rev[refpos] += q
                             countsA_rev[refpos] += 1
+                            consensusA_rev[refpos] += 1-r 
+                            groupsizeA_rev[refpos] = d
                     elif seq[qpos] == "C":
                         if reverse:
                             qualC_fw[refpos] += q
                             countsC_fw[refpos] += 1
+                            consensusC_fw[refpos] += 1-r 
+                            groupsizeC_fw[refpos] = d 
                         else:
                             qualC_rev[refpos] += q
                             countsC_rev[refpos] += 1
+                            consensusC_rev[refpos] += 1-r
+                            groupsizeC_rev[refpos] = d 
                     elif seq[qpos] == "G":
                         if reverse:
                             qualG_fw[refpos] += q
                             countsG_fw[refpos] += 1
+                            consensusG_fw[refpos] += 1-r 
+                            groupsizeG_fw[refpos] = d 
                         else:
                             qualG_rev[refpos] += q
                             countsG_rev[refpos] += 1
+                            consensusG_rev[refpos] += 1-r 
+                            groupsizeG_rev[refpos] = d 
                     elif seq[qpos] == "T":
                         if reverse:
                             qualT_fw[refpos] += q
                             countsT_fw[refpos] += 1
+                            consensusT_fw[refpos] += 1-r 
+                            groupsizeT_fw[refpos] = d 
                         else:
                             qualT_rev[refpos] += q
                             countsT_rev[refpos] += 1
+                            consensusT_rev[refpos] += 1-r 
+                            groupsizeT_rev[refpos] = d 
 
-
-    # Get Qual and base counts lists
+    # Get mean quality, mean consensus, and base counts lists
     meanQualA_fw = [round(x/y,1) for x, y in zip(qualA_fw, countsA_fw)]
     meanQualC_fw = [round(x/y,1) for x, y in zip(qualC_fw, countsC_fw)]
     meanQualG_fw = [round(x/y,1) for x, y in zip(qualG_fw, countsG_fw)]
     meanQualT_fw = [round(x/y,1) for x, y in zip(qualT_fw, countsT_fw)]
+
+    meanConsA_fw = [round(x/y,1) for x, y in zip(consensusA_fw, countsA_fw)]
+    meanConsC_fw = [round(x/y,1) for x, y in zip(consensusC_fw, countsC_fw)]
+    meanConsG_fw = [round(x/y,1) for x, y in zip(consensusG_fw, countsG_fw)]
+    meanConsT_fw = [round(x/y,1) for x, y in zip(consensusT_fw, countsT_fw)]
+
+    meanGSizeA_fw = [round(x/y,1) for x, y in zip(groupsizeA_fw, countsA_fw)]
+    meanGSizeC_fw = [round(x/y,1) for x, y in zip(groupsizeC_fw, countsC_fw)]
+    meanGSizeG_fw = [round(x/y,1) for x, y in zip(groupsizeG_fw, countsG_fw)]
+    meanGSizeT_fw = [round(x/y,1) for x, y in zip(groupsizeT_fw, countsT_fw)]
 
     countsA_fw = [ int(round(elem)) for elem in countsA_fw ]
     countsC_fw = [ int(round(elem)) for elem in countsC_fw ]
@@ -215,16 +259,26 @@ def main():
     meanQualG_rev = [round(x/y,1) for x, y in zip(qualG_rev, countsG_rev)]
     meanQualT_rev = [round(x/y,1) for x, y in zip(qualT_rev, countsT_rev)]
 
+    meanConsA_rev = [round(x/y,1) for x, y in zip(consensusA_rev, countsA_rev)]
+    meanConsC_rev = [round(x/y,1) for x, y in zip(consensusC_rev, countsC_rev)]
+    meanConsG_rev = [round(x/y,1) for x, y in zip(consensusG_rev, countsG_rev)]
+    meanConsT_rev = [round(x/y,1) for x, y in zip(consensusT_rev, countsT_rev)]
+
+    meanGSizeA_rev = [round(x/y,1) for x, y in zip(groupsizeA_rev, countsA_fw)]
+    meanGSizeC_rev = [round(x/y,1) for x, y in zip(groupsizeC_rev, countsC_fw)]
+    meanGSizeG_rev = [round(x/y,1) for x, y in zip(groupsizeG_rev, countsG_fw)]
+    meanGSizeT_rev = [round(x/y,1) for x, y in zip(groupsizeT_rev, countsT_fw)]
+
     countsA_rev = [ int(round(elem)) for elem in countsA_rev ]
     countsC_rev = [ int(round(elem)) for elem in countsC_rev ]
     countsG_rev = [ int(round(elem)) for elem in countsG_rev ]
     countsT_rev = [ int(round(elem)) for elem in countsT_rev ]
 
     # Write as sparse
-    writeSparseMatrix4(cell, "A", countsA_fw, meanQualA_fw, countsA_rev, meanQualA_rev)
-    writeSparseMatrix4(cell, "C", countsC_fw, meanQualC_fw, countsC_rev, meanQualC_rev)
-    writeSparseMatrix4(cell, "G", countsG_fw, meanQualG_fw, countsG_rev, meanQualG_rev)
-    writeSparseMatrix4(cell, "T", countsT_fw, meanQualT_fw, countsT_rev, meanQualT_rev)
+    writeSparseMatrix8(cell, "A", countsA_fw, meanQualA_fw, meanConsA_fw, meanGSizeA_fw, countsA_rev, meanQualA_rev, meanConsA_rev, meanGSizeA_rev)
+    writeSparseMatrix8(cell, "C", countsC_fw, meanQualC_fw, meanConsC_fw, meanGSizeC_fw, countsC_rev, meanQualC_rev, meanConsC_rev, meanGSizeC_rev)
+    writeSparseMatrix8(cell, "G", countsG_fw, meanQualG_fw, meanConsG_fw, meanGSizeG_fw, countsG_rev, meanQualG_rev, meanConsG_rev, meanGSizeG_rev)
+    writeSparseMatrix8(cell, "T", countsT_fw, meanQualT_fw, meanConsT_fw, meanGSizeT_fw, countsT_rev, meanQualT_rev, meanConsT_rev, meanGSizeT_rev)
 
     zipped_list = zip(list(countsA_fw),list(countsC_fw),list(countsG_fw),list(countsT_fw), list(countsA_rev),list(countsC_rev),list(countsG_rev),list(countsT_rev))
     sums = [sum(item) for item in zipped_list]
