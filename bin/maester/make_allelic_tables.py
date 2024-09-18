@@ -193,45 +193,45 @@ def main():
                             qualA_fw[refpos] += q
                             countsA_fw[refpos] += 1
                             consensusA_fw[refpos] += 1-r 
-                            groupsizeA_fw[refpos] = d
+                            groupsizeA_fw[refpos] += d
                         else:
                             qualA_rev[refpos] += q
                             countsA_rev[refpos] += 1
                             consensusA_rev[refpos] += 1-r 
-                            groupsizeA_rev[refpos] = d
+                            groupsizeA_rev[refpos] += d
                     elif seq[qpos] == "C":
                         if reverse:
                             qualC_fw[refpos] += q
                             countsC_fw[refpos] += 1
                             consensusC_fw[refpos] += 1-r 
-                            groupsizeC_fw[refpos] = d 
+                            groupsizeC_fw[refpos] += d 
                         else:
                             qualC_rev[refpos] += q
                             countsC_rev[refpos] += 1
                             consensusC_rev[refpos] += 1-r
-                            groupsizeC_rev[refpos] = d 
+                            groupsizeC_rev[refpos] += d 
                     elif seq[qpos] == "G":
                         if reverse:
                             qualG_fw[refpos] += q
                             countsG_fw[refpos] += 1
                             consensusG_fw[refpos] += 1-r 
-                            groupsizeG_fw[refpos] = d 
+                            groupsizeG_fw[refpos] += d 
                         else:
                             qualG_rev[refpos] += q
                             countsG_rev[refpos] += 1
                             consensusG_rev[refpos] += 1-r 
-                            groupsizeG_rev[refpos] = d 
+                            groupsizeG_rev[refpos] += d 
                     elif seq[qpos] == "T":
                         if reverse:
                             qualT_fw[refpos] += q
                             countsT_fw[refpos] += 1
                             consensusT_fw[refpos] += 1-r 
-                            groupsizeT_fw[refpos] = d 
+                            groupsizeT_fw[refpos] += d 
                         else:
                             qualT_rev[refpos] += q
                             countsT_rev[refpos] += 1
                             consensusT_rev[refpos] += 1-r 
-                            groupsizeT_rev[refpos] = d 
+                            groupsizeT_rev[refpos] += d 
 
     # Get mean quality, mean consensus, and base counts lists
     meanQualA_fw = [round(x/y,1) for x, y in zip(qualA_fw, countsA_fw)]
