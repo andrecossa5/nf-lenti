@@ -28,19 +28,13 @@ RUN wget https://github.com/conda-forge/miniforge/releases/latest/download/Mamba
     && bash Mambaforge-Linux-x86_64.sh -b -p /mambaforge
 ENV PATH="/mambaforge/bin/:$PATH"
 
-## Clone repo and install code
-RUN echo new_commits
-RUN git clone https://github.com/andrecossa5/mito_utils.git \
-    && cd mito_utils \
-    && mamba env update -n base -f envs/environment.yml \
-    && mamba develop .. \
-    && mamba develop ../mito_utils/ 
-
-# pysam dnaio
-RUN pip install pysam dnaio
-
-# Maegatk repo
+# Tools
+RUN mamba install -c bioconda samtools cellsnp-lite freebayes
 RUN git clone https://github.com/caleblareau/maegatk.git
+RUN git clone https://github.com/KChen-lab/Monopogen.git \
+   && cd Monopogen \
+   && pip install -e .
+
 
 ## Default command to initialize the container
 CMD [ "bash" ]
