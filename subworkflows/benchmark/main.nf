@@ -59,7 +59,7 @@ workflow benchmark {
 
             SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams) 
-            FREEBAYES(ch_cell_bams, EXTRACT_FASTA.out.fasta.map{it->it[0]})
+            FREEBAYES(ch_cell_bams, EXTRACT_FASTA.out.fasta.map{it->tuple(it[0],it[5])})
             ch_output = COLLAPSE_FREEBAYES(FREEBAYES.out.calls.groupTuple(by:0))
 
         } else if (params.pp_method == "maegatk") {
