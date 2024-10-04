@@ -10,7 +10,7 @@ process FREEBAYES {
 
     input:
     tuple val(sample_name), val(cell), path(bam)
-    path(reference)
+    tuple path(reference), path(ref_idx)
 
     output:
     tuple val(sample_name), val(cell), path("${cell}_filtered.tsv"), emit: calls
