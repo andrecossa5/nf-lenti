@@ -48,7 +48,7 @@ workflow benchmark {
             SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
             SAMTOOLS(ch_cell_bams, EXTRACT_FASTA.out.fasta.map{it->it[0]})
-            matrices = COLLAPSE_SAMTOOLS(SAMTOOLS.out.calls)
+            matrices = COLLAPSE_SAMTOOLS(SAMTOOLS.out.calls.groupTuple(by:0))
 
         } else if (params.pp_method == "cellsnp-lite") {
 

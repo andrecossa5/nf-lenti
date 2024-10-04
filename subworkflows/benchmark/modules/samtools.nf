@@ -13,7 +13,7 @@ process SAMTOOLS {
     path(reference)
 
     output:
-    tuple val(sample_name), path("${cell}_filtered.tsv"), emit: calls
+    tuple val(sample_name), val(cell), path("${cell}_filtered.tsv"), emit: calls
 
     script:
     """ 
@@ -37,7 +37,9 @@ process COLLAPSE_SAMTOOLS {
     tag "${sample_name}"
 
     input:
-    tuple val(sample_name), path(muts)
+    tuple val(sample), 
+        val(cells), 
+        path(call)
 
     output:
     tuple val(sample_name),
