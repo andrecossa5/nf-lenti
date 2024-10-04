@@ -15,7 +15,7 @@ process MAEGATK {
   output:
   tuple val(sample_name), 
     val(cell), 
-    path("${touch}.A.txt"),
+    path("${cell}.A.txt"),
     path("${cell}.C.txt"),  
     path("${cell}.G.txt"),  
     path("${cell}.T.txt"),
@@ -30,7 +30,7 @@ process MAEGATK {
 
   stub:
   """
-  touch ${touch}.A.txt  
+  touch ${cell}.A.txt  
   touch ${cell}.C.txt  
   touch ${cell}.G.txt  
   touch ${cell}.T.txt 
