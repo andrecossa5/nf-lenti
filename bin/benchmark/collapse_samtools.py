@@ -24,7 +24,7 @@ def main():
 
     calls = [ read_call(x) for x in os.listdir() if x.endswith('filtered.tsv') ]
     calls = pd.concat(calls)
-    calls.to_csv('samtools_calls.csv.gz')
+    calls.to_csv('samtools_allele_table.csv.gz')
 
 
 ##
