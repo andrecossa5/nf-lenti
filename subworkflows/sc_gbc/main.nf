@@ -64,7 +64,7 @@ workflow sc_gbc {
         }
         FILTER_BAM_CB(SOLO.out.bam.combine(ch_barcodes, by:0))
         SPLIT_BAM(FILTER_BAM_CB.out.bam)
-        ch_cell_bams = processCellBams(cell_bams)
+        ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
         EXTRACT_FASTA(params.string_lentiviral)
 
         // Create consensus reads and cell assignment

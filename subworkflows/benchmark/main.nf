@@ -46,7 +46,7 @@ workflow benchmark {
         if (params.pp_method == "samtools") {
 
             SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
-            ch_cell_bams = processCellBams(cell_bams)
+            ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
             SAMTOOLS(ch_cell_bams, EXTRACT_FASTA.out.fasta)
             matrices = COLLAPSE_SAMTOOLS(SAMTOOLS.out.calls)
 
@@ -57,14 +57,14 @@ workflow benchmark {
         } else if (params.pp_method == "freebayes") {
 
             SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
-            ch_cell_bams = processCellBams(cell_bams) 
+            ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams) 
             FREEBAYES(ch_cell_bams, EXTRACT_FASTA.out.fasta)
             matrices = COLLAPSE_FREEBAYES(FREEBAYES.out.calls)
 
         } else if (params.pp_method == "maegatk") {
 
             SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
-            ch_cell_bams = processCellBams(cell_bams)
+            ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
             MAEGATK(ch_cell_bams, EXTRACT_FASTA.out.fasta)
             matrices = COLLAPSE_MAEGATK(MAEGATK.out.tables)
         

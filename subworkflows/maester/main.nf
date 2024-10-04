@@ -91,7 +91,7 @@ workflow maester {
         }
         FILTER_BAM_CB(MERGE_BAM.out.bam.combine(ch_barcodes, by:0))
         SPLIT_BAM(FILTER_BAM_CB.out.bam)
-        ch_cell_bams = processCellBams(cell_bams)
+        ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
         EXTRACT_FASTA(params.string_MT)
 
         // Make consensus reads, create and aggregate cells allelic tables
