@@ -6,10 +6,11 @@ nextflow.enable.dsl = 2
 
 process MAEGATK {
 
-  tag "${sample_name}"
+  tag "${sample_name}: ${cell}"
 
   input:
-  tuple val(sample_name), path(bam)
+  tuple val(sample_name), val(cell), path(bam)
+  path(reference)
 
   output:
   tuple val(sample_name), path("tables"), emit: tables

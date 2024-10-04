@@ -42,8 +42,24 @@ process publish_maester {
  
 // 
 
+def processCellBams(cell_bams) {
+    return cell_bams
+        .map { it ->
+            def sample = it[0]
+            def paths = it[1]
+            return paths.collect { cell_path ->
+                def path_splitted = cell_path.toString().split('/')
+                def cell = path_splitted[-1].toString().split('\\.')[0]
+                return [sample, cell, cell_path]
+            }
+        }
+        .flatMap { it }
+}
+
+//
+
 //----------------------------------------------------------------------------//
-// maester_pp subworkflow
+// maester subworkflow
 //----------------------------------------------------------------------------//
 
 workflow maester {
@@ -75,17 +91,7 @@ workflow maester {
         }
         FILTER_BAM_CB(MERGE_BAM.out.bam.combine(ch_barcodes, by:0))
         SPLIT_BAM(FILTER_BAM_CB.out.bam)
-        ch_cell_bams = SPLIT_BAM.out.cell_bams
-            .map { it ->
-                def sample = it[0] 
-                def paths = it[1]     
-                return paths.collect { cell_path ->
-                    def path_splitted = cell_path.toString().split('/')
-                    def cell = path_splitted[-1].toString().split('\\.')[0]
-                    return [sample, cell, cell_path]
-                }
-            } 
-            .flatMap { it } 
+        ch_cell_bams = processCellBams(cell_bams)
         EXTRACT_FASTA(params.string_MT)
 
         // Make consensus reads, create and aggregate cells allelic tables

@@ -1,7 +1,7 @@
 // sc subworkflow
 nextflow.enable.dsl = 2
-// 
-// // Include here
+
+// Include here
 include { MERGE_R1 } from "../common/modules/merge_R1.nf"
 include { MERGE_R2 } from "../common/modules/merge_R2.nf"
 include { SOLO } from "../common/modules/Solo.nf"
@@ -18,6 +18,26 @@ include { publish_sc_gbc } from "./modules/publish.nf"
  
 //
 
+def processCellBams(cell_bams) {
+    return cell_bams
+        .map { it ->
+            def sample = it[0]
+            def paths = it[1]
+            return paths.collect { cell_path ->
+                def path_splitted = cell_path.toString().split('/')
+                def cell = path_splitted[-1].toString().split('\\.')[0]
+                return [sample, cell, cell_path]
+            }
+        }
+        .flatMap { it }
+}
+
+//
+
+
+//----------------------------------------------------------------------------//
+// sc_gbc subworkflow
+//----------------------------------------------------------------------------//
 
 workflow sc_gbc {
     
@@ -44,17 +64,7 @@ workflow sc_gbc {
         }
         FILTER_BAM_CB(SOLO.out.bam.combine(ch_barcodes, by:0))
         SPLIT_BAM(FILTER_BAM_CB.out.bam)
-        ch_cell_bams = SPLIT_BAM.out.cell_bams
-            .map { it ->
-                def sample = it[0] 
-                def paths = it[1]     
-                return paths.collect { cell_path ->
-                    def path_splitted = cell_path.toString().split('/')
-                    def cell = path_splitted[-1].toString().split('\\.')[0]
-                    return [sample, cell, cell_path]
-                }
-            } 
-            .flatMap { it } 
+        ch_cell_bams = processCellBams(cell_bams)
         EXTRACT_FASTA(params.string_lentiviral)
 
         // Create consensus reads and cell assignment
@@ -87,3 +97,5 @@ workflow sc_gbc {
         summary = generate_run_summary_sc.out.summary
 
 }
+
+//----------------------------------------------------------------------------//
