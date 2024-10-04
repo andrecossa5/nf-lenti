@@ -30,6 +30,10 @@
     "max_ratio_treshold" : 0.75,
     "normalized_abundance_treshold" : 0.75,
     "sample_params" : "None",
-    "gbc_sample_map" : "None"
+    "gbc_sample_map" : "None",
+
+    "bam_file" : "/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/scratch/bam_file.csv",
+    "pp_method" : "maegatk"
+
 
 }
