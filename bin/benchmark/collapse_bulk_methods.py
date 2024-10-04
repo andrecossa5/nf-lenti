@@ -1,14 +1,14 @@
 #!/usr/bin/python
 
 import os
-from scipy.sparse import csr_matrix, save_npz
+import sys
 import pandas as pd
 
 
 ##
 
 
-def read_call(path):
+def read_samtools_call(path):
     cell = path.split('_')[0]
     df = pd.read_csv(path, sep='\t', header=None)
     df.columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'AD', 'DP']
@@ -19,6 +19,9 @@ def read_call(path):
 
 ##
 
+
+# Args 
+method = 
 
 def main():
 
