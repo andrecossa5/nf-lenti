@@ -33,21 +33,15 @@ def read_freebayes_call(path):
 ##
 
 
-# Args 
-method = sys.argv[1] 
-
-
-##
-
-
 def main():
 
+    method = sys.argv[1] 
     if method == 'samtools':
         calls = [ read_samtools_call(x) for x in os.listdir() if x.endswith('filtered.tsv') ]
     elif method == 'freebayes':
         calls = [ read_freebayes_call(x) for x in os.listdir() if x.endswith('filtered.tsv') ]
 
-    calls = pd.concat(calls)
+    calls = pd.concat(calls).query('DP>=10')        # At least 10 deduplicated reads
     calls.to_csv(f'{method}_allele_table.csv.gz')
 
 
