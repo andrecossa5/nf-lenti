@@ -21,13 +21,19 @@ def read_samtools_call(path):
 
 
 # Args 
-method = 
+method = sys.argv[1] 
+
+
+##
+
 
 def main():
 
-    calls = [ read_call(x) for x in os.listdir() if x.endswith('filtered.tsv') ]
+    if method == 'samtools':
+        calls = [ read_samtools_call(x) for x in os.listdir() if x.endswith('filtered.tsv') ]
+
     calls = pd.concat(calls)
-    calls.to_csv('samtools_allele_table.csv.gz')
+    calls.to_csv(f'{method}_allele_table.csv.gz')
 
 
 ##
