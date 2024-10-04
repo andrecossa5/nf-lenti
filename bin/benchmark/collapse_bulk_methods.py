@@ -31,6 +31,7 @@ def main():
 
     if method == 'samtools':
         calls = [ read_samtools_call(x) for x in os.listdir() if x.endswith('filtered.tsv') ]
+    
 
     calls = pd.concat(calls)
     calls.to_csv(f'{method}_allele_table.csv.gz')
