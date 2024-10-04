@@ -13,13 +13,14 @@ process CELLSNP {
 
     output:
     tuple val(sample_name),
-        path('AD.mtx'), 
-        path('DP.mtx'),
-        path('cells.txt'), emit: matrices
+    path('AD.mtx'), 
+    path('DP.mtx'),
+    path('cells.txt'), emit: matrices
 
     script:
     """ 
-    # ...
+    samtools index ${bam}
+    cellsnp-lite -s ${bam} -O out_cellsnp -p 10 --minMAF 0.1 --minCOUNT 100 --chrom M -b ${barcodes}
     """
 
     stub:
