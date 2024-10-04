@@ -49,7 +49,7 @@ process COLLAPSE_MAEGATK {
   publishDir "${params.sc_outdir}/${sample_name}/", mode: 'copy'
 
   input:
-  tuple val(sample), 
+  tuple val(sample_name), 
       val(cells), 
       path(A), 
       path(C), 
@@ -59,7 +59,7 @@ process COLLAPSE_MAEGATK {
       path(depth)
 
   output:
-  tuple val(sample), path(tables), emit: tables
+  tuple val(sample_name), path(tables), emit: tables
  
   script:
   """ 
