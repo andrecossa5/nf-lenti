@@ -24,12 +24,7 @@ def main():
 
     calls = [ read_call(x) for x in os.listdir() if x.endswith('filtered.tsv') ]
     calls = pd.concat(calls)
-    cell_map = { x:i for i,x in enumerate(calls['cell'].unique()) }
-    calls['cell'] = calls['cell'].map(cell_map).astype(int)
-
-    pd.Series(cell_map).to_csv('cells.txt', header=False)
-    save_npz(csr_matrix(calls[['POS','cell','AD']].values), 'AD.npz')
-    save_npz(csr_matrix(calls[['POS','cell','DP']].values), 'AD.npz')
+    calls.to_csv('samtools_calls.csv.gz')
 
 
 ##
