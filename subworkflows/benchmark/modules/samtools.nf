@@ -38,9 +38,9 @@ process COLLAPSE_SAMTOOLS {
     publishDir "${params.sc_outdir}/${sample_name}/", mode: 'copy'
 
     input:
-    tuple val(sample), 
+    tuple val(sample_name), 
         val(cells), 
-        path(call)
+        path(calls)
 
     output:
     tuple val(sample_name),
