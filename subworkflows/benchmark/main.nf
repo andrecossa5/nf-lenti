@@ -68,7 +68,8 @@ workflow benchmark {
             SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
             MAEGATK(ch_cell_bams, EXTRACT_FASTA.out.fasta)
-            ch_output = COLLAPSE_MAEGATK(MAEGATK.out.tables.groupTuple(by:0))
+            COLLAPSE_MAEGATK(MAEGATK.out.tables.groupTuple(by:0)) 
+            ch_output = COLLAPSE_MAEGATK
         
         } else {
             
