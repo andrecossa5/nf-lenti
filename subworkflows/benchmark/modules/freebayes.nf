@@ -45,16 +45,16 @@ process COLLAPSE_FREEBAYES {
 
     output:
     tuple val(sample_name),
-        path('freebayes_allele_table.csv.gz'), emit: allele_counts
+        path('allele_table.csv.gz'), emit: allele_counts
 
     script:
     """ 
-    python ${baseDir}/bin/benchmark/collapse_bulk_methods.py freebayes
+    python ${baseDir}/bin/benchmark/collapse_bulk_methods.py
     """
 
     stub:
     """
-    touch freebayes_allele_table.csv.gz
+    touch allele_table.csv.gz
     """
 
 }

@@ -44,16 +44,16 @@ process COLLAPSE_SAMTOOLS {
 
     output:
     tuple val(sample_name),
-        path('samtools_allele_table.csv.gz'), emit: allele_counts
+        path('allele_table.csv.gz'), emit: allele_counts
 
     script:
     """ 
-    python ${baseDir}/bin/benchmark/collapse_bulk_methods.py samtools 
+    python ${baseDir}/bin/benchmark/collapse_bulk_methods.py
     """
 
     stub:
     """
-    touch samtools_allele_table.csv.gz
+    touch allele_table.csv.gz
     """
 
 }
