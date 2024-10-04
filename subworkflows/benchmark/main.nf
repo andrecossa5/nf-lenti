@@ -48,25 +48,26 @@ workflow benchmark {
             SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
             SAMTOOLS(ch_cell_bams, EXTRACT_FASTA.out.fasta.map{it->it[0]})
-            matrices = COLLAPSE_SAMTOOLS(SAMTOOLS.out.calls.groupTuple(by:0))
+            COLLAPSE_SAMTOOLS(SAMTOOLS.out.calls.groupTuple(by:0))
+            ch_output = COLLAPSE_SAMTOOLS.out.allele_counts
 
         } else if (params.pp_method == "cellsnp-lite") {
 
-            matrices = CELLSNP(ch_bams)
+            ch_output = CELLSNP(ch_bams)
 
         } else if (params.pp_method == "freebayes") {
 
             SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams) 
             FREEBAYES(ch_cell_bams, EXTRACT_FASTA.out.fasta.map{it->it[0]})
-            matrices = COLLAPSE_FREEBAYES(FREEBAYES.out.calls)
+            ch_output = COLLAPSE_FREEBAYES(FREEBAYES.out.calls.groupTuple(by:0))
 
         } else if (params.pp_method == "maegatk") {
 
             SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
             MAEGATK(ch_cell_bams, EXTRACT_FASTA.out.fasta)
-            matrices = COLLAPSE_MAEGATK(MAEGATK.out.tables)
+            ch_output = COLLAPSE_MAEGATK(MAEGATK.out.tables.groupTuple(by:0))
         
         } else {
             
@@ -76,7 +77,7 @@ workflow benchmark {
 
     emit:
 
-        matrices = matrices
+        ch_output = ch_output
 
 }
 

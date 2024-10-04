@@ -96,7 +96,7 @@ workflow TENX_GBC_MITO {
 workflow BENCH {
 
     benchmark(ch_bams)
-    benchmark.out.matrices.view()
+    benchmark.out.ch_output.view()
 
 }
 

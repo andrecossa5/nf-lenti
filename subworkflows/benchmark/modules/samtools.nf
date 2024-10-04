@@ -35,6 +35,7 @@ process SAMTOOLS {
 process COLLAPSE_SAMTOOLS {
 
     tag "${sample_name}"
+    publishDir "${params.sc_outdir}/${sample_name}/", mode: 'copy'
 
     input:
     tuple val(sample), 
@@ -43,9 +44,7 @@ process COLLAPSE_SAMTOOLS {
 
     output:
     tuple val(sample_name),
-        path('AD.npz'), 
-        path('DP.npz'),
-        path('cells.txt'), emit: matrices
+        path('samtools_allele_table.csv.gz'), emit: allele_counts
 
     script:
     """ 
@@ -54,9 +53,7 @@ process COLLAPSE_SAMTOOLS {
 
     stub:
     """
-    touch AD.npz
-    touch DP.npz
-    touch cells.txt
+    touch samtools_allele_table.csv.gz
     """
 
 }
