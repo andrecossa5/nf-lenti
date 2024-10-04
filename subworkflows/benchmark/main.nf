@@ -53,7 +53,8 @@ workflow benchmark {
 
         } else if (params.pp_method == "cellsnp-lite") {
 
-            ch_output = CELLSNP(ch_bams)
+            CELLSNP(ch_bams)
+            ch_output = CELLSNP.out.ch_output
 
         } else if (params.pp_method == "freebayes") {
 
