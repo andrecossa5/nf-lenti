@@ -2,6 +2,8 @@
 
 // Include here
 nextflow.enable.dsl = 2
+include { SPLIT_BARCODES } from "./modules/split_barcodes.nf"
+include { FILTER_BAM_CB } from "../common/modules/filter_bam_cb.nf"
 include { SPLIT_BAM } from "../common/modules/split_bam.nf"
 include { EXTRACT_FASTA } from "../common/modules/extract_fasta.nf"
 include { SAMTOOLS } from "./modules/samtools.nf"
@@ -30,6 +32,7 @@ def processCellBams(cell_bams) {
 
 //
 
+
 //----------------------------------------------------------------------------//
 // benchmark subworkflow
 //----------------------------------------------------------------------------//
@@ -42,10 +45,20 @@ workflow benchmark {
     main:
 
         EXTRACT_FASTA(params.string_MT)
+        SPLIT_BARCODES(ch_bams)
+        ch_barcodes = SPLIT_BARCODES.out.barcodes.flatMap { 
+            sample_name, bam, file_paths ->
+            if (file_paths instanceof List) {
+                file_paths.collect { file_path -> [sample_name, bam, file_path] }
+            } else {
+                [[sample_name, bam, file_paths]]
+            }
+        }
+        FILTER_BAM_CB(ch_barcodes)
 
         if (params.pp_method == "samtools") {
 
-            SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
+            SPLIT_BAM(FILTER_BAM_CB.out.bam)
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
             SAMTOOLS(ch_cell_bams, EXTRACT_FASTA.out.fasta.map{it->it[0]})
             COLLAPSE_SAMTOOLS(SAMTOOLS.out.calls.groupTuple(by:0))
@@ -53,19 +66,21 @@ workflow benchmark {
 
         } else if (params.pp_method == "cellsnp-lite") {
 
-            CELLSNP(ch_bams)
+            ch_cellsnp = FILTER_BAM_CB.out.bam
+                        .combine(ch_bams.map{it->tuple(it[0],it[2])}, by:0)
+            CELLSNP(ch_cellsnp)
             ch_output = CELLSNP.out.ch_output
 
         } else if (params.pp_method == "freebayes") {
 
-            SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
+            SPLIT_BAM(FILTER_BAM_CB.out.bam)
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams) 
             FREEBAYES(ch_cell_bams, EXTRACT_FASTA.out.fasta.map{it->tuple(it[0],it[5])})
             ch_output = COLLAPSE_FREEBAYES(FREEBAYES.out.calls.groupTuple(by:0))
 
         } else if (params.pp_method == "maegatk") {
 
-            SPLIT_BAM(ch_bams.map{it->tuple(it[0],it[1])})
+            SPLIT_BAM(FILTER_BAM_CB.out.bam)
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
             MAEGATK(ch_cell_bams, EXTRACT_FASTA.out.fasta)
             COLLAPSE_MAEGATK(MAEGATK.out.tables.groupTuple(by:0)) 
@@ -79,7 +94,8 @@ workflow benchmark {
 
     emit:
 
-        ch_output = ch_output
+        ch_output = ch_barcodes
+        // ch_output = ch_output
 
 }
 
