@@ -9,7 +9,7 @@ process INDEX_AND_MERGE {
   tag "${sample_name}"
 
   input:
-  tuple val(sample_name), val(bams)
+  tuple val(sample_name), path(bams)
 
   output:
   tuple val(sample_name), path("merged_bam.bam"), emit: bam
