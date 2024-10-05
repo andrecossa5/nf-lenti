@@ -8,6 +8,7 @@ include { SPLIT_BAM } from "../common/modules/split_bam.nf"
 include { EXTRACT_FASTA } from "../common/modules/extract_fasta.nf"
 include { SAMTOOLS } from "./modules/samtools.nf"
 include { COLLAPSE_SAMTOOLS } from "./modules/samtools.nf"
+include { INDEX_AND_MERGE } from "./modules/index_and_merge.nf"
 include { CELLSNP } from "./modules/cellsnp_lite.nf"
 include { FREEBAYES } from "./modules/freebayes.nf"
 include { COLLAPSE_FREEBAYES } from "./modules/freebayes.nf"
@@ -66,7 +67,8 @@ workflow benchmark {
 
         } else if (params.pp_method == "cellsnp-lite") {
 
-            ch_cellsnp = FILTER_BAM_CB.out.bam
+            INDEX_AND_MERGE(FILTER_BAM_CB.out.bam.groupTuple(by:0))
+            ch_cellsnp = INDEX_AND_MERGE.out.bam
                         .combine(ch_bams.map{it->tuple(it[0],it[2])}, by:0)
             CELLSNP(ch_cellsnp)
             ch_output = CELLSNP.out.ch_output
@@ -94,8 +96,7 @@ workflow benchmark {
 
     emit:
 
-        ch_output = ch_barcodes
-        // ch_output = ch_output
+        ch_output = ch_output
 
 }
 
