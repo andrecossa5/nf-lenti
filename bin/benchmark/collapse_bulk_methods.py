@@ -22,7 +22,14 @@ def read_call(path):
 
 def main():
 
-    calls = [ read_call(x) for x in os.listdir() if x.endswith('filtered.tsv') ]
+    calls = []
+    for x in os.listdir():
+        try:
+            if x.endswith('filtered.tsv'):
+                calls.append(read_call(x))
+        except:
+            pass
+        
     calls = pd.concat(calls).query('DP>=10') # At least 10 deduplicated reads
     calls.to_csv(f'allele_table.csv.gz')
 

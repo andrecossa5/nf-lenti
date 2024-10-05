@@ -16,7 +16,7 @@ process INDEX_AND_MERGE {
 
   script:
   """
-  samtools index -@ ${task.cpus} ${bams}
+  samtools index -@ ${task.cpus} -M ${bams}
   samtools merge -@ ${task.cpus} -o merged_bam.bam ${bams}
   """
 
