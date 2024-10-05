@@ -12,16 +12,16 @@ process FILTER_BAM_CB {
     tuple val(sample_name), path(bam), path(CBs)
     
     output:
-    tuple val(sample_name), path("filtered_bam_cb.bam"), emit: bam
+    tuple val(sample_name), path("*.bam"), emit: bam
 
     script:
     """
-    python ${baseDir}/bin/common/filter_bam_cb.py ${bam} filtered_bam_cb.bam ${CBs}
+    python ${baseDir}/bin/common/filter_bam_cb.py ${bam} ${CBs}
     """
 
     stub:
     """
-    touch filtered_bam_cb.bam
+    touch *.bam
     """
 
 } 
