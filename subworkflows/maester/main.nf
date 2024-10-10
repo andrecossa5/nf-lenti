@@ -14,7 +14,6 @@ include { FILTER_BAM_CB } from "../common/modules/filter_bam_cb.nf"
 include { SPLIT_BAM } from "../common/modules/split_bam.nf"
 include { CONSENSUS_MITO } from "./modules/consensus_mito.nf"
 include { GATHER_TABLES } from "./modules/gather_allelic_tables.nf"
-include { TO_H5AD } from "./modules/to_h5ad.nf"
 
 // 
 
@@ -26,7 +25,7 @@ process publish_maester {
     tuple val(sample_name),  
         path(bam),
         path(tables),
-        path(afm)
+        path(fasta)
 
     output:
     path(bam)
@@ -97,13 +96,11 @@ workflow maester {
         // Make consensus reads, create and aggregate cells allelic tables
         CONSENSUS_MITO(ch_cell_bams, EXTRACT_FASTA.out.fasta)
         GATHER_TABLES(CONSENSUS_MITO.out.allelic_tables.groupTuple(by: 0))
-        TO_H5AD(GATHER_TABLES.out.tables, EXTRACT_FASTA.out.fasta.map{it -> it[0]})
         
         // Publish
-        publish_input = MERGE_BAM.out.bam
-            .combine(GATHER_TABLES.out.tables, by:0)
-            .combine(TO_H5AD.out.afm, by:0)
-        publish_maester(publish_input)
+        publish_maester(MERGE_BAM.out.bam
+                        .combine(GATHER_TABLES.out.tables, by:0), 
+                        .combine(EXTRACT_FASTA.out.fasta.map{it->it[0]}))
 
     emit:
 
