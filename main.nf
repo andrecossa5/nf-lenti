@@ -1,4 +1,4 @@
-// mi_to_preprocessing, first
+// mi_to_preprocessing
 nextflow.enable.dsl = 2
 
 // Include here
