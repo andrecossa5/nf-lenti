@@ -1,4 +1,4 @@
-// measter subworkflow
+// maester subworkflow
 
 // Include here
 nextflow.enable.dsl = 2
@@ -98,9 +98,10 @@ workflow maester {
         GATHER_TABLES(CONSENSUS_MITO.out.allelic_tables.groupTuple(by: 0))
         
         // Publish
-        publish_maester(MERGE_BAM.out.bam,
-                        .combine(GATHER_TABLES.out.tables, by:0), 
-                        .combine(EXTRACT_FASTA.out.fasta.map{it->it[0]}))
+        ch_pubb = MERGE_BAM.out.bam
+                  .combine(GATHER_TABLES.out.tables, by:0), 
+                  .combine(EXTRACT_FASTA.out.fasta.map{it->it[0]})
+        publish_maester(ch_pubb)
 
     emit:
 
