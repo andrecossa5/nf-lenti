@@ -99,7 +99,7 @@ workflow maester {
         
         // Publish
         ch_pubb = MERGE_BAM.out.bam
-                  .combine(GATHER_TABLES.out.tables, by:0), 
+                  .combine(GATHER_TABLES.out.tables, by:0)
                   .combine(EXTRACT_FASTA.out.fasta.map{it->it[0]})
         publish_maester(ch_pubb)
 
