@@ -14,11 +14,9 @@ import pandas as pd
 
 # Args
 i = sys.argv[1]
-o = sys.argv[2]
-path_cbs = sys.argv[3]
+path_cbs = sys.argv[2]
 
 # i = 'toy_dataset.bam'
-# o = 'output.bam'
 # path_cbs = 'allowed_cbs.csv'
 
 
@@ -30,8 +28,9 @@ def main():
       Filter all records from a set of CBs.
       """
 
+      idx = path_cbs.split('.')[0].split('_')[1]
       cbs = pd.read_csv(path_cbs, sep='\t', header=None).iloc[:,0].to_list()
-      picard_call = f'picard FilterSamReads -I {i} -O {o} -TAG CB ' + \
+      picard_call = f'picard FilterSamReads -I {i} -O filtered_{idx}.bam -TAG CB ' + \
                     ' '.join([ f'-TV {x}' for x in cbs ]) + \
                     ' -FILTER includeTagValues' \
                     ' --QUIET true' \

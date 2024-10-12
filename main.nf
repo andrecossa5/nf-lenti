@@ -1,4 +1,4 @@
-// mi_to_preprocessing, first
+// mi_to_preprocessing
 nextflow.enable.dsl = 2
 
 // Include here
@@ -6,7 +6,7 @@ include { bulk_gbc } from "./subworkflows/bulk_gbc/main"
 include { tenx } from "./subworkflows/tenx/main"
 include { sc_gbc } from "./subworkflows/sc_gbc/main"
 include { maester } from "./subworkflows/maester/main"
-include { test_fgbio } from "./subworkflows/test_fgbio/main"
+include { benchmark } from "./subworkflows/benchmark/main"
 
 
 //
@@ -32,8 +32,10 @@ ch_maester = Channel
     .fromPath("${params.sc_maester_indir}/*", type:'dir') 
     .map{ tuple(it.getName(), it) }
 
-// Test
-// ch_bams = Channel.fromPath("${params.test_bams}/*") 
+// Bench
+ch_bams = ch_jobs = Channel.fromPath(params.bam_file)
+        .splitCsv(header: true)
+        .map { row -> [ row.sample, row.bam, row.barcodes ]}
 
 
 //
@@ -85,15 +87,26 @@ workflow TENX_GBC_MITO {
     tenx(ch_tenx)
     sc_gbc(ch_sc_gbc, tenx.out.filtered)
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
-    maester.out.afm.view()
+    maester.out.allelic_tables.view()
 
 }
 
 //
 
-// Mock
+workflow BENCH {
+
+    benchmark(ch_bams)
+    benchmark.out.ch_output.view()
+
+}
+
+//
+
 workflow {
     
     Channel.of(1,2,3,4) | view
 
 }
+
+//
+

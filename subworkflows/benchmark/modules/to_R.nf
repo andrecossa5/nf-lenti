@@ -17,11 +17,11 @@ process TO_H5AD {
 
   script:
   """
-  python ${baseDir}/bin/maester/to_h5ad.py ${params.string_MT} ${sample_name}
+  python ${baseDir}/bin/benchmark/to_h5ad.py ${params.string_MT} ${sample_name}
   """
   
   stub:
-  """
+  """ 
   touch AFM.h5ad
   """
 
