@@ -63,7 +63,7 @@ workflow benchmark {
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
             SAMTOOLS(ch_cell_bams, EXTRACT_FASTA.out.fasta.map{it->it[0]})
             COLLAPSE_SAMTOOLS(SAMTOOLS.out.calls.groupTuple(by:0))
-            ch_output = COLLAPSE_SAMTOOLS.out.allele_counts
+            ch_output = COLLAPSE_SAMTOOLS.out.ch_output
 
         } else if (params.pp_method == "cellsnp-lite") {
 
@@ -78,7 +78,8 @@ workflow benchmark {
             SPLIT_BAM(FILTER_BAM_CB.out.bam)
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams) 
             FREEBAYES(ch_cell_bams, EXTRACT_FASTA.out.fasta.map{it->tuple(it[0],it[5])})
-            ch_output = COLLAPSE_FREEBAYES(FREEBAYES.out.calls.groupTuple(by:0))
+            COLLAPSE_FREEBAYES(FREEBAYES.out.calls.groupTuple(by:0))
+            ch_output = COLLAPSE_FREEBAYES.out.ch_output
 
         } else if (params.pp_method == "maegatk") {
 
@@ -86,7 +87,7 @@ workflow benchmark {
             ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
             MAEGATK(ch_cell_bams, EXTRACT_FASTA.out.fasta)
             COLLAPSE_MAEGATK(MAEGATK.out.tables.groupTuple(by:0)) 
-            COLLAPSE_MAEGATK.out.tables
+            ch_output = COLLAPSE_MAEGATK.out.ch_output
         
         } else {
             

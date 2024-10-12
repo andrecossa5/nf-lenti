@@ -44,7 +44,7 @@ process COLLAPSE_SAMTOOLS {
 
     output:
     tuple val(sample_name),
-        path('allele_table.csv.gz'), emit: allele_counts
+        path('allele_table.csv.gz'), emit: ch_output
 
     script:
     """ 
