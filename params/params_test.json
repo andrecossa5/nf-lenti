@@ -33,7 +33,7 @@
     "gbc_sample_map" : "None",
 
     "bam_file" : "/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bam_file.csv",
-    "pp_method" : "cellsnp-lite"
+    "pp_method" : "mito_preprocessing"
 
 
 }

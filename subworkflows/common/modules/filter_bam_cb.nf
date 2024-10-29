@@ -21,7 +21,7 @@ process FILTER_BAM_CB {
 
     stub:
     """
-    touch *.bam
+    touch filtered.bam
     """
 
 } 
