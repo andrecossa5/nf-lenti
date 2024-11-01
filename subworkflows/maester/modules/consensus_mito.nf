@@ -83,4 +83,4 @@ process CONSENSUS_MITO {
   touch ${cell}.coverage.txt
   """
 
-}
+} 

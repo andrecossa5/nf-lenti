@@ -18,7 +18,7 @@ process MITO {
       path(ref_fa_ann),  
       path(ref_fa_bwt),  
       path(ref_fa_fai),  
-      path(ref_fa_pac),  
+      path(ref_fa_pac),   
       path(ref_fa_sa)
 
   output:
