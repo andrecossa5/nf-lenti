@@ -11,7 +11,7 @@ import argparse
 
 # Create the parser
 my_parser = argparse.ArgumentParser(
-    prog='maker_AFM_matrix',
+    prog='make AFM matrix',
     description=
     """
     Prepare AFM.
@@ -47,6 +47,13 @@ my_parser.add_argument(
     help='Pipeline used for preprocessing. Default: mito_preprocessing'
 )
 
+my_parser.add_argument(
+    '--scLT_system', 
+    type=str,
+    default=None,
+    help='scLT system. System for scLT. Default: MAESTER.'
+)
+
 
 ##
 
@@ -56,6 +63,7 @@ args = my_parser.parse_args()
 path_ch_matrix = args.path_ch_matrix
 path_meta = args.path_meta
 sample = args.sample
+scLT_system = args.scLT_system
 pp_method = args.pp_method
 
 
@@ -66,8 +74,11 @@ def main():
     
     from mito_utils.make_afm import make_afm as make
 
-    afm = make(path_ch_matrix, path_meta, sample=sample, pp_method=pp_method)
-    afm.write(os.path.join(path_ch_matrix, 'afm.h5ad'))
+    afm = make(path_ch_matrix, path_meta=path_meta, sample=sample, pp_method=pp_method, scLT_system=scLT_system)
+    if os.path.isdir(path_ch_matrix):
+        afm.write(os.path.join(path_ch_matrix, 'afm.h5ad'))
+    else:
+        afm.write(os.path.join(os.path.dirname(path_ch_matrix), 'afm.h5ad'))
 
 
 if __name__ == '__main__':
