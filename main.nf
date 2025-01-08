@@ -56,7 +56,6 @@ workflow BULK_GBC {
     ch_bulk_gbc = Channel
         .fromPath("${params.bulk_gbc_indir}/*", type:'dir') 
         .map{ tuple(it.getName(), it) }
-
     bulk_gbc(ch_bulk_gbc)
 
 }
