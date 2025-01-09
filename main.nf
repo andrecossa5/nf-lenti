@@ -57,9 +57,7 @@ workflow BULK_GBC {
         .fromPath(params.bulk_gbc_indir) 
         .splitCsv(header : true)
         .map{ row -> 
-            //[row.ID_we_want, "${row.path_bulk}/${row.folder_name_bulk}"]}
-            [row.id_want, "${row.path}/${row.path_sample}"]}
-    //ch_bulk_gbc.view()
+            [row.ID_we_want, "${row.path_bulk}/${row.folder_name_bulk}"]}
     bulk_gbc(ch_bulk_gbc)
 
 }
