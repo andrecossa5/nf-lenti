@@ -4,32 +4,7 @@ nextflow.enable.dsl = 2
 
 //
 
-//process EXTRACT_GBC {
-
-  //tag "${sample_name}"
-
-  //input:
-  //tuple val(sample_name), val(in_folder)
-  //path search_patterns
-
-  //output:
-  //tuple val(sample_name), path('GBC_not_corrected.tsv'), emit: GBC
-
-  //script:
-  //"""
-  //zcat ${in_folder}/*_R*.fastq.gz | \
-  //awk 'NR % 4 == 2' | \
-  //egrep -f ${search_patterns} -o | \
-  //awk '{print substr(\$0, 23, 18);}' \
-  //> GBC_not_corrected.tsv
-  //"""
-
-  //stub:
-  //"""
-  //touch GBC_not_corrected.tsv
-  //"""
-
-  process EXTRACT_GBC {
+process EXTRACT_GBC {
 
   tag "${sample_name}"
 
@@ -38,15 +13,20 @@ nextflow.enable.dsl = 2
   path search_patterns
 
   output:
-  tuple val(sample_name), path('fastq_files.csv'), emit: GBC
+  tuple val(sample_name), path('GBC_not_corrected.tsv'), emit: GBC
 
   script:
   """
-  echo ${in_folder}/*_R*.fastq.gz > fastq_files.csv
+  zcat ${in_folder}/*_R*.fastq.gz | \
+  awk 'NR % 4 == 2' | \
+  egrep -f ${search_patterns} -o | \
+  awk '{print substr(\$0, 23, 18);}' \
+  > GBC_not_corrected.tsv
   """
 
   stub:
   """
-  echo ${in_folder}/*_R*.fastq.gz > fastq_files.csv
+  touch GBC_not_corrected.tsv
   """
+  
 }
