@@ -59,7 +59,7 @@ process COLLAPSE_MAEGATK {
       path(depth)
 
   output:
-  tuple val(sample_name), path(tables), emit: ch_output
+  tuple val(sample_name), path('tables'), emit: ch_output
  
   script:
   """ 

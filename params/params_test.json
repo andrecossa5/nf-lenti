@@ -23,6 +23,9 @@
     "fgbio_base_quality" : 30,
     "fgbio_min_alignment_quality" : 60,
 
+    "bulk_gbc_graph_clustering_hamming_treshold" : 3,
+    "bulk_gbc_min_n_reads" : 1000,
+    "bulk_gbc_anchor_sequence" : "GGGTTTAAACGGGCCCTCTAG",
     "sc_gbc_anchor_sequence" : "TAGCAAACTGGGGCACAAGCTTAATTAAGAATT",
     "bulk_correction_treshold" : 3,
     "umi_treshold" : 5,
@@ -33,7 +36,6 @@
     "gbc_sample_map" : "None",
 
     "bam_file" : "/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bam_file.csv",
-    "pp_method" : "cellsnp-lite"
-
+    "pp_method" : "mito_preprocessing"
 
 }
