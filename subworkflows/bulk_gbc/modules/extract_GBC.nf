@@ -17,7 +17,7 @@ process EXTRACT_GBC {
 
   script:
   """
-  zcat ${in_folder}/*_R*.fastq.gz | \
+  zcat ${in_folder}/*_R1_*.fastq.gz ${in_folder}/*_R2_*.fastq.gz | \
   awk 'NR % 4 == 2' | \
   egrep -f ${search_patterns} -o | \
   awk '{print substr(\$0, 23, 18);}' \
