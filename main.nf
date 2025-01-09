@@ -54,10 +54,6 @@ workflow BULK_GBC {
  
     // (Bulk DNA) targeted DNA sequencing of GBC
     ch_bulk_gbc = Channel
-        .fromPath(params.bulk_gbc_indir) 
-        .splitCsv(header : true)
-        .map{ row -> 
-            [row.ID_we_want, "${row.path_bulk}/${row.folder_name_bulk}"]}
     bulk_gbc(ch_bulk_gbc)
 
 }

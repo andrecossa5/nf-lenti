@@ -14,6 +14,11 @@ sample = sys.argv[2]
 fasta_file = sys.argv[3]
 
 # Define default maegatk parameters within the script
+# os.chdir('/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/scratch')
+# script_dir = '/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bin/benchmark'
+# sample = 'AGGACTTTCAACTCTT'
+# inputbam = 'AGGACTTTCAACTCTT.bam'
+# fasta_file = '/Users/IEO5505/Desktop/MI_TO/MI_TO_analysis_repro/data/MI_TO_bench/index/chrM.fa'
 
 # mito_genome = config["mito_chr"]
 # mito_length = str(config["mito_length"])
@@ -84,7 +89,6 @@ os.system(samtoolscall)
 # 3) Call consensus reads
 fgcalltwo = fgbio + " CallMolecularConsensusReads -t "+umi_barcode+" -i "+temp_bam15+" -o " + temp_bam2 +" -M " + min_reads
 os.system(fgcalltwo)
-print(fgcalltwo)
 
 # 4) Convert consensus bam to fastq
 # bedtools_call = "bedtools bamtofastq -i "+ temp_bam2 +" -fq " + temp_fastq # Bedtools stopped working for some reason, replacing it with samtools fastq

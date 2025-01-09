@@ -26,7 +26,7 @@ process GATHER_TABLES {
     """ 
     cat *.A.txt | gzip --fast > A.txt.gz
     cat *.C.txt | gzip --fast > C.txt.gz
-    cat *.T.txt | gzip --fast > T.txt.gz
+    cat *.T.txt | gzip --fast > T.txt.gz 
     cat *.G.txt | gzip --fast > G.txt.gz
     cat *.coverage.txt | gzip --fast > coverage.txt.gz
     cat *.median_base_umi_group_size.txt | gzip --fast > median_base_umi_group_size.txt.gz

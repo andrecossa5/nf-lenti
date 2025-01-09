@@ -14,6 +14,8 @@ include { FREEBAYES } from "./modules/freebayes.nf"
 include { COLLAPSE_FREEBAYES } from "./modules/freebayes.nf"
 include { MAEGATK } from "./modules/maegatk.nf"
 include { COLLAPSE_MAEGATK } from "./modules/maegatk.nf"
+include { MITO } from "./modules/mito.nf"
+include { COLLAPSE_MITO } from "./modules/mito.nf"
 
 // 
 
@@ -89,9 +91,18 @@ workflow benchmark {
             COLLAPSE_MAEGATK(MAEGATK.out.tables.groupTuple(by:0)) 
             ch_output = COLLAPSE_MAEGATK.out.ch_output
         
-        } else {
+        } else if (params.pp_method == "mito_preprocessing") {
+
+            SPLIT_BAM(FILTER_BAM_CB.out.bam)
+            ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
+            MITO(ch_cell_bams, EXTRACT_FASTA.out.fasta)
+            COLLAPSE_MITO(MITO.out.tables.groupTuple(by:0)) 
+            ch_output = COLLAPSE_MITO.out.ch_output
+        
+        } 
+        else {
             
-            println('Current benchmarking include: maegatk, samtools, cellsnp-lite, freebayes.')
+            println('Current benchmarking include: mito_preprocessing, maegatk, samtools, cellsnp-lite, freebayes.')
         
         }
 
