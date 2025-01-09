@@ -6,36 +6,7 @@ include { bulk_gbc } from "./subworkflows/bulk_gbc/main"
 include { tenx } from "./subworkflows/tenx/main"
 include { sc_gbc } from "./subworkflows/sc_gbc/main"
 include { maester } from "./subworkflows/maester/main"
-include { benchmark } from "./subworkflows/benchmark/main"
-
-
-//
-
-
-// (Bulk DNA) targeted DNA sequencing of GBC
-ch_bulk_gbc = Channel
-    .fromPath("${params.bulk_gbc_indir}/*", type:'dir') 
-    .map{ tuple(it.getName(), it) }
-    
-// GBC enrichment from 10x library
-ch_sc_gbc = Channel
-    .fromPath("${params.sc_gbc_indir}/*", type:'dir')
-    .map{ tuple(it.getName(), it) }
-
-// 10x GEX library
-ch_tenx = Channel
-    .fromPath("${params.sc_tenx_indir}/*", type:'dir')
-    .map{ tuple(it.getName(), it) }
-
-// MAESTER library
-ch_maester = Channel
-    .fromPath("${params.sc_maester_indir}/*", type:'dir') 
-    .map{ tuple(it.getName(), it) }
-
-// Bench
-ch_bams = ch_jobs = Channel.fromPath(params.bam_file)
-        .splitCsv(header: true)
-        .map { row -> [ row.sample, row.bam, row.barcodes ]}
+include { benchmark } from "./subworkflows/benchmark/main"    
 
 
 //
@@ -49,6 +20,11 @@ ch_bams = ch_jobs = Channel.fromPath(params.bam_file)
 
 workflow TENX {
 
+    // 10x GEX library
+    ch_tenx = Channel
+        .fromPath("${params.sc_tenx_indir}/*", type:'dir')
+        .map{ tuple(it.getName(), it) }
+
     tenx(ch_tenx)
 
 }
@@ -56,6 +32,16 @@ workflow TENX {
 //
 
 workflow TENX_MITO {
+
+    // 10x GEX library
+    ch_tenx = Channel
+        .fromPath("${params.sc_tenx_indir}/*", type:'dir')
+        .map{ tuple(it.getName(), it) }
+
+    // MAESTER library
+    ch_maester = Channel
+        .fromPath("${params.sc_maester_indir}/*", type:'dir') 
+        .map{ tuple(it.getName(), it) }
 
     tenx(ch_tenx)
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
@@ -66,6 +52,14 @@ workflow TENX_MITO {
 
 workflow BULK_GBC {
  
+    // (Bulk DNA) targeted DNA sequencing of GBC
+    ch_bulk_gbc = Channel
+        .fromPath(params.bulk_gbc_indir) 
+        .splitCsv(header : true)
+        .map{ row -> 
+            //[row.ID_we_want, "${row.path_bulk}/${row.folder_name_bulk}"]}
+            [row.id_want, "${row.path}/${row.path_sample}"]}
+    //ch_bulk_gbc.view()
     bulk_gbc(ch_bulk_gbc)
 
 }
@@ -73,6 +67,16 @@ workflow BULK_GBC {
 //
 
 workflow TENX_GBC {
+
+    // GBC enrichment from 10x library
+    ch_sc_gbc = Channel
+        .fromPath("${params.sc_gbc_indir}/*", type:'dir')
+        .map{ tuple(it.getName(), it) }
+    
+    // 10x GEX library
+    ch_tenx = Channel
+        .fromPath("${params.sc_tenx_indir}/*", type:'dir')
+        .map{ tuple(it.getName(), it) }
 
     tenx(ch_tenx)
     sc_gbc(ch_sc_gbc, tenx.out.filtered)
@@ -84,6 +88,21 @@ workflow TENX_GBC {
 
 workflow TENX_GBC_MITO {
 
+    // GBC enrichment from 10x library
+    ch_sc_gbc = Channel
+        .fromPath("${params.sc_gbc_indir}/*", type:'dir')
+        .map{ tuple(it.getName(), it) }
+
+    // 10x GEX library
+    ch_tenx = Channel
+        .fromPath("${params.sc_tenx_indir}/*", type:'dir')
+        .map{ tuple(it.getName(), it) }
+
+    // MAESTER library
+    ch_maester = Channel
+        .fromPath("${params.sc_maester_indir}/*", type:'dir') 
+        .map{ tuple(it.getName(), it) }
+
     tenx(ch_tenx)
     sc_gbc(ch_sc_gbc, tenx.out.filtered)
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
@@ -94,6 +113,11 @@ workflow TENX_GBC_MITO {
 //
 
 workflow BENCH {
+
+    // Bench
+    ch_bams = ch_jobs = Channel.fromPath(params.bam_file)
+            .splitCsv(header: true)
+            .map { row -> [ row.sample, row.bam, row.barcodes ]}
 
     benchmark(ch_bams)
     benchmark.out.ch_output.view()
