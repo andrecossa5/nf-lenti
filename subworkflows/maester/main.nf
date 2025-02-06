@@ -30,7 +30,7 @@ process publish_maester {
     output:
     path(bam)
     path(tables)
-    path(afm)
+    path(fasta)
 
     script:
     """
@@ -95,7 +95,7 @@ workflow maester {
 
         // Make consensus reads, create and aggregate cells allelic tables
         CONSENSUS_MITO(ch_cell_bams, EXTRACT_FASTA.out.fasta)
-        GATHER_TABLES(CONSENSUS_MITO.out.allelic_tables.groupTuple(by: 0))
+        GATHER_TABLES(CONSENSUS_MITO.out.tables.groupTuple(by: 0))
         
         // Publish
         ch_pubb = MERGE_BAM.out.bam
@@ -105,7 +105,7 @@ workflow maester {
 
     emit:
 
-        allelic_tables = CONSENSUS_MITO.out.allelic_tables
+        final_output = ch_pubb
 
 }
 

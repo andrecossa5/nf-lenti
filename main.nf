@@ -104,7 +104,6 @@ workflow TENX_GBC_MITO {
     tenx(ch_tenx)
     sc_gbc(ch_sc_gbc, tenx.out.filtered)
     maester(ch_maester, tenx.out.filtered, tenx.out.bam)
-    maester.out.allelic_tables.view()
 
 }
 
@@ -118,7 +117,6 @@ workflow BENCH {
             .map { row -> [ row.sample, row.bam, row.barcodes ]}
 
     benchmark(ch_bams)
-    benchmark.out.ch_output.view()
 
 }
 
