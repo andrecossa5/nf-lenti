@@ -328,25 +328,22 @@ def cell_assignment_workflow(
     cells_df.to_csv('cells_summary_table.csv')
 
     # Final CBC-GBC combo support plot
-
-    # Viz p_poisson vs nUMIs
     fig, ax = plt.subplots(figsize=(5,5))
-    scatter(df_combos, 'umi', 'p', by='max_ratio', marker='o', s=10, vmin=.2, vmax=.8, ax=ax, c='Spectral_r')
-    format_ax(
-        ax, title='p Poisson vs nUMIs, all CBC-GBC combinations', 
-        xlabel='nUMIs', ylabel='p', reduce_spines=True
-    )
-    ax.axhline(y=p_treshold, color='k', linestyle='--')
-    ax.text(.05, .9, f'Total CBC-GBC combo: {df_combos.shape[0]}', transform=ax.transAxes)
+    sns.kdeplot(data=df_combos, x='max_ratio', y='normalized_abundance', ax=ax) 
+    ax.axvline(x=max_ratio_treshold, linestyle='--', color='r')
+    ax.axhline(y=normalized_abundance_treshold, linestyle='--', color='r')
+    ax.text(.05, .9, f'Total CBC-GBC: {df_combos.shape[0]}', transform=ax.transAxes)
     n_filtered = df_combos.query('status=="supported"').shape[0]
     ax.text(.05, .86, 
-        f'n CBC-GBC combo retained: {n_filtered} ({n_filtered/df_combos.shape[0]*100:.2f}%)',
+        f'n CBC-GBC retained: {n_filtered} ({n_filtered/df_combos.shape[0]*100:.2f}%)',
         transform=ax.transAxes
     )
     fig.tight_layout()
     fig.savefig('CBC_GBC_combo_status.png', dpi=300)
 
+
     ##
+
 
     f.write(f'- Execution time: {T.stop()}\n')
     f.close()
