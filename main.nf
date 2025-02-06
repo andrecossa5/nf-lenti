@@ -117,7 +117,6 @@ workflow BENCH {
             .map { row -> [ row.sample, row.bam, row.barcodes ]}
 
     benchmark(ch_bams)
-    benchmark.out.ch_output.view()
 
 }
 

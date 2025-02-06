@@ -30,7 +30,7 @@ process publish_maester {
     output:
     path(bam)
     path(tables)
-    path(afm)
+    path(fasta)
 
     script:
     """
@@ -105,7 +105,7 @@ workflow maester {
 
     emit:
 
-        allelic_tables = CONSENSUS_MITO.out.tables
+        final_output = ch_pubb
 
 }
 
