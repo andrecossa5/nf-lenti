@@ -18,7 +18,7 @@ process CELLSNP {
     script:
     """ 
     samtools index ${bam}
-    cellsnp-lite -s ${bam} -O out_cellsnp -p ${task.cpus} --minMAF 0.1 --minCOUNT 100 --chrom M -b ${barcodes}
+    cellsnp-lite -s ${bam} -O out_cellsnp -p ${task.cpus} --minMAF 0.0 --minCOUNT 20 --chrom M -b ${barcodes}
     """
 
     stub:
