@@ -72,9 +72,16 @@ pp_method = args.pp_method
 
 def main():
     
-    from mito_utils.make_afm import make_afm as make
+    import mito as mt
 
-    afm = make(path_ch_matrix, path_meta=path_meta, sample=sample, pp_method=pp_method, scLT_system=scLT_system)
+    afm = mt.io.make_afm(
+        path_ch_matrix, 
+        path_meta=path_meta, 
+        sample=sample, 
+        pp_method=pp_method, 
+        scLT_system=scLT_system
+    )
+    
     if os.path.isdir(path_ch_matrix):
         afm.write(os.path.join(path_ch_matrix, 'afm.h5ad'))
     else:
