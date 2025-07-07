@@ -1,2 +1,2 @@
-# mito_preprocessing
-Nextflow pipeline to preprocess perturb-seq/MAESTER data.
+# nf-lenti
+Nextflow pipeline to preprocess lentiviral barcoding data
