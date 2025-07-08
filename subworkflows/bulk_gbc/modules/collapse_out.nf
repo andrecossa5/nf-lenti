@@ -6,8 +6,10 @@ nextflow.enable.dsl = 2
 
 process collapse_output {
 
+  label 'scLT'
+
   // Publish
-  publishDir "${params.bulk_gbc_outdir}", mode: 'copy'
+  publishDir "${params.outdir}", mode: 'copy'
 
   input:
   val last
@@ -17,12 +19,12 @@ process collapse_output {
 
   script:
   """
-  python ${baseDir}/bin/bulk_gbc/collapse_outputs.py -i ${params.bulk_gbc_outdir}
+  python ${baseDir}/bin/bulk_gbc/collapse_outputs.py -i ${params.outdir}
   """
 
   stub:
   """
-  echo "Collapsing output in ${params.bulk_gbc_outdir}..."
+  echo "Collapsing output in ${params.outdir}..."
   mkdir summary
   """
 

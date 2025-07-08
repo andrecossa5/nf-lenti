@@ -7,6 +7,7 @@ nextflow.enable.dsl = 2
 
 process COLLAPSE_TSV {
  
+    label 'scLT'
     tag "${sample}"
  
     input:

@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 
 process MERGE_R2 {
 
+  label 'scLT'
   tag "${sample_name}"
 
   input:

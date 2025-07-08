@@ -7,6 +7,7 @@ nextflow.enable.dsl = 2
 // Process
 process generate_run_summary_bulk {
 
+  label 'scLT'
   tag "${sample_name}"
 
   input:
@@ -21,8 +22,8 @@ process generate_run_summary_bulk {
   """
   python \
   ${baseDir}/bin/bulk_gbc/create_run_summary.py \
-  --indir ${params.bulk_gbc_indir} \
-  --outdir ${params.bulk_gbc_outdir} \
+  --indir ${params.raw_data_input} \
+  --outdir ${params.outdir} \
   --anchor_sequence ${params.bulk_gbc_anchor_sequence} \
   --sample ${sample_name} \
   --raw_counts ${raw_counts} \

@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 
 process CELL_ASSIGNMENT {
 
+  label 'scLT'
   tag "${sample_name}"
   
   input:

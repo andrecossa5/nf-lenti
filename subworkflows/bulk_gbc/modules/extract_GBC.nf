@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 
 process EXTRACT_GBC {
 
+  label 'scLT'
   tag "${sample_name}"
 
   input:

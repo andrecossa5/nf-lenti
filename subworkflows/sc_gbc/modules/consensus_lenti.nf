@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 
 process CONSENSUS_LENTI {
 
+  label 'scLT'
   tag "${sample_name}: ${cell}"
 
   input:

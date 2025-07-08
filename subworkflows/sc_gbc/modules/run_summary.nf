@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 
 process generate_run_summary_sc {
 
+    label 'scLT'
     tag "${sample_name}"
  
     input:

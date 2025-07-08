@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 
 process SPLIT_BAM {
 
+    label 'scLT'
     tag "${sample_name}"
 
     input:

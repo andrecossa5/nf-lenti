@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 
 process publish_sc_gbc {
 
+    label 'scLT'
     tag "${sample_name}"
     publishDir "${params.sc_outdir}/${sample_name}/", mode: 'copy'
 

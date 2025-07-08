@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 
 process FILTER_BAM_CB {
 
+    label 'scLT'
     tag "${sample_name}"
     
     input:

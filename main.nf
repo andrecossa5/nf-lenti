@@ -2,47 +2,33 @@
 nextflow.enable.dsl = 2
 
 // Include here
-include { tenx } from "./subworkflows/tenx/main"
 include { bulk_gbc } from "./subworkflows/bulk_gbc/main"
+include { tenx } from "./subworkflows/tenx/main"
 include { sc_gbc } from "./subworkflows/sc_gbc/main"
 
 //
 
 
 //----------------------------------------------------------------------------//
-// mito_preprocessing pipeline
+// nf-lenti pipeline
 //----------------------------------------------------------------------------//
-
-//
-
-workflow TENX {
-
-    // 10x GEX library
-    ch_tenx = Channel
-        .fromPath("${params.sc_tenx_indir}/*", type:'dir')
-        .map{ tuple(it.getName(), it) }
-
-    tenx(ch_tenx)
-
-}
 
 //
 
 workflow BULK_GBC {
  
-    // (Bulk DNA) targeted DNA sequencing of GBC
-    ch_bulk_gbc = Channel
-        .fromPath(params.bulk_gbc_indir) 
-        .splitCsv(header : true)
-        .map{ row -> 
-            [row.ID_we_want, "${row.path_bulk}/${row.folder_name_bulk}"]}
-    bulk_gbc(ch_bulk_gbc)
+    ch = Channel.fromPath(params.raw_data_input)
+        .splitCsv(header: true)
+        .map { row -> [ row.ID_we_want, "${row.path_bulk}/${row.folder_name_bulk}"] }
+    bulk_gbc(ch)
 
 }
 
 //
 
 workflow TENX_GBC {
+
+    // FIX AS IN nf-MiTo !!
 
     // GBC enrichment from 10x library
     ch_sc_gbc = Channel

@@ -7,6 +7,7 @@ nextflow.enable.dsl = 2
 // Correct GBCs and count their reads
 process CORRECT_AND_COUNT {
 
+  label 'MiTo'
   tag "${sample_name}"
 
   input:

@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 
 process SPLIT_BARCODES {
 
+  label 'scLT'
   tag "${sample_name}" 
 
   input:

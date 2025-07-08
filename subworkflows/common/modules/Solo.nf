@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 
 process SOLO {
 
+  label 'scLT'
   tag "${sample_name}"
 
   input:

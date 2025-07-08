@@ -6,10 +6,11 @@ nextflow.enable.dsl = 2
 
 process publish_bulk {
 
+  label 'scLT'
   tag "${sample_name}"
 
   // Publish
-  publishDir "${params.bulk_gbc_outdir}/${sample_name}/", mode: 'copy'
+  publishDir "${params.outdir}/${sample_name}/", mode: 'copy'
 
   input:
   tuple val(sample_name), path(raw_counts)
@@ -26,7 +27,7 @@ process publish_bulk {
 
   script:
   """
-  echo "Moving all necessary files to ${params.bulk_gbc_outdir}/${sample_name}/..."
+  echo "Moving all necessary files to ${params.outdir}/${sample_name}/..."
   """
 
 }

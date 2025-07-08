@@ -10,6 +10,7 @@ include { SOLO } from "../common/modules/Solo.nf"
 
 process publish_tenx {
 
+    label 'scLT'
     tag "${sample_name}"
 
     // Publish
