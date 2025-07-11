@@ -14,9 +14,7 @@ process CORRECT_AND_COUNT {
   tuple val(sample_name), path(GBC)
 
   output:
-  tuple val(sample_name), path('GBC_raw_counts.csv.gz'), emit: raw_counts
-  tuple val(sample_name), path('GBC_counts_corrected.csv'), emit: corrected_counts
-  tuple val(sample_name), path('correction_df.csv'), emit: correction_df
+  tuple val(sample_name), path('GBC_raw_counts.csv.gz'), path('GBC_counts_corrected.csv'), path('correction_df.csv'), emit: gbc_counts
 
   script:
   """

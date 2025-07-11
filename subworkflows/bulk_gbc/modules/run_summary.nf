@@ -11,9 +11,7 @@ process generate_run_summary_bulk {
   tag "${sample_name}"
 
   input:
-  tuple val(sample_name), path(raw_counts)
-  tuple val(sample_name), path(corrected_counts)
-  tuple val(sample_name), path(correction_df)
+  tuple val(sample_name), path(raw_counts), path(corrected_counts), path(correction_df)
 
   output:
   tuple val(sample_name), path('run_summary.txt'), emit: summary
