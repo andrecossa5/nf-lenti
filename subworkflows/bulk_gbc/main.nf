@@ -26,16 +26,14 @@ workflow bulk_gbc {
   
       // Summary and cleanup 
       generate_run_summary_bulk(
-        CORRECT_AND_COUNT.out.raw_counts,
-        CORRECT_AND_COUNT.out.corrected_counts,
-        CORRECT_AND_COUNT.out.correction_df,
+        CORRECT_AND_COUNT.out.gbc_counts
       )
-      publish_bulk(
-        CORRECT_AND_COUNT.out.raw_counts,
-        CORRECT_AND_COUNT.out.corrected_counts,
-        CORRECT_AND_COUNT.out.correction_df,
-        generate_run_summary_bulk.out.summary
-      )
+      ch_counts   = CORRECT_AND_COUNT.out.gbc_counts
+      ch_summary  = generate_run_summary_bulk.out.summary
+
+      ch_paired = ch_counts.join(ch_summary, by: 0)  // join on sample_name
+      
+      publish_bulk(ch_paired)
       collapse_output(
         publish_bulk.out.finish_flag.collect().last() // Need to fire only at the end
       )
