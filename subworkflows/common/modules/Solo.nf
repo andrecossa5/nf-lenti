@@ -15,6 +15,7 @@ process SOLO {
   output:
   tuple val(sample_name), path('raw'), emit: raw 
   tuple val(sample_name), path('filtered'), emit: filtered 
+  tuple val(sample_name), path('filtered/barcodes.tsv.gz'), emit: cell_barcodes
   tuple val(sample_name), path('Features.stats'), emit: stats 
   tuple val(sample_name), path('Summary.csv'), emit: summary 
   tuple val(sample_name), path('Aligned.sortedByCoord.out.bam'), emit: bam 
@@ -51,11 +52,17 @@ process SOLO {
   stub:
   """
   echo ${sample_name} > sample
-  touch raw
-  touch filtered
+  mkdir raw
+  echo ${sample_name} > raw/filtered.mtx
+  mkdir filtered
+  touch filtered/barcodes.tsv.gz
+  echo ${sample_name} > filtered/barcodes.tsv.gz
   touch Features.stats 
+  echo ${sample_name} > Features.stats
   touch Summary.csv
+  echo ${sample_name} > Summary.csv
   touch Aligned.sortedByCoord.out.bam
+  echo ${sample_name} > Aligned.sortedByCoord.out.bam
   """
 
 }

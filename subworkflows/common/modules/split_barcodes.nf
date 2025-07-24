@@ -10,14 +10,16 @@ process SPLIT_BARCODES {
   tag "${sample_name}" 
 
   input:
-  tuple val(sample_name), path(filtered)
+  tuple val(sample_name), path(filtered) , path(cell_barcodes)
 
   output:
-  tuple val(sample_name), path('barcodes_*.csv'), emit: barcodes 
+  tuple val(sample_name), path(filtered), path('barcodes_*.csv'), emit: barcodes 
 
   script:
   """
-  python ${baseDir}/bin/common/split_barcodes.py ${filtered}/barcodes.tsv.gz ${params.CBs_chunk_size}
+  python ${baseDir}/bin/common/split_barcodes.py \
+  ${cell_barcodes} \
+  ${params.CBs_chunk_size}
   """
 
   stub:

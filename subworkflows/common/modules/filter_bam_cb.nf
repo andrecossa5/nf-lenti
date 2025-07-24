@@ -23,6 +23,7 @@ process FILTER_BAM_CB {
     stub:
     """
     touch filtered.bam
+    echo ${bam} > filtered.bam
     """
 
 } 
