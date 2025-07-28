@@ -3,18 +3,16 @@
     "bulk_gbc_indir" : "None",
     "bulk_gbc_outdir" :  "None",
 
-    "raw_data_input" : "/Users/ieo7295/Desktop/tests/nf_lenti_test/sc_gbc.csv",
+    "raw_data_input" : "/hpcnfs/scratch/PGP/nbulla/mito_prep/nf-lenti/scratch/test_sc/sc_gbc.csv",
     "raw_data_input_type" : "fastq,GBC",
-    "sc_tenx_indir" : "/Users/ieo7295/Desktop/tests/nf_lenti_test",
-    "sc_maester_indir" : "/Users/ieo72955/Desktop/example_mito/data/sc_maester/",
-    "sc_outdir" : "/Users/ieo7295/Desktop/tests/nf_lenti_test/results",
+    "sc_outdir" : "/hpcnfs/scratch/PGP/nbulla/mito_prep/nf-lenti/scratch/results",
 	
-    "ref" : "/Users/ieo7295/Desktop/tests/nf_lenti_test/ref",
+    "ref" : "/hpcnfs/data/PGP/reference_genomes/custom/GBC_masked_index",
     "string_lentiviral" : "lentiCassette",
     "string_MT" : "chrM",
-    "whitelist" : "/Users/ieo7295/Desktop/tests/nf_lenti_test/barcodes_100.txt",
+    "whitelist" : "/hpcnfs/scratch/PGP/nbulla/mito_prep/nf-lenti/scratch/test_sc/barcodes_100.txt",
 
-    "CBs_chunk_size" : 1, 
+    "CBs_chunk_size" : 3000, 
     "fgbio_UMI_consensus_mode" : "Identity",
     "fgbio_UMI_consensus_edits" : 0,
     "fgbio_min_reads_gbc" : 10,
