@@ -34,7 +34,7 @@ process CONSENSUS_LENTI {
   ##
 
   # fgbio consensus pipeline
-  fgbio -Xmx8g --compression 1 --async-io GroupReadsByUmi \
+  fgbio -Xmx500m --compression 1 --async-io GroupReadsByUmi \
 	  --input filtered.bam \
     --strategy ${params.fgbio_UMI_consensus_mode} \
     --edits ${params.fgbio_UMI_consensus_edits} \
@@ -42,30 +42,36 @@ process CONSENSUS_LENTI {
 	  -t UB \
 	  -T MI
 
-  fgbio -Xmx4g --compression 1 CallMolecularConsensusReads \
+  fgbio -Xmx500m --compression 1 CallMolecularConsensusReads \
     --input grouped.bam \
     --output cons_unmapped.bam \
     --min-reads ${params.fgbio_min_reads_gbc} \
     --min-input-base-quality ${params.fgbio_base_quality}
 
   samtools fastq cons_unmapped.bam \
-  | bwa mem -t 16 -p -K 150000000 -Y ${ref} - \
-  | fgbio -Xmx4g --compression 1 --async-io ZipperBams \
+  | bwa mem -t 2 -p -K 150000000 -Y ${ref} - \
+  | fgbio -Xmx500m --compression 1 --async-io ZipperBams \
     --unmapped cons_unmapped.bam \
     --ref ${ref} \
     --tags-to-reverse Consensus \
     --tags-to-revcomp Consensus \
     --output cons_mapped.bam 
 
-  fgbio -Xmx8g --compression 0 FilterConsensusReads \
+  
+  # Step 5: Filter consensus reads (intermediate file)
+  fgbio -Xmx500m --compression 0 FilterConsensusReads \
     --input cons_mapped.bam \
-    --output /dev/stdout \
+    --output filtered_tmp.bam \
     --ref ${ref} \
     --min-reads ${params.fgbio_min_reads_gbc} \
     --min-base-quality ${params.fgbio_base_quality} \
-    --max-base-error-rate ${params.fgbio_base_error_rate_gbc} \
-    | samtools sort -@ 1 -o consensus_filtered_mapped.bam --write-index
-  
+    --max-base-error-rate ${params.fgbio_base_error_rate_gbc}
+
+  samtools quickcheck -v filtered_tmp.bam || { echo "ERROR: filtered_tmp.bam failed validation"; exit 1; }
+
+  samtools sort -@ 1 -o consensus_filtered_mapped.bam filtered_tmp.bam --write-index
+
+  rm -f filtered_tmp.bam filtered_tmp.bam.bai
   
   ##
 
