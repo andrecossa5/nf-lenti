@@ -57,54 +57,23 @@ workflow sc_gbc {
             }
         }
 
-        ch_barcodes.view { sample, bam, chunk ->
-            "SPLIT_BARCODES → sample=$sample, bam=${bam.name}, chunk=${chunk.name}"
-        }
-
         FILTER_BAM_CB(ch_barcodes)
-
-        FILTER_BAM_CB.out.bam.view { sample, bamOut ->
-            "FILTER_BAM_CB out → $sample, bam=${bamOut.name}"
-        }
         SPLIT_BAM(FILTER_BAM_CB.out.bam)
-
-        SPLIT_BAM.out.cell_bams.view { sample, paths ->
-            "SPLIT_BAM → $sample has ${paths.size()} cell‑bams: ${paths*.name}"
-        }
         ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
-
-        ch_cell_bams.view { sample, cell, bamPath ->
-            "processCellBams → sample=$sample, cell=$cell, bam=${bamPath.name}"
-        }
         EXTRACT_FASTA(params.string_lentiviral)
-        EXTRACT_FASTA.out.fasta.view { fasta ->
-            "EXTRACT_FASTA → fasta=$fasta"
-        }
 
         // Create consensus reads and cell assignment
         CONSENSUS_LENTI(ch_cell_bams, EXTRACT_FASTA.out.fasta)
         ch_collapse = CONSENSUS_LENTI.out.consensus_filtered_tsv 
             .map { it -> tuple(it[0], it[2]) }
             .groupTuple(by: 0)
-        ch_collapse.view { sample, list ->
-            ">>> COLLAPSE INPUT for $sample: ${list.size()} files -> $list"
-        }
         COLLAPSE_TSV(ch_collapse)
         CELL_ASSIGNMENT(COLLAPSE_TSV.out.elements)
-        CELL_ASSIGNMENT.out.cells_summary.view { sample, cellsSummary ->
-            ">>> CELLS_SUMMARY for $sample -> $cellsSummary"
-        }
-        CELL_ASSIGNMENT.out.clones_summary.view { sample, clonesSummary ->
-            ">>> CLONES_SUMMARY for $sample -> $clonesSummary"
-        }
 
         // Build exactly: (sample, GBCs, filtered, cells_summary, clones_summary)
         summary_input = COLLAPSE_TSV.out.elements
-        .combine(CELL_ASSIGNMENT.out.cells_summary,    by: 0)
-        .combine(CELL_ASSIGNMENT.out.clones_summary,   by: 0)
-        summary_input.view { tuple ->
-            ">>> SUMMARY_INPUT => $tuple"
-        }
+            .combine(CELL_ASSIGNMENT.out.cells_summary,    by: 0)
+            .combine(CELL_ASSIGNMENT.out.clones_summary,   by: 0)
         generate_run_summary_sc(summary_input)
 
         // Publishing
