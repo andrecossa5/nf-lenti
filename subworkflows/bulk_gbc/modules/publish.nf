@@ -13,13 +13,14 @@ process publish_bulk {
   publishDir "${params.outdir}/${sample_name}/", mode: 'copy'
 
   input:
-  tuple val(sample_name), path(raw_counts), path(corrected_counts), path(correction_df), path(run_summary)
+  tuple val(sample_name), path(raw_counts), path(corrected_counts), path(correction_df), path(run_summary_json)
+
 
   output:
   path raw_counts
   path corrected_counts
   path correction_df
-  path run_summary
+  path run_summary_json
   val sample_name, emit: finish_flag
 
   script:

@@ -1,196 +1,171 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
-# Create run summary
+"""
+create_run_summary.py
 
-########################################################################
+Create run summary for bulk GBC analysis.
+- Loads raw, corrected, and correction dataframe CSVs for a sample.
+- Computes key metrics about GBC filtering and correction.
+- Encodes QC images for embedding in reports.
+- Outputs a summary JSON with pipeline, run info, parameters, metrics, and QC images.
+"""
 
-# Parsing CLI args 
- 
-# Libraries
 import os
+import sys
 import argparse
-
-# Create the parser
-my_parser = argparse.ArgumentParser(
-    prog='create_run_summary',
-    description=
-    """
-    Create run summary.
-    """
-)
-
-# indir
-my_parser.add_argument(
-    '--indir', 
-    type=str,
-    default=None,
-    help='Path to input directory: params.bulk_indir.'
-)
-
-# outdir
-my_parser.add_argument(
-    '--outdir', 
-    type=str,
-    default=None,
-    help='Path to input directory: params.bulk_outdir.'
-)
-
-# anchor_sequence
-my_parser.add_argument(
-    '--anchor_sequence', 
-    type=str,
-    default=None,
-    help='Anchor sequence: params.anchor_sequence.'
-)
-
-# read_counts
-my_parser.add_argument(
-    '--raw_counts',
-    type=str,
-    default=None,
-    help='Path to raw_counts, all observed GBC sequences. Default: . .'
-)
-
-# Sample
-my_parser.add_argument(
-    '--sample',
-    type=str,
-    default=None,
-    help='Sample name.'
-)
-
-# correction_df
-my_parser.add_argument(
-    '--correction_df',
-    type=str,
-    default=None,
-    help='Correction_df as generated in correct_and_count.py script.'
-)
-
-# stats_table
-my_parser.add_argument(
-    '--corrected_counts',
-    type=str,
-    default=None,
-    help='Corrected counts for filtered, high quality GBC sequences.'
-)
-
-# 
-my_parser.add_argument(
-    '--output',
-    type=str,
-    default=os.getcwd(),
-    help='Path to write output. Default: cwd.'
-)
-
-# Min_n_reads
-my_parser.add_argument(
-    '--min_n_reads',
-    type=int,
-    default=1000,
-    help='Min number of reads for a filtered GBC. Default: 1000.'
-)
-
-# Min_n_reads
-my_parser.add_argument(
-    '--hamming_treshold',
-    type=int,
-    default=3,
-    help='Hamming treshold to find GBCs communities via UMItools clusterer. Default: 3.'
-)
-
-
-##
-
-
-# Parse arguments
-args = my_parser.parse_args()
-indir = args.indir
-outdir = args.outdir
-sample = args.sample
-anchor_sequence = args.anchor_sequence
-min_n_reads = args.min_n_reads
-hamming_treshold = args.hamming_treshold
-raw_counts = args.raw_counts
-corrected_counts = args.corrected_counts
-correction_df = args.correction_df
-path_o = args.output
-
-
-##
-
-
-# Import code
-import getpass
+import json
 import datetime
+import numpy as np
 import pandas as pd
+from pathlib import Path
 
-
-##
-
-
-########################################################################
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "common"))
+from utils import encode_image_b64, resolve_working_dir_and_user
 
 def main():
+    parser = argparse.ArgumentParser(
+        prog="create_run_summary",
+        description="Create run summary for bulk GBC analysis."
+    )
+    parser.add_argument(
+        "--indir",
+        type=str,
+        required=True,
+        help="Input directory."
+    )
+    parser.add_argument(
+        "--outdir",
+        type=str,
+        required=True,
+        help="Output directory."
+    )
+    parser.add_argument(
+        "--params_outdir",
+        type=str,
+        required=True,
+        default=None,
+        help="Original pipeline outdir parameter (for reporting only)."
+    )
+    parser.add_argument(
+        "--anchor_sequence",
+        type=str,
+        required=True,
+        help="Anchor sequence used for GBC extraction."
+    )
+    parser.add_argument(
+        "--sample",
+        type=str,
+        required=True,
+        help="Sample name."
+    )
+    parser.add_argument(
+        "--raw_counts",
+        type=str,
+        required=True,
+        help="Path to raw counts CSV file (before filtering/correction)."
+    )
+    parser.add_argument(
+        "--corrected_counts",
+        type=str,
+        required=True,
+        help="Path to corrected counts CSV file (after filtering/correction)."
+    )
+    parser.add_argument(
+        "--correction_df",
+        type=str,
+        required=True,
+        help="Path to correction dataframe CSV file (mapping degenerate to corrected GBCs)."
+    )
+    parser.add_argument(
+        "--min_n_reads",
+        type=int,
+        required=False,
+        default=1000,
+        help="Minimum number of reads that a 'correct' GBC must have to be considered for entry into the final whitelist. Default: 1000."
+    )
+    parser.add_argument(
+        "--hamming_treshold",
+        type=int,
+        required=False,
+        default=3,
+        help="Maximum Hamming distance for which sequences can be clustered together."
+    )
+    parser.add_argument(
+        "--qc_images",
+        type=str,
+        nargs='+',
+        required=True,
+        help="List of QC image paths."
+    )
+    args = parser.parse_args()
 
-    # Calculate stats
+    os.makedirs(args.outdir, exist_ok=True)
+    working_dir, user_name = resolve_working_dir_and_user()
 
-    df_ = pd.read_csv(raw_counts, index_col=0)
-    total_GBC_reads = df_['read_counts'].sum()
-    n_unique_GBCs = df_.shape[0]
-    del df_
+    # Load data
+    df_raw = pd.read_csv(args.raw_counts, index_col=0)
+    df_corrected = pd.read_csv(args.corrected_counts, index_col=0)
+    df_correction = pd.read_csv(args.correction_df)
+    if 'read_counts' in df_raw.columns:
+        df_raw.rename(columns={'read_counts': 'read_count'}, inplace=True)
 
-    df_ = pd.read_csv(corrected_counts, index_col=0)
-    n_filtered_GBCs = df_.shape[0]
-    del df_
+    # Compute stats
+    total_GBC_reads = df_raw['read_count'].sum()
+    n_unique_GBCs = df_raw.shape[0]
+    n_filtered_GBCs = df_corrected.shape[0]
+    n_corrected = df_correction['correct'].nunique() if 'correct' in df_correction.columns else 0
+    n_degenerated = df_correction['degenerated'].nunique() if 'degenerated' in df_correction.columns else 0
+    median_n_reads_added = float(df_correction['n_reads_degenerated'].median()) if 'n_reads_degenerated' in df_correction.columns else 0.0
 
-    df_ = pd.read_csv(correction_df)
-    n_corrected = df_['correct'].unique().size
-    n_degenerated = df_['degenerated'].unique().size
-    median_n_reads_added = df_['n_reads_degenerated'].median()
-    del df_
+    # Encode QC images with titles
+    qc_encoded = [
+        {"title": Path(p).stem, "image": encode_image_b64(p)}
+        for p in args.qc_images if Path(p).exists()
+    ]
 
+    # Build summary JSON
+    summary_data = {
+        "pipeline": {
+            "name": "nf-lenti",
+            "version": "1.0.0",
+            "homePage": "https://github.com/andrecossa5/nf-lenti.git"
+        },
+        "run_info": {
+            "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "user": user_name,
+            "working_directory": working_dir,
+        },
+        "parameters": {
+            "indir": args.indir,
+            "outdir": args.params_outdir,
+            "anchor_sequence": args.anchor_sequence,
+            "min_n_reads": args.min_n_reads,
+            "hamming_treshold": args.hamming_treshold,
+        },
+        "sample": args.sample,
+        "metrics": {
+            "total_GBC_reads": int(total_GBC_reads),
+            "n_unique_GBCs": int(n_unique_GBCs),
+            "n_filtered_GBCs": int(n_filtered_GBCs),
+            "n_corrected_GBCs": int(n_corrected),
+            "n_degenerated_GBCs": int(n_degenerated),
+            "median_n_reads_added": float(median_n_reads_added),
+        },
+        "metrics_info": {
+            "total_GBC_reads": "Total reads assigned to valid GBCs (18 bp) before filtering and correction.",
+            "n_unique_GBCs": "Unique GBC (18bp) detected before filtering and correction.",
+            "n_filtered_GBCs": "Final GBCs retained after spike-in removal, correction, and read threshold filtering.",
+            "n_corrected_GBCs": "GBCs kept as correction targets after collapsing sequences based on Hamming distance clustering. Default: 3",
+            "n_degenerated_GBCs": "GBCs merged into corrected barcodes.",
+            "median_n_reads_added": "Median reads reassigned to corrected GBCs from degenerate barcodes."
+        },
+        "qc_images": qc_encoded
+    }
 
-    ##
+    # Save JSON
+    json_path_outdir = Path(args.outdir) / 'run_summary.json'
+    with open(json_path_outdir, 'w') as jf:
+        json.dump(summary_data, jf, indent=2)
 
-
-    # Write summary
-    f = open(os.path.join(path_o, 'run_summary.txt'), 'w')
-
-    # Write stats
-    f.write(f'Summary Step 1 (bulk GBC), sample {sample} \n')
-    f.write('-------------------------------------')
-    f.write('\n')
-    f.write('Overview: \n')
-    f.write(f'- Date of analysis:               {datetime.datetime.now().strftime("%d-%m-%Y")} \n')
-    f.write(f'- User:                           {getpass.getuser()} \n')
-    f.write(f'- Working directory:              {"/".join(os.getcwd().split("/")[:-2])} \n')
-    f.write('\n')
-    f.write(f'Parameters \n')
-    f.write(f'--indir:                          {indir} \n')
-    f.write(f'--outdir:                         {outdir} \n')
-    f.write(f'--anchor_sequence:                {anchor_sequence} \n')
-    f.write(f'--min_n_reads:                    {min_n_reads} \n')
-    f.write(f'--hamming_treshold:               {hamming_treshold} \n')
-    f.write('\n')
-    f.write('Numbers: \n')
-    f.write(f'- Reads with GBC:                 {int(total_GBC_reads)} \n')
-    f.write(f'- Unique GBCs:                    {int(n_unique_GBCs)} \n')
-    f.write(f'- Filtered GBCs:                  {int(n_filtered_GBCs)} \n')
-    f.write(f'- Correction:                     \n')
-    f.write(f'  * n corrected GBCs:             {n_corrected} \n')
-    f.write(f'  * n degenerated GBCs:           {n_degenerated} \n')
-    f.write(f'  * Median n added reads:         {median_n_reads_added:.2f} \n')
-    f.write('\n')
-
-    f.close()
- 
-
-##
-
-
-########################################################################
-
-# Run
 if __name__ == '__main__':
     main()

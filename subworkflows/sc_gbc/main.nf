@@ -1,4 +1,3 @@
-// sc subworkflow
 nextflow.enable.dsl = 2
 
 // Include here
@@ -13,6 +12,7 @@ include { CONSENSUS_LENTI } from "./modules/consensus_lenti.nf"
 include { COLLAPSE_TSV } from "./modules/collapse_tsv.nf"
 include { CELL_ASSIGNMENT } from "./modules/cell_assignment.nf"
 include { generate_run_summary_sc } from "./modules/run_summary.nf"
+include { collapse_output_sc } from "./modules/collapse_output_sc.nf"
 include { publish_sc_gbc } from "./modules/publish.nf"
 
  
@@ -72,23 +72,40 @@ workflow sc_gbc {
 
         // Build exactly: (sample, GBCs, filtered, cells_summary, clones_summary)
         summary_input = COLLAPSE_TSV.out.elements
-            .combine(CELL_ASSIGNMENT.out.cells_summary,    by: 0)
-            .combine(CELL_ASSIGNMENT.out.clones_summary,   by: 0)
-        generate_run_summary_sc(summary_input)
+            .combine(CELL_ASSIGNMENT.out.cells_summary,     by: 0)
+            .combine(CELL_ASSIGNMENT.out.clones_summary,    by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_summary_txt, by: 0)
+            .combine(CELL_ASSIGNMENT.out.combo_plot,        by: 0)
+            .combine(CELL_ASSIGNMENT.out.umi_dist,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.moi_dist,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_sz,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.umi_dist_interactive,   by: 0)
+            .combine(CELL_ASSIGNMENT.out.moi_dist_interactive,   by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_sz_interactive,   by: 0)
 
-        // Publishing
-        publish_ch = CELL_ASSIGNMENT.out.CBC_GBC_combos 
-            .combine(CELL_ASSIGNMENT.out.combo_plot, by:0)
-            .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
-            .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)
-            .combine(CELL_ASSIGNMENT.out.summary, by:0)
-            .combine(generate_run_summary_sc.out.summary, by:0)
+        generate_run_summary_sc(summary_input)
+        
+        // Publishing channel (include JSON as well for report HTML)
+        publish_ch = CELL_ASSIGNMENT.out.CBC_GBC_combos
+            .combine(CELL_ASSIGNMENT.out.combo_plot,        by: 0)
+            .combine(CELL_ASSIGNMENT.out.umi_dist,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.moi_dist,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_sz,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.cells_summary,     by: 0)
+            .combine(CELL_ASSIGNMENT.out.clones_summary,    by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_summary_txt, by: 0)
+            .combine(CELL_ASSIGNMENT.out.umi_dist_interactive,   by: 0)
+            .combine(CELL_ASSIGNMENT.out.moi_dist_interactive,   by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_sz_interactive,   by: 0)
+            .combine(generate_run_summary_sc.out.summary_json, by: 0)
+
         publish_sc_gbc(publish_ch)
+        
+        collapse_output_sc(generate_run_summary_sc.out.summary_json.map { it[1] }.collect())        
 
     emit:
-        
-        summary = generate_run_summary_sc.out.summary
-
+        summary_json = generate_run_summary_sc.out.summary_json
 }
 
 //----------------------------------------------------------------------------//
+

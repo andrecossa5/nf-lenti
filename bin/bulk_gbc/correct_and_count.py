@@ -1,3 +1,14 @@
+"""
+correct_and_count.py
+
+Script for GBC (Genetic Barcode) filtering, correction, and counting.
+- Loads raw GBCs and filters for length and read count.
+- Clusters GBCs by Hamming distance using UMI-tools.
+- Collapses degenerate barcodes into corrected barcodes.
+- Removes spike-ins if provided.
+- Outputs raw counts, correction mapping, and final corrected counts.
+"""
+
 #!/usr/bin/python
 
 # Correct and count genomic GBC
