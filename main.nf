@@ -1,4 +1,4 @@
-// nf-lenti
+// nf-lenti, tested
 nextflow.enable.dsl = 2
 
 // Include here
