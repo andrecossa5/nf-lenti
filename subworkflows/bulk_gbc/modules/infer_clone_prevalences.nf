@@ -7,6 +7,7 @@ nextflow.enable.dsl = 2
 // Infere GBC clones frequencies from their read counts using ground truth spikins data
 process INFER_PREVALENCES {
 
+  label 'MiTo'
   tag "${sample_name}"
 
   input:

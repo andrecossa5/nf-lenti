@@ -126,6 +126,8 @@ sample_params = args.sample_params
 # Import code
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from helpers import *
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "common"))
+from utils import encode_image_b64, resolve_working_dir_and_user  # or any other functions you need
 
 
 ##

@@ -6,6 +6,8 @@ nextflow.enable.dsl = 2
 
 process SEARCH_PATTERNS {
 
+  label 'scLT'
+    
   output:
   path "search_patterns.tsv", emit: search_patterns
 

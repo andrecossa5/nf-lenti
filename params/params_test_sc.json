@@ -3,15 +3,14 @@
     "bulk_gbc_indir" : "None",
     "bulk_gbc_outdir" :  "None",
 
-    "sc_gbc_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_gbc",
-    "sc_tenx_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_tenx/",
-    "sc_maester_indir" : "/Users/IEO5505/Desktop/example_mito/data/sc_maester/",
-    "sc_outdir" : "/Users/IEO5505/Desktop/example_mito/results",
-	
-    "ref" : "/Users/IEO5505/Desktop/example_mito/meta/ref",
+    "raw_data_input" : "/Users/ieo7295/Desktop/tests/nf_lenti_test/sc_bam.csv",
+    "raw_data_input_type" : "bam",
+    "sc_outdir" : "/Users/ieo7295/Desktop/tests/nf_lenti_test/results",
+
+    "ref" : "/Users/ieo7295/Desktop/tests/nf_lenti_test/ref",
     "string_lentiviral" : "lentiCassette",
     "string_MT" : "chrM",
-    "whitelist" : "/Users/IEO5505/Desktop/example_mito/meta/whitelist.txt",
+    "whitelist" : "/Users/ieo7295/Desktop/tests/nf_lenti_test/barcodes_100.txt",
 
     "CBs_chunk_size" : 3000, 
     "fgbio_UMI_consensus_mode" : "Identity",
@@ -35,7 +34,7 @@
     "sample_params" : "None",
     "gbc_sample_map" : "None",
 
-    "bam_file" : "/Users/IEO5505/Desktop/MI_TO/mito_preprocessing/bam_file.csv",
+    "bam_file" : "/Users/ieo7295/Desktop/MI_TO/mito_preprocessing/bam_file.csv",
     "pp_method" : "mito_preprocessing"
 
 }

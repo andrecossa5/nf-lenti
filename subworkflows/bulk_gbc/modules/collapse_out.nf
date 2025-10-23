@@ -5,25 +5,21 @@ nextflow.enable.dsl = 2
 //
 
 process collapse_output {
+    label 'scLT'
+    publishDir "${params.outdir}", mode: 'copy'
 
-  // Publish
-  publishDir "${params.bulk_gbc_outdir}", mode: 'copy'
+    input:
+    val last
 
-  input:
-  val last
+    output:
+    path "summary", emit: summary
 
-  output:
-  path summary
-
-  script:
-  """
-  python ${baseDir}/bin/bulk_gbc/collapse_outputs.py -i ${params.bulk_gbc_outdir}
-  """
-
-  stub:
-  """
-  echo "Collapsing output in ${params.bulk_gbc_outdir}..."
-  mkdir summary
-  """
-
+    script:
+    """
+    python ${baseDir}/bin/bulk_gbc/collapse_outputs.py \
+        -i ${params.outdir} \
+        --template ${baseDir}/subworkflows/templates/report_template.html
+    """
 }
+
+

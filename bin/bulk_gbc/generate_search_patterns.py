@@ -1,3 +1,11 @@
+"""
+generate_search_patterns.py
+
+Generate search patterns for a given anchor sequence, replacing each position with a wildcard ('.') one at a time.
+- Takes the anchor sequence as a command-line argument.
+- Outputs all single-position wildcard patterns as a TSV file.
+"""
+
 #!/usr/bin/python
 
 import os

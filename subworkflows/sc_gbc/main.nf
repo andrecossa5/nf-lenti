@@ -1,4 +1,3 @@
-// sc subworkflow
 nextflow.enable.dsl = 2
 
 // Include here
@@ -13,6 +12,7 @@ include { CONSENSUS_LENTI } from "./modules/consensus_lenti.nf"
 include { COLLAPSE_TSV } from "./modules/collapse_tsv.nf"
 include { CELL_ASSIGNMENT } from "./modules/cell_assignment.nf"
 include { generate_run_summary_sc } from "./modules/run_summary.nf"
+include { collapse_output_sc } from "./modules/collapse_output_sc.nf"
 include { publish_sc_gbc } from "./modules/publish.nf"
 
  
@@ -42,27 +42,22 @@ def processCellBams(cell_bams) {
 workflow sc_gbc {
     
     take:
-        ch_sc_gbc
         ch_filtered
 
     main:
- 
-        // Merge reads and alignment
-        MERGE_R1(ch_sc_gbc)
-        MERGE_R2(ch_sc_gbc)
-        SOLO(MERGE_R1.out.R1.combine(MERGE_R2.out.R2, by:0))
 
         // Split into cell-specific bams
         SPLIT_BARCODES(ch_filtered)
         ch_barcodes = SPLIT_BARCODES.out.barcodes.flatMap { 
-            sample_name, file_paths ->
+            sample_name, bam, file_paths ->
             if (file_paths instanceof List) {
-                file_paths.collect { file_path -> [sample_name, file_path] }
+                file_paths.collect { file_path -> [sample_name, bam, file_path] }
             } else {
-                [[sample_name, file_paths]]
+                [[sample_name, bam, file_paths]]
             }
         }
-        FILTER_BAM_CB(SOLO.out.bam.combine(ch_barcodes, by:0))
+
+        FILTER_BAM_CB(ch_barcodes)
         SPLIT_BAM(FILTER_BAM_CB.out.bam)
         ch_cell_bams = processCellBams(SPLIT_BAM.out.cell_bams)
         EXTRACT_FASTA(params.string_lentiviral)
@@ -75,27 +70,42 @@ workflow sc_gbc {
         COLLAPSE_TSV(ch_collapse)
         CELL_ASSIGNMENT(COLLAPSE_TSV.out.elements)
 
-        // Summary
-        summary_input = MERGE_R1.out.R1
-            .combine(COLLAPSE_TSV.out.elements, by:0)
-            .combine(ch_filtered, by:0)
-            .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
-            .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)
-        generate_run_summary_sc(summary_input)
+        // Build exactly: (sample, GBCs, filtered, cells_summary, clones_summary)
+        summary_input = COLLAPSE_TSV.out.elements
+            .combine(CELL_ASSIGNMENT.out.cells_summary,     by: 0)
+            .combine(CELL_ASSIGNMENT.out.clones_summary,    by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_summary_txt, by: 0)
+            .combine(CELL_ASSIGNMENT.out.combo_plot,        by: 0)
+            .combine(CELL_ASSIGNMENT.out.umi_dist,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.moi_dist,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_sz,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.umi_dist_interactive,   by: 0)
+            .combine(CELL_ASSIGNMENT.out.moi_dist_interactive,   by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_sz_interactive,   by: 0)
 
-        // Publishing
-        publish_ch = CELL_ASSIGNMENT.out.CBC_GBC_combos 
-            .combine(CELL_ASSIGNMENT.out.combo_plot, by:0)
-            .combine(CELL_ASSIGNMENT.out.cells_summary, by:0)
-            .combine(CELL_ASSIGNMENT.out.clones_summary, by:0)
-            .combine(CELL_ASSIGNMENT.out.summary, by:0)
-            .combine(generate_run_summary_sc.out.summary, by:0)
+        generate_run_summary_sc(summary_input)
+        
+        // Publishing channel (include JSON as well for report HTML)
+        publish_ch = CELL_ASSIGNMENT.out.CBC_GBC_combos
+            .combine(CELL_ASSIGNMENT.out.combo_plot,        by: 0)
+            .combine(CELL_ASSIGNMENT.out.umi_dist,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.moi_dist,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_sz,          by: 0)
+            .combine(CELL_ASSIGNMENT.out.cells_summary,     by: 0)
+            .combine(CELL_ASSIGNMENT.out.clones_summary,    by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_summary_txt, by: 0)
+            .combine(CELL_ASSIGNMENT.out.umi_dist_interactive,   by: 0)
+            .combine(CELL_ASSIGNMENT.out.moi_dist_interactive,   by: 0)
+            .combine(CELL_ASSIGNMENT.out.clone_sz_interactive,   by: 0)
+            .combine(generate_run_summary_sc.out.summary_json, by: 0)
+
         publish_sc_gbc(publish_ch)
+        
+        collapse_output_sc(generate_run_summary_sc.out.summary_json.map { it[1] }.collect())        
 
     emit:
-        
-        summary = generate_run_summary_sc.out.summary
-
+        summary_json = generate_run_summary_sc.out.summary_json
 }
 
 //----------------------------------------------------------------------------//
+

@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 
 process CELL_ASSIGNMENT {
 
+  label 'scLT'
   tag "${sample_name}"
   
   input:
@@ -16,7 +17,13 @@ process CELL_ASSIGNMENT {
   tuple val(sample_name), path("clones_summary_table.csv"), emit: clones_summary
   tuple val(sample_name), path("cells_summary_table.csv"), emit: cells_summary
   tuple val(sample_name), path("CBC_GBC_combo_status.png"), emit: combo_plot
-  tuple val(sample_name), path("clone_calling_summary.txt"), emit: summary
+  tuple val(sample_name), path("umi_distribution.png"), emit: umi_dist 
+  tuple val(sample_name), path("MOI_distribution.png"), emit: moi_dist
+  tuple val(sample_name), path("clone_size_distribution.png"), emit: clone_sz  
+  tuple val(sample_name), path("clone_calling_summary.txt"), emit: clone_summary_txt
+  tuple val(sample_name), path("umi_distribution_interactive.html"), emit: umi_dist_interactive
+  tuple val(sample_name), path("MOI_distribution_interactive.html"), emit: moi_dist_interactive
+  tuple val(sample_name), path("clone_size_distribution_interactive.html"), emit: clone_sz_interactive
 
   script: 
   """

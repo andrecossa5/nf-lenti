@@ -1,4 +1,4 @@
-// generate_run_summary_sc
+// generate_run_summary_sc module
 
 nextflow.enable.dsl = 2
 
@@ -6,43 +6,47 @@ nextflow.enable.dsl = 2
 
 process generate_run_summary_sc {
 
+    label 'scLT'
     tag "${sample_name}"
- 
+
     input:
-    tuple val(sample_name), 
-        path(R1), 
-        path(GBCs), 
-        path(filtered), 
-        path(cells_summary),
-        path(clones_summary)
-  
+    tuple val(sample_name),
+        path(GBCs),       // cells.tsv.gz
+        path(cells_summary), //cells_summary_table.csv
+        path(clones_summary), //clones_summary_table.csv
+        path(clone_summary_txt), //clone_calling_summary.txt
+        path(combo_plot), //CBC_GBC_combo_status.png
+        path(umi_dist), //umi_distribution.png
+        path(moi_dist), //moi_distribution.png
+        path(clone_sz), //clone_size_distribution.png
+        path(umi_dist_interactive),
+        path(moi_dist_interactive),
+        path(clone_sz_interactive)
+
     output:
-    tuple val(sample_name), path("run_summary.txt"), emit: summary
+    tuple val(sample_name), path("run_summary.json"), emit: summary_json
 
     script:
     """
-    echo "Summary Step 2, sample ${sample_name}" > run_summary.txt
-    echo "-------------------------------------" >> run_summary.txt
-    echo "" >> run_summary.txt
-    echo "Overview" >> run_summary.txt
-    echo "- Date of analysis:                               \$(date)" >> run_summary.txt
-    echo "- User:                                           ${USER}" >> run_summary.txt
-    echo "- Working directory:                              ${PWD}" >> run_summary.txt
-    echo "" >> run_summary.txt
-    echo "Parameters" >> run_summary.txt
-    echo "--sc_tenx_indir:                                  ${params.sc_tenx_indir}" >> run_summary.txt
-    echo "--sc_gbc_indir:                                   ${params.sc_gbc_indir}" >> run_summary.txt
-    echo "--sc_outdir:                                      ${params.sc_outdir}" >> run_summary.txt
-    echo "--pattern:                                        ${params.sc_gbc_anchor_sequence}" >> run_summary.txt
-    echo "--ref:                                            ${params.ref}" >> run_summary.txt
-    echo "Numbers" >> run_summary.txt
-    echo "- Total reads:                                    \$(zcat ${R1} | awk 'END{print NR/4}' | LC_ALL=en_US.UTF-8 awk '{ printf("%'"'"'d", \$0) }')" >> run_summary.txt
-    echo "- Unique GBC in bulk reference:                   \$(cat ${params.bulk_gbc_outdir}/${sample_name}/GBC_counts_corrected.csv| wc -l | LC_ALL=en_US.UTF-8 awk '{ printf("%'"'"'d", \$0) }')" >> run_summary.txt
-    echo "- Unique GBC found in sc:                         \$(cat ${GBCs} | wc -l | LC_ALL=en_US.UTF-8 awk '{ printf("%'"'"'d", \$0) }')" >> run_summary.txt
-    echo "- Putative cell n (Solo cell-calling):            \$(zcat ${filtered}/barcodes.tsv.gz | wc -l | LC_ALL=en_US.UTF-8 awk '{ printf("%'"'"'d", \$0) }')" >> run_summary.txt
-    echo "- Total number of transcripts:                    \$(zcat ${filtered}/features.tsv.gz | wc -l | LC_ALL=en_US.UTF-8 awk '{ printf("%'"'"'d", \$0) }')" >> run_summary.txt
-    echo "- n clones:                                       \$(cat ${clones_summary} | wc -l | LC_ALL=en_US.UTF-8 awk '{ printf("%'"'"'d", \$0) }')" >> run_summary.txt
-    echo "- n cells confidently assigned to GBC clones:     \$(cat ${cells_summary} | wc -l | LC_ALL=en_US.UTF-8 awk '{ printf("%'"'"'d", \$0) }')" >> run_summary.txt
+    python ${baseDir}/bin/sc_gbc/make_run_summary_json.py \
+        --sample ${sample_name} \
+        --clone_summary_txt ${clone_summary_txt} \
+        --cells_summary ${cells_summary} \
+        --clones ${clones_summary} \
+        --gbcs ${GBCs} \
+        --bulk_gbc ${params.bulk_gbc_outdir}/${sample_name}/GBC_counts_corrected.csv \
+        --combo_plot ${combo_plot} \
+        --umi_dist ${umi_dist} \
+        --moi_dist ${moi_dist} \
+        --clone_sz ${clone_sz} \
+        --umi_dist_interactive ${umi_dist_interactive} \
+        --moi_dist_interactive ${moi_dist_interactive} \
+        --clone_sz_interactive ${clone_sz_interactive} \
+        --raw_data_input ${params.raw_data_input} \
+        --raw_data_input_type ${params.raw_data_input_type} \
+        --sc_outdir ${params.sc_outdir} \
+        --pattern ${params.sc_gbc_anchor_sequence} \
+        --ref ${params.ref} \
+        --out_json run_summary.json
     """
-
 }

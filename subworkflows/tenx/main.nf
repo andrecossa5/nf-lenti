@@ -10,30 +10,47 @@ include { SOLO } from "../common/modules/Solo.nf"
 
 process publish_tenx {
 
+    label 'scLT'
     tag "${sample_name}"
 
     // Publish
     publishDir "${params.sc_outdir}/${sample_name}/", mode: 'copy'
 
     input:
-    tuple val(sample_name),
-          path (raw),
-          path (filtered),
-          path (stats), 
-          path (summary),
-          path (bam)
+        tuple val(sample_name),
+              path(raw),
+              path(filtered),
+              path(stats), 
+              path(summary),
+              path(bam)
 
     output:
-    path raw
-    path filtered
-    path stats
-    path summary
+        path(raw)
+        path(filtered)
+        path(stats)
+        path(summary)
 
     script:
     """
     echo moving everything to ${params.sc_outdir}
     """
+    stub:
+        """
+        # make raw/ with dummy files
+        mkdir -p raw
+        touch raw/dummy1.fq.gz raw/dummy2.fq.gz
 
+        # make filtered/ with dummy files
+        mkdir -p filtered
+        touch filtered/barcodes.tsv.gz
+        touch filtered/matrix.mtx.gz
+        touch filtered/features.tsv.gz
+
+        # other standalone outputs
+        touch Features.stats
+        touch Summary.csv
+        touch Aligned.sortedByCoord.out.bam
+        """
 }
 
 // 
@@ -63,8 +80,8 @@ workflow tenx {
 
     emit:
     
+        cell_barcodes = SOLO.out.cell_barcodes
         filtered = SOLO.out.filtered
-        bam = SOLO.out.bam
 
 }
 

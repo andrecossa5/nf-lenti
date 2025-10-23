@@ -6,6 +6,8 @@ nextflow.enable.dsl = 2
 
 process EXTRACT_FASTA {
     
+    label 'scLT'
+    
     input:
     val(pattern)
     

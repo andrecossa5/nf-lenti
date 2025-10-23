@@ -7,15 +7,14 @@ nextflow.enable.dsl = 2
 // Correct GBCs and count their reads
 process CORRECT_AND_COUNT {
 
+  label 'MiTo'
   tag "${sample_name}"
 
   input:
   tuple val(sample_name), path(GBC)
 
   output:
-  tuple val(sample_name), path('GBC_raw_counts.csv.gz'), emit: raw_counts
-  tuple val(sample_name), path('GBC_counts_corrected.csv'), emit: corrected_counts
-  tuple val(sample_name), path('correction_df.csv'), emit: correction_df
+  tuple val(sample_name), path('GBC_raw_counts.csv.gz'), path('GBC_counts_corrected.csv'), path('correction_df.csv'), emit: gbc_counts
 
   script:
   """
@@ -26,7 +25,7 @@ process CORRECT_AND_COUNT {
   --method directional \
   --min_n_reads ${params.bulk_gbc_min_n_reads} \
   --min_n_reads ${params.bulk_gbc_min_n_reads} \
-  --spikeins ${params.bulk_gbc_spikeins_table}
+  ${params.bulk_gbc_spikeins_table ? "--spikeins ${params.bulk_gbc_spikeins_table}" : ""}
   """
 
   stub:

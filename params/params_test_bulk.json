@@ -1,8 +1,7 @@
 {
 
-    "bulk_gbc_indir" : "None",
-    "bulk_gbc_outdir" : "None",
-
+    "raw_data_input" : "/Users/ieo7295/Desktop/tests/mito_test/meta.csv",
+    "outdir" : "/Users/ieo7295/Desktop/tests/mito_test/outdir",
     "bulk_gbc_spikeins_table" : "None", 
     "bulk_gbc_graph_clustering_hamming_treshold" : 3,
     "bulk_gbc_min_n_reads" : 1000,

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>nf-lenti Report</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f6f8fa;
+    --text: #0b0c0c;
+    --muted: #6e7781;
+    --border: #d0d7de;
+    --accent: #0366d6;
+  }
+
+  body.dark {
+    --bg: #0d1117;
+    --bg-alt: #161b22;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --border: #30363d;
+    --accent: #58a6ff;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .badge {
+    background: var(--accent);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .toggle-mode {
+    border: 1px solid var(--border);
+    background: var(--bg);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  /* Outermost wrapper for all sections */
+  .container {
+    max-width: 1100px;   /* slightly less wide than 1200px */
+    margin: 24px auto;
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
+
+  h2 {
+    margin-top: 28px;
+    margin-bottom: 12px;
+    font-size: 20px;
+  }
+
+  .section {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 28px;
+  }
+
+  ul { padding-left: 20px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--border);
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  tbody td {
+    border-top: 1px solid var(--border);
+    padding: 10px;
+    text-align: center;
+  }
+
+  tbody tr:nth-child(odd) { background-color: var(--bg); }
+  tbody tr:nth-child(even) { background-color: var(--bg-alt); }
+
+  .table-tools {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .table-tools input[type="search"] {
+    flex: 1 1 250px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .table-tools button {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    cursor: pointer;
+  }
+
+  .qc-images {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    width: 100%;
+  }
+
+  .qc-images img {
+    width: 100%;
+    max-width: 100%;
+    min-height: 320px;
+    max-height: 600px;
+    object-fit: contain;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    padding: 4px;
+    box-sizing: border-box;
+  }
+
+  /* Run-level QC adjustments */
+  .run-qc-wrapper {
+    width: 100%;              /* stay inside grey section */
+    margin: 0 auto 20px auto; /* center and space below */
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .run-qc-iframe, .run-qc-img {
+    width: 100% !important;   /* expand to section width */
+    max-width: 100% !important;
+    height: 420px !important; /* fixed height */
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    margin-bottom: 10px;
+    box-sizing: border-box;
+  }
+
+  .sample {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+
+  .sample h3 {
+    margin: 0;
+    padding: 12px;
+    background: var(--bg);
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sample .details { padding: 12px; display: none; }
+
+  /* Tooltip */
+  #tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    max-width: 260px;
+    line-height: 1.4;
+    white-space: normal;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease-in-out;
+  }
+
+  .download-btn {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>
+    nf-lenti Report 
+    <span id="pipelineVersion" style="font-size:14px;color:var(--muted);margin-left:6px;"></span>
+    <span id="runTypeBadge" class="badge"></span>
+    <a id="pipelineLink" href="#" target="_blank" style="margin-left:10px;display:inline-flex;align-items:center;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" style="color:var(--accent);" viewBox="0 0 16 16">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+      </svg>
+    </a>
+  </h1>
+  <button class="toggle-mode" id="toggleModeBtn">Toggle Dark Mode</button>
+</header>
+<div class="container">
+  <p id="subtitle"></p>
+
+  <div class="section">
+    <h2>Overview</h2>
+    <ul>
+      <li><strong>Date of analysis:</strong> <span id="overviewDate"></span></li>
+      <li><strong>User:</strong> <span id="overviewUser"></span></li>
+      <li><strong>Working directory:</strong> <span id="overviewWd"></span></li>
+    </ul>
+
+    <h2>Parameters</h2>
+    <table>
+      <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+      <tbody id="paramTableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Run-Level QC</h2>
+    <div id="runImages" class="qc-images"></div>
+  </div>
+
+  <div class="section">
+    <h2>Run-Level Metrics</h2>
+    <div class="table-tools">
+      <input id="tableSearch" type="search" placeholder="Filter rows…">
+      <button id="downloadCsvBtn">Download CSV</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="metricsTable">
+        <thead><tr id="metricsHeader"></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Samples</h2>
+    <div id="samples"></div>
+  </div>
+</div>
+<div id="tooltip"></div>
+
+<script id="report-data" type="application/json">{{REPORT_JSON}}</script>
+<script>
+(function() {
+  const report = JSON.parse(document.getElementById('report-data').textContent.trim());
+  const q = sel => document.querySelector(sel);
+  const fmt = v => (v === null || v === undefined) ? 'NA' : String(v);
+
+  // Header info
+  const runType = report.run_type || '';
+  q('#runTypeBadge').textContent = runType || 'unknown';
+  q('#subtitle').textContent =
+    runType.startsWith('bulk') ? 'Integrated pipeline for lentiviral-based scLT' :
+    runType.startsWith('sc') ? 'Integrated pipeline for lentiviral-based scLT' : '';
+
+  const pipeline = report.pipeline || {};
+  q('#pipelineVersion').textContent = pipeline.version ? `(v${pipeline.version})` : '';
+  if (pipeline.homePage) {
+    const link = q('#pipelineLink');
+    link.href = pipeline.homePage;
+    link.style.display = 'inline';
+  } else {
+    q('#pipelineLink').style.display = 'none';
+  }
+
+  const info = report.run_info || {};
+  q('#overviewDate').textContent = fmt(info.date);
+  q('#overviewUser').textContent = fmt(info.user);
+  q('#overviewWd').textContent = fmt(info.working_directory);
+
+  const tbody = q('#paramTableBody');
+  Object.entries(report.parameters || {}).forEach(([k,v]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${k}</td><td>${fmt(v)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+    // Helper: base64 decode (for interactive_html_b64)
+  function base64Decode(str) {
+    try {
+      // atob returns a binary string, so use decodeURIComponent(escape(...)) for UTF-8
+      return decodeURIComponent(escape(window.atob(str)));
+    } catch (e) {
+      // Fallback: try just atob (for ASCII-only HTML)
+      try {
+        return window.atob(str);
+      } catch {
+        return '';
+      }
+    }
+  }
+
+  // --------------------------
+  // Run QC images with Download buttons and interactive links
+  // --------------------------
+  const runImagesContainer = q('#runImages');
+  (report.run_level_qc || []).forEach((imgObj, idx) => {
+    // Use a special wrapper for run-level QC to make it wider
+    const wrapper = document.createElement('div');
+    wrapper.className = 'run-qc-wrapper';
+
+    // Title
+    const title = document.createElement('div');
+    title.textContent = imgObj.title || `Plot ${idx + 1}`;
+    title.style.fontSize = '16px';
+    title.style.marginBottom = '10px';
+    title.style.alignSelf = 'flex-start';
+    wrapper.appendChild(title);
+
+    // --- Prefer interactive_html_b64 if present, else fallback to static image ---
+    if (imgObj.interactive_html_b64) {
+      const html = base64Decode(imgObj.interactive_html_b64);
+      const iframe = document.createElement('iframe');
+      iframe.srcdoc = html;
+      iframe.className = 'run-qc-iframe';
+      iframe.setAttribute('sandbox','allow-scripts allow-same-origin');
+      wrapper.appendChild(iframe);
+
+      // Download button for interactive HTML
+      const btn = document.createElement('button');
+      btn.textContent = 'Download HTML';
+      btn.className = 'download-btn';
+      btn.addEventListener('click', () => {
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `run_qc_${idx + 1}.html`;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+      wrapper.appendChild(btn);
+
+    } else if (imgObj.interactive_link) {
+      const iframe = document.createElement('iframe');
+      iframe.src = imgObj.interactive_link;
+      iframe.className = 'run-qc-iframe';
+      iframe.setAttribute('loading', 'lazy');
+      wrapper.appendChild(iframe);
+
+      // Download button for interactive HTML
+      const btn = document.createElement('button');
+      btn.textContent = 'Download HTML';
+      btn.className = 'download-btn';
+      btn.addEventListener('click', () => {
+        // If the link is a relative path, just trigger download via <a>
+        if (!/^https?:\/\//.test(imgObj.interactive_link)) {
+          const link = document.createElement('a');
+          link.href = imgObj.interactive_link;
+          link.download = `run_qc_${idx + 1}.html`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          // Try to fetch the HTML from the interactive link and download it
+          fetch(imgObj.interactive_link)
+            .then(resp => resp.text())
+            .then(html => {
+              const blob = new Blob([html], { type: 'text/html' });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = `run_qc_${idx + 1}.html`;
+              link.click();
+              URL.revokeObjectURL(url);
+            })
+            .catch(() => {
+              alert('Unable to download HTML from this link.');
+            });
+        }
+      });
+      wrapper.appendChild(btn);
+
+    } else if (imgObj.image) {
+      const img = document.createElement('img');
+      img.src = imgObj.image;
+      img.alt = imgObj.title || 'QC image';
+      img.className = 'run-qc-img';
+      wrapper.appendChild(img);
+
+      // Download button for image
+      const btn = document.createElement('button');
+      btn.textContent = 'Download';
+      btn.className = 'download-btn';
+      btn.addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = imgObj.image;
+        link.download = `run_qc_${idx + 1}.png`;
+        link.click();
+      });
+      wrapper.appendChild(btn);
+    }
+
+    runImagesContainer.appendChild(wrapper);
+  });
+
+  // --------------------------
+  // Metrics Table
+  // --------------------------
+  const metricsInfo = report.metrics_info || {};
+  const headerRow = q('#metricsHeader');
+  const body = q('#metricsTable tbody');
+  const samples = report.samples || [];
+  const runTypeLocal = report.run_type || '';
+
+  // Define which columns are conditional for fastq/fastq,gbc only
+  const fastqOnlyCols = [
+    {key:"total_reads", label:"Total reads"},
+    {key:"n_putative_cells", label:"Putative cells from STARsolo"},
+    {key:"total_n_transcripts", label:"Number of transcripts detected"}
+  ];
+
+  // Define all columns for single-cell
+  const scColsBase = [
+    {key:"id", label:"Sample"},
+    // fastqOnlyCols will be inserted here conditionally
+    {key:"mapped_reads", label:"Mapped reads in BAM"},
+    {key:"unmapped_reads", label:"Unmapped reads in BAM"},
+    {key:"unique_gbc_bulk_ref", label:"Unique GBC in bulk reference"},
+    {key:"unique_gbc_sc", label:"Unique GBC in single-cell data"},
+    {key:"unique_good_GBCs", label:"Unique good GBCs"},
+    {key:"unsupported_combos", label:"CBC-GBC unsupported"},
+    {key:"supported_combos", label:"CBC-GBC supported"},
+    {key:"observed_moi_median", label:"MOI (Median)"},
+    {key:"observed_moi_std", label:"MOI (Std)"},
+    {key:"starting_CBCs", label:"Starting CBCs"},
+    {key:"uniquely_barcoded_cells", label:"N cells confidently assigned to GBC clones"},
+    {key:"n_clones", label:"Number of clones"},
+    {key:"n_clones_10plus", label:"Number of clones with ≥10 cells"},
+  ];
+
+  // Helper to check if a sample is fastq or fastq,gbc
+  function isFastqSample(s) {
+    const dt = s.raw_data_input_type || '';
+    return dt === 'fastq' || dt === 'fastq,gbc';
+  }
+
+  // For single-cell, determine if any sample is fastq/fastq,gbc
+  let cols;
+  if (runTypeLocal.startsWith('bulk')) {
+    cols = [
+      {key:"id", label:"Sample"},
+      {key:"total_GBC_reads", label:"Total GBC Reads"},
+      {key:"n_unique_GBCs", label:"Unique GBCs"},
+      {key:"n_filtered_GBCs", label:"Filtered GBCs"},
+      {key:"n_corrected_GBCs", label:"Corrected GBCs"},
+      {key:"n_degenerated_GBCs", label:"Degenerated GBCs"},
+      {key:"median_n_reads_added", label:"Median Reads Added"}
+    ];
+  } else {
+    // For single-cell, insert fastqOnlyCols after id if at least one sample is fastq/fastq,gbc
+    const hasFastq = samples.some(isFastqSample);
+    cols = [];
+    for (const col of scColsBase) {
+      if (col.key === "id") {
+        cols.push(col);
+        if (hasFastq) {
+          cols.push(...fastqOnlyCols);
+        }
+      } else if (!fastqOnlyCols.some(fc => fc.key === col.key)) {
+        cols.push(col);
+      }
+    }
+  }
+
+  // Build header
+  headerRow.innerHTML = '';
+  cols.forEach(c => {
+    const th = document.createElement('th');
+    th.textContent = c.label;
+    if (metricsInfo[c.key]) {
+      th.dataset.tip = metricsInfo[c.key];
+      th.classList.add('tooltip-target');
+    }
+    headerRow.appendChild(th);
+  });
+
+  function renderRows(rows) {
+    body.innerHTML = '';
+    rows.forEach(s => {
+      const tr = document.createElement('tr');
+      cols.forEach(c => {
+        const td = document.createElement('td');
+        // For fastqOnlyCols, only show value if sample is fastq/fastq,gbc, else NA
+        if (fastqOnlyCols.some(fc => fc.key === c.key)) {
+          td.textContent = isFastqSample(s) ? fmt(s.metrics[c.key]) : 'NA';
+        } else {
+          td.textContent = (c.key === 'id') ? fmt(s.id) : fmt(s.metrics[c.key]);
+        }
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+  }
+  renderRows(samples);
+
+  // Search
+  const search = q('#tableSearch');
+  search.addEventListener('input', () => {
+    const term = search.value.toLowerCase();
+    const filtered = samples.filter(s =>
+      cols.some(c => String(c.key === 'id' ? s.id : s.metrics[c.key] || '').toLowerCase().includes(term))
+    );
+    renderRows(filtered);
+  });
+
+  // CSV Download
+  q('#downloadCsvBtn').addEventListener('click', () => {
+    const headerLine = cols.map(c => `"${c.label}"`).join(',');
+    const lines = samples.map(s =>
+      cols.map(c => `"${fmt(c.key === 'id' ? s.id : s.metrics[c.key])}"`).join(',')
+    );
+    const csv = [headerLine].concat(lines).join('\n');
+    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'run_metrics.csv'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // --------------------------
+  // Samples section with download buttons
+  // --------------------------
+  const container = q('#samples');
+  (report.samples || []).forEach((s, sampleIdx) => {
+    const card = document.createElement('div');
+    card.className = 'sample';
+
+    const h3 = document.createElement('h3');
+    h3.textContent = s.id || 'sample';
+    card.appendChild(h3);
+
+    const details = document.createElement('div');
+    details.className = 'details';
+
+    if (Array.isArray(s.qc_images) && s.qc_images.length) {
+      const wrap = document.createElement('div');
+      wrap.className = 'qc-images';
+
+      s.qc_images.forEach((imgObj, imgIdx) => {
+        const imgWrap = document.createElement('div');
+        imgWrap.style.width = '100%';
+        imgWrap.style.display = 'flex';
+        imgWrap.style.flexDirection = 'column';
+        imgWrap.style.alignItems = 'center';
+
+        let imgSrc, imgTitle, interactiveHtmlB64;
+        if (typeof imgObj === 'string') {
+          imgSrc = imgObj;
+          imgTitle = `QC image ${imgIdx + 1}`;
+        } else {
+          imgSrc = imgObj.image;
+          imgTitle = imgObj.title || `QC image ${imgIdx + 1}`;
+          interactiveHtmlB64 = imgObj.interactive_html_b64;
+        }
+
+        const titleDiv = document.createElement('div');
+        titleDiv.textContent = imgTitle;
+        titleDiv.style.fontSize = '15px';
+        imgWrap.appendChild(titleDiv);
+
+        if (interactiveHtmlB64) {
+          const html = base64Decode(interactiveHtmlB64);
+          const iframe = document.createElement('iframe');
+          iframe.srcdoc = html;
+          iframe.style.width = '100%';
+          iframe.style.height = '500px';
+          iframe.style.border = '1px solid var(--border)';
+          iframe.style.marginBottom = '10px';
+          iframe.setAttribute('sandbox','allow-scripts allow-same-origin');
+          imgWrap.appendChild(iframe);
+
+          const btn = document.createElement('button');
+          btn.textContent = 'Download HTML';
+          btn.className = 'download-btn';
+          btn.addEventListener('click', () => {
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${s.id}_qc_${imgIdx + 1}.html`;
+            link.click();
+            URL.revokeObjectURL(url);
+          });
+          imgWrap.appendChild(btn);
+
+        } else if (imgSrc) {
+          const img = document.createElement('img');
+          img.src = imgSrc;
+          img.style.width = '100%';
+          imgWrap.appendChild(img);
+
+          const btn = document.createElement('button');
+          btn.textContent = 'Download';
+          btn.className = 'download-btn';
+          btn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = imgSrc;
+            link.download = `${s.id}_qc_${imgIdx + 1}.png`;
+            link.click();
+          });
+          imgWrap.appendChild(btn);
+        }
+
+        wrap.appendChild(imgWrap);
+      });
+
+      details.appendChild(wrap);
+    }
+
+    card.appendChild(details);
+    container.appendChild(card);
+
+    h3.addEventListener('click', () => {
+      details.style.display = details.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+
+  // Dark mode toggle
+  q('#toggleModeBtn').addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+  });
+
+  // Tooltip logic
+  const tooltip = document.getElementById('tooltip');
+  document.addEventListener('mousemove', e => {
+    const target = e.target.closest('th[data-tip]');
+    if (target) {
+      tooltip.textContent = target.dataset.tip;
+      tooltip.style.opacity = '1';
+      tooltip.style.top = `${e.clientY + 12}px`;
+      tooltip.style.left = `${e.clientX + 12}px`;
+    } else {
+      tooltip.style.opacity = '0';
+    }
+  });
+
+  // Sorting logic
+  headerRow.querySelectorAll('th').forEach((th, i) => {
+    th.addEventListener('click', () => {
+      const isNumeric = samples.every(s => !isNaN(parseFloat(fmt(s.metrics[cols[i].key]))));
+      const rows = Array.from(body.querySelectorAll('tr'));
+      const sorted = rows.sort((a,b) => {
+        const A = a.cells[i].textContent.trim();
+        const B = b.cells[i].textContent.trim();
+        return isNumeric ? (parseFloat(A) - parseFloat(B)) : A.localeCompare(B);
+      });
+      body.innerHTML = '';
+      sorted.forEach(r => body.appendChild(r));
+    });
+  });
+})();
+</script>
+</body>
+</html>
