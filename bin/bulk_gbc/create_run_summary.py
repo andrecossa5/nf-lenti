@@ -154,7 +154,7 @@ def main():
         "metrics_info": {
             "total_GBC_reads": "Total reads assigned to valid GBCs (18 bp) before filtering and correction.",
             "n_unique_GBCs": "Unique GBC (18bp) detected before filtering and correction.",
-            "n_filtered_GBCs": "Final GBCs retained after spike-in removal, correction, and read threshold filtering.",
+            "n_filtered_GBCs": "Final GBCs retained after filtering spike-ins (if present), correction, and read threshold filtering.",
             "n_corrected_GBCs": "GBCs kept as correction targets after collapsing sequences based on Hamming distance clustering. Default: 3",
             "n_degenerated_GBCs": "GBCs merged into corrected barcodes.",
             "median_n_reads_added": "Median reads reassigned to corrected GBCs from degenerate barcodes."

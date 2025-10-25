@@ -6,7 +6,6 @@ qc_plots_bulk.py
 Generate QC plots for Bulk GBC workflow (no seaborn).
 - Plots the distribution of raw and corrected GBC read counts.
 - Plots before vs after correction for GBC read counts.
-- Optionally plots spike-in control trends if provided.
 """
 
 import os
@@ -47,12 +46,6 @@ parser.add_argument(
     type=str,
     required=True,
     help="Output directory for plots."
-)
-parser.add_argument(
-    "--spikeins",
-    type=str,
-    default=None,
-    help="Path to spike-ins CSV (optional)."
 )
 parser.add_argument(
     "--n_reads",
@@ -153,28 +146,4 @@ fig.tight_layout()
 fig.savefig(os.path.join(args.outdir, "before_vs_after_correction.png"), dpi=300)
 plt.close(fig)
 
-# ----------------------------------------------------
-# Spike-ins plot (if provided)
-# ----------------------------------------------------
-if args.spikeins and os.path.exists(args.spikeins):
-    spikes = pd.read_csv(args.spikeins)
-    numeric_cols = spikes.select_dtypes(include=[np.number]).columns
-
-    if len(numeric_cols) >= 2:
-        xcol, ycol = numeric_cols[:2]
-        fig, ax = plt.subplots(figsize=(5,5))
-        scatter_with_fit(
-            np.log10(spikes[xcol] + 1),
-            np.log10(spikes[ycol] + 1),
-            ax,
-            xlabel=f"log10 {xcol} + 1",
-            ylabel=f"log10 {ycol} + 1",
-            title="Spike-in Control Trend"
-        )
-        fig.tight_layout()
-        fig.savefig(os.path.join(args.outdir, "Spike-in Control Trend.png"), dpi=300)
-        plt.close(fig)
-        print(f"[qc_plots_bulk] Spike-ins plot using {xcol} vs {ycol}")
-
-else:
-    print("[qc_plots_bulk] No spike-ins provided.")
+print("[qc_plots_bulk] QC plots generation completed.")

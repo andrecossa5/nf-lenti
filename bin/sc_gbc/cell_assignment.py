@@ -54,7 +54,7 @@ my_parser.add_argument(
     help='Path to sample_map. Default: None.'
 )
 
-# Spikeins
+# Bulk correction threshold
 my_parser.add_argument(
     '--bulk_correction_treshold',
     type=int,
@@ -65,7 +65,7 @@ my_parser.add_argument(
     '''
 )
 
-# Spikeins
+# UMI threshold
 my_parser.add_argument(
     '--umi_treshold',
     type=int,

@@ -159,7 +159,7 @@ def main():
     df.to_csv(os.path.join(path_o, 'correction_df.csv'), index=False)
 
     # Remove spikeins
-    if spikeins is not None:
+    if spikeins is not None and spikeins != "None" and os.path.exists(spikeins):
         spikes = pd.read_csv(spikeins, index_col=0).index
         print ('spikes=', spikes)
         print ('GBC_ounts con spikes=', GBC_counts.index.isin(spikes))

@@ -6,7 +6,6 @@ nextflow.enable.dsl = 2
 include { SEARCH_PATTERNS }           from "./modules/generate_search_patterns.nf"
 include { EXTRACT_GBC }               from "./modules/extract_GBC.nf"
 include { CORRECT_AND_COUNT }         from "./modules/correct_and_count.nf"
-include { INFER_PREVALENCES }         from "./modules/infer_clone_prevalences.nf"
 include { generate_run_summary_bulk } from "./modules/run_summary.nf"
 include { publish_bulk }              from "./modules/publish.nf"
 include { collapse_output }           from "./modules/collapse_out.nf"

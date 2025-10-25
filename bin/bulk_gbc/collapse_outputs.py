@@ -147,11 +147,13 @@ def main():
     tick_text = [f"{int(v):,}" for v in tick_vals]
     x = range(len(samples_order))
     width = 0.25
-    plt.figure(figsize=(8, 5))
+    # Scale figure width with number of samples to prevent label overlap
+    fig_width = max(8, len(samples_order) * 0.8)  # Minimum 8 inches, then scale with samples
+    plt.figure(figsize=(fig_width, 5))
     plt.bar([i - width for i in x], raw_gbcs, width=width, label="Raw GBCs")
     plt.bar(x, filtered_gbcs, width=width, label="Filtered GBCs")
     plt.bar([i + width for i in x], corrected_gbcs, width=width, label="Corrected GBCs")
-    plt.xticks(x, samples_order, rotation=15)
+    plt.xticks(x, samples_order, rotation=45, ha='right')  # Improved rotation and alignment
     plt.yscale("log")
     plt.ylabel("Unique GBCs")
     plt.title("Unique GBCs Before and After Filtering & Correction")

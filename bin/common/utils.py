@@ -26,16 +26,37 @@ def encode_image_b64(path_img):
     return f"data:image/{ext};base64,{b64}"
 
 def resolve_working_dir_and_user():
+    # Get working directory - prioritize Nextflow env vars for container compatibility
+    working_dir = os.environ.get("NXF_WORK") or os.environ.get("PWD", os.getcwd())
+    
+    # Try to find Nextflow work parent if we're in a task directory
     task_dir = Path(os.getcwd()).resolve()
-    working_dir = next((str(parent.parent) for parent in task_dir.parents if parent.name == "work"), str(task_dir))
-    user_name = os.environ.get("USER") or "unknown"
-    parts = Path(working_dir).parts
-    if "Users" in parts:
-        idx = parts.index("Users")
-        if idx + 1 < len(parts):
-            candidate = parts[idx + 1]
-            if candidate not in ("work", "nf-core", "root") and not candidate.startswith("conda"):
-                user_name = candidate
+    for parent in task_dir.parents:
+        if parent.name == "work" and parent.parent.exists():
+            working_dir = str(parent.parent)
+            break
+    
+    # Get user - try multiple sources for container environments
+    user_name = (os.environ.get("USER") or 
+                 os.environ.get("USERNAME") or 
+                 os.environ.get("LOGNAME") or 
+                 "unknown")
+    
+    # Extract user from path if still unknown - works for both /Users and /home
+    if user_name == "unknown":
+        for path_str in [working_dir, os.environ.get("HOME", ""), task_dir.as_posix()]:
+            parts = Path(path_str).parts
+            for base in ["Users", "home"]:
+                if base in parts:
+                    idx = parts.index(base)
+                    if idx + 1 < len(parts):
+                        candidate = parts[idx + 1]
+                        if candidate not in ("work", "nf-core", "root", "unknown"):
+                            user_name = candidate
+                            break
+            if user_name != "unknown":
+                break
+    
     return working_dir, user_name
 
 def encode_plot_to_base64(fig):

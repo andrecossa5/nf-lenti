@@ -24,7 +24,6 @@ process CORRECT_AND_COUNT {
   -t ${params.bulk_gbc_graph_clustering_hamming_treshold} \
   --method directional \
   --min_n_reads ${params.bulk_gbc_min_n_reads} \
-  --min_n_reads ${params.bulk_gbc_min_n_reads} \
   ${params.bulk_gbc_spikeins_table ? "--spikeins ${params.bulk_gbc_spikeins_table}" : ""}
   """
 

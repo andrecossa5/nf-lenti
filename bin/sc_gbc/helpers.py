@@ -9,6 +9,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from scipy.stats import poisson
 from sklearn.metrics.pairwise import pairwise_distances
 from itertools import chain
@@ -283,6 +284,7 @@ def cell_assignment_workflow(
             pseudobulk_sc = pseudobulk_sc.loc[common]
             bulk = bulk_df.loc[common]['read_count'] / bulk_df.loc[common]['read_count'].sum()
             corr = np.corrcoef(pseudobulk_sc, bulk)[0,1]
+            n_good_gbcs = df_combos["GBC"].unique().size
             f.write(f'# Individual "good" GBC sequences checks\n')
             f.write(f'- n "good" GBC sequences, bulk ({bulk_df.shape[0]}) vs sc ({n_good_gbcs})\n')
             f.write(f'- Fraction of bulk GBCs found in sc: {bulk_df.index.isin(df_combos["GBC"].unique()).sum()/bulk_df.shape[0]:.2f}\n')

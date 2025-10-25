@@ -19,14 +19,12 @@ process PLOT_QC_BULK {
     tuple val(sample_name), path('raw_counts_distribution.png'), emit: raw_dist_plot
 
     script:
-    def spikeOpt = params.bulk_gbc_spikeins_table ? "--spikeins ${params.bulk_gbc_spikeins_table}" : ""
     """
     python ${baseDir}/bin/bulk_gbc/qc_plots_bulk.py \
         --raw_counts ${raw_counts} \
         --corrected_counts ${corrected_counts} \
         --correction_df ${correction_df} \
         --outdir . \
-        ${spikeOpt} \
         --n_reads ${params.bulk_gbc_min_n_reads}
     """
 }
